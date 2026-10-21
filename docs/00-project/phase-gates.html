@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SiteLive Twin フェーズゲート定義書</title>
+<style>
+/* SiteLive Twin 文書テンプレート：左に目次、右に本文。表と図は横スクロール可能な枠に入れる */
+:root{
+  --bg:#f5f6f8; --paper:#ffffff; --ink:#1a2230; --sub:#5a6577; --rule:#d9dee6; --tint:#f0f3f7;
+  --navy:#1b3557; --accent:#c8740a; --accent-soft:#fdf1e1;
+  --ok:#1d8a4c; --warn:#a87800; --ng:#c43d3d; --info:#2a64a8;
+  --sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+  --mono:"BIZ UDGothic","Consolas","Menlo",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+    --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+    --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+  --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+  --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{display:grid;grid-template-columns:240px minmax(0,1fr);max-width:1280px;margin:0 auto;gap:28px;padding:28px 16px 60px}
+@media (max-width:900px){.wrap{grid-template-columns:1fr;gap:0}}
+nav.toc{position:sticky;top:20px;align-self:start;font-size:13px;max-height:calc(100vh - 40px);overflow:auto}
+@media (max-width:900px){nav.toc{position:static;max-height:none;margin-bottom:18px}}
+.toc b{display:block;font-size:11px;letter-spacing:.12em;color:var(--sub);margin-bottom:6px}
+.toc a{display:block;color:var(--ink);text-decoration:none;padding:3px 10px;border-left:2px solid var(--rule)}
+.toc a:hover,.toc a:focus-visible{border-left-color:var(--accent);color:var(--accent);outline:none}
+.toc .home{margin-bottom:12px;border-left:0;padding-left:0;color:var(--info)}
+main{min-width:0}
+.cover{background:var(--paper);border:1px solid var(--rule);border-top:5px solid var(--navy);border-radius:6px;padding:26px 28px 20px;margin-bottom:26px}
+.cover .kind{font-size:12px;letter-spacing:.14em;color:var(--sub);font-weight:700}
+.cover h1{margin:4px 0 14px;font-size:clamp(22px,3.4vw,30px);line-height:1.35;text-wrap:balance;color:var(--navy)}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));border-top:1px solid var(--rule);border-left:1px solid var(--rule);font-size:13px}
+.meta div{padding:7px 12px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.meta span{display:block;font-size:11px;color:var(--sub)}
+section{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:22px 26px 18px;margin-bottom:20px;min-width:0}
+h2{font-size:19px;margin:0 0 12px;color:var(--navy);text-wrap:balance;display:flex;gap:10px;align-items:baseline}
+h2 .no{font-family:var(--mono);font-size:14px;color:var(--accent)}
+h3{font-size:15px;margin:20px 0 8px}
+p{margin:0 0 10px;max-width:76ch}
+ul,ol{margin:0 0 10px;padding-left:22px}
+li{margin-bottom:3px}
+.tbl{overflow-x:auto;margin:6px 0 12px;border:1px solid var(--rule);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:640px}
+th,td{border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);padding:7px 9px;text-align:left;vertical-align:top}
+th:last-child,td:last-child{border-right:0}
+tr:last-child td{border-bottom:0}
+thead th{background:var(--tint);font-size:12px;color:var(--sub);white-space:nowrap}
+td.c,th.c{text-align:center}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+code,.id{font-family:var(--mono);font-size:12.5px}
+.id{color:var(--navy);font-weight:700;white-space:nowrap}
+.y{color:var(--ok);font-weight:800}.n{color:var(--sub)}.r{color:var(--warn);font-weight:700}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:0 7px;border-radius:3px;background:var(--tint);border:1px solid var(--rule);white-space:nowrap;margin:1px 2px 1px 0}
+.tag.a{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.st{display:inline-block;font-size:11px;font-weight:800;padding:0 8px;border-radius:999px;white-space:nowrap;border:1px solid currentColor}
+.st.done{color:var(--ok)}.st.wip{color:var(--accent)}.st.todo{color:var(--sub)}.st.tpl{color:var(--info)}
+.note{font-size:12.5px;color:var(--sub)}
+.callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 14px;border-radius:0 4px 4px 0;margin:8px 0 12px;font-size:13.5px}
+.fill{background:var(--tint);border:1px dashed var(--rule);border-radius:4px;padding:2px 8px;color:var(--sub);font-size:12.5px}
+.fig{overflow-x:auto;border:1px solid var(--rule);border-radius:4px;background:var(--tint);padding:10px;margin:8px 0 6px}
+.fig svg{display:block;min-width:760px;width:100%;height:auto}
+.fig text{font-family:var(--sans)}
+.cap{font-size:12px;color:var(--sub);margin:0 0 12px}
+.pri-h{color:var(--ng);font-weight:800}.pri-m{color:var(--warn);font-weight:800}.pri-l{color:var(--sub);font-weight:800}.pri-done{color:var(--ok);font-weight:800}
+a{color:var(--info)}
+footer{font-size:12px;color:var(--sub);padding:6px 4px}
+@media (max-width:640px){section{padding:18px 16px 14px}.cover{padding:20px 16px 16px}}
+@media print{nav.toc{display:none}.wrap{display:block;padding:0}section,.cover{break-inside:avoid;border:0}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="目次">
+  <a class="home" href="../index.html">← ドキュメント一覧</a>
+  <b>目次</b>
+  <a href="#s1">1. 目的</a>
+  <a href="#s2">2. フェーズとゲートの全体像</a>
+  <a href="#s3">3. 判定の種類</a>
+  <a href="#s4">4. フェーズごとの定義</a>
+  <a href="#s5">5. ゲートごとの判定基準</a>
+  <a href="#s6">6. フェーズ別の文書</a>
+  <a href="#s7">7. ゲート判定の進め方</a>
+</nav>
+<main>
+<div class="cover">
+  <div class="kind">フェーズゲート定義書</div>
+  <h1>SiteLive Twin（現場ライブツイン）<br>フェーズゲート定義書</h1>
+  <div class="meta">
+    <div><span>文書番号</span>SLT-DOC-03</div>
+    <div><span>版</span>v0.1</div>
+    <div><span>作成日</span>2026年10月21日</div>
+    <div><span>フェーズ</span>共通</div>
+    <div><span>状態</span>承認待ち（G0）</div>
+  </div>
+</div>
+
+<section id="s1">
+  <h2><span class="no">1</span>目的</h2>
+  <p>PoC から運用・改善までの各フェーズで「何を確かめるか」「どうなったら次へ進むか」「どの文書をそろえるか」を定めます。ゲートで基準を満たさないときは、先へ進まずに止めるか、やり直すか、方向を変えます。</p>
+  <p class="note">ポートフォリオ全体の段階（全体構成 V3.6 の第1〜第3段階）は事業全体の順序を示すもので、本書のフェーズは SiteLive Twin という1製品の進め方を示します。</p>
+</section>
+
+<section id="s2">
+  <h2><span class="no">2</span>フェーズとゲートの全体像</h2>
+  <div class="fig">
+    <svg viewBox="0 0 900 230" role="img" aria-label="フェーズとゲートの流れ">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--navy)"/></marker></defs>
+      <g font-size="12" text-anchor="middle">
+        <rect x="10" y="40" width="110" height="64" rx="8" fill="var(--tint)" stroke="var(--rule)"/>
+        <text x="65" y="66" font-weight="700" fill="var(--ink)">構想</text><text x="65" y="86" font-size="10.5" fill="var(--sub)">価値があるか</text>
+        <rect x="160" y="40" width="110" height="64" rx="8" fill="var(--paper)" stroke="var(--navy)" stroke-width="1.5"/>
+        <text x="215" y="66" font-weight="700" fill="var(--ink)">PoC</text><text x="215" y="86" font-size="10.5" fill="var(--sub)">技術的に成立するか</text>
+        <rect x="310" y="40" width="110" height="64" rx="8" fill="var(--paper)" stroke="var(--navy)" stroke-dasharray="5 4"/>
+        <text x="365" y="66" font-weight="700" fill="var(--ink)">Prototype</text><text x="365" y="86" font-size="10.5" fill="var(--sub)">理解・操作できるか</text>
+        <rect x="460" y="40" width="110" height="64" rx="8" fill="var(--paper)" stroke="var(--navy)" stroke-width="1.5"/>
+        <text x="515" y="66" font-weight="700" fill="var(--ink)">MVP</text><text x="515" y="86" font-size="10.5" fill="var(--sub)">本当に使われるか</text>
+        <rect x="610" y="40" width="110" height="64" rx="8" fill="var(--paper)" stroke="var(--navy)" stroke-width="1.5"/>
+        <text x="665" y="66" font-weight="700" fill="var(--ink)">Staging</text><text x="665" y="86" font-size="10.5" fill="var(--sub)">安全・安定に運用できるか</text>
+        <rect x="760" y="40" width="130" height="64" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+        <text x="825" y="66" font-weight="700" fill="var(--accent)">Release</text><text x="825" y="86" font-size="10.5" fill="var(--sub)">正式に提供する</text>
+      </g>
+      <g fill="none" stroke="var(--navy)" stroke-width="1.6" marker-end="url(#ah)">
+        <path d="M120,72 L158,72"/><path d="M270,72 L308,72"/><path d="M420,72 L458,72"/><path d="M570,72 L608,72"/><path d="M720,72 L758,72"/>
+        <path d="M270,90 C290,130 440,130 458,92"/>
+      </g>
+      <g font-size="11" font-weight="800" fill="var(--accent)" text-anchor="middle">
+        <text x="139" y="32">G0</text><text x="289" y="32">G1</text><text x="439" y="32">G2</text><text x="589" y="32">G3</text><text x="739" y="32">G4</text>
+      </g>
+      <text x="364" y="140" font-size="10.5" fill="var(--sub)" text-anchor="middle">Prototype が不要なら G1 から MVP へ</text>
+      <rect x="610" y="160" width="280" height="54" rx="8" fill="var(--tint)" stroke="var(--ok)" stroke-width="1.5"/>
+      <text x="750" y="183" font-size="12" font-weight="700" fill="var(--ok)" text-anchor="middle">運用・改善</text>
+      <text x="750" y="202" font-size="10.5" fill="var(--sub)" text-anchor="middle">計測 → 学習 → 改善 → 次リリース（G5：四半期）</text>
+      <path d="M825,104 L825,158" fill="none" stroke="var(--navy)" stroke-width="1.6" marker-end="url(#ah)"/>
+    </svg>
+  </div>
+  <p class="cap">図1　フェーズとゲート（破線の Prototype は必要なときだけ実施）</p>
+</section>
+
+<section id="s3">
+  <h2><span class="no">3</span>判定の種類</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>判定</th><th>意味</th><th>その後の扱い</th></tr></thead>
+    <tbody>
+      <tr><td><b class="y">Go</b></td><td>判定基準をすべて満たした</td><td>次のフェーズへ進む</td></tr>
+      <tr><td><b class="r">条件付きGo</b></td><td>必須の基準は満たしたが、軽微な未達がある</td><td>条件と期限を判定書に書き、次のフェーズの中で解消する。期限までに解消しなければ再判定</td></tr>
+      <tr><td><b>やり直し</b></td><td>必須の基準に未達があるが、見込みはある</td><td>期間を区切って同じフェーズを延長し（原則4週以内）、再判定する</td></tr>
+      <tr><td><b>ピボット</b></td><td>前提（対象業務・データ・利用者）が違っていた</td><td>構想に戻り、範囲や対象を変えて G0 からやり直す</td></tr>
+      <tr><td><b class="n">No-Go</b></td><td>成立しない、または価値に見合わない</td><td>中止する。わかったことを記録し、ポートフォリオの他製品に引き継ぐ</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s4">
+  <h2><span class="no">4</span>フェーズごとの定義</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>フェーズ</th><th>問い</th><th>主な活動</th><th>使う環境・データ</th><th>期間（案）</th></tr></thead>
+    <tbody>
+      <tr><td>構想</td><td>取り組む価値があるか？</td><td>企画構想案、デモ（オフラインデモ・システムWebUIサンプル）、画面設計、憲章</td><td>単体HTML、ダミーデータ</td><td>〜2026/10</td></tr>
+      <tr><td>PoC</td><td>技術的に成立するか？</td><td>検証項目 T1〜T7 の確認（データ取り込み、CEOS・ArcSphere・MCIP との連携、配信、試算、認証）</td><td>開発環境、ダミー＋提供可能な実データ</td><td>2026/11/02〜12/25</td></tr>
+      <tr><td>Prototype</td><td>利用者が理解・操作できるか？</td><td>ロール別のユーザビリティテスト、画面の改善</td><td>システムWebUIサンプル、または PoC の画面</td><td>2027/01/05〜01/29</td></tr>
+      <tr><td>MVP</td><td>最小の価値で、本当に使われるか？</td><td>実際の1現場で運用し、KPI を測る</td><td>MVP 環境、パイロット現場の実データ</td><td>2027/02/01〜04/30</td></tr>
+      <tr><td>Staging</td><td>本番に近い条件で、安全・安定して運用できるか？</td><td>負荷試験、セキュリティ診断、復旧訓練、運用手順の確認</td><td><code>sitelive-stg.mirai-dx-platform.com</code>（専用 DB・専用 Access）</td><td>2027/05〜06</td></tr>
+      <tr><td>Release</td><td>本番環境で、対象ユーザーへ正式提供する</td><td>本番デプロイ、利用者研修、段階展開、初期監視</td><td>本番環境</td><td>2027/07</td></tr>
+      <tr><td>運用・改善</td><td>計測 → 学習 → 改善 → 次リリース</td><td>KPI と利用ログの計測、ヒアリング、改善リリース</td><td>本番環境</td><td>2027/07〜</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Prototype を実施するかの判断</h3>
+  <p>G1 の時点で次のいずれかに当てはまれば実施し、当てはまらなければ G1 から MVP へ進みます。</p>
+  <ul>
+    <li>PoC で画面の構成や操作の流れを大きく変えた</li>
+    <li>現場の利用者（所長・工務）がまだ画面に触れていない</li>
+    <li>MVP の現場で、新しい入力作業（日報など）を求める</li>
+  </ul>
+</section>
+
+<section id="s5">
+  <h2><span class="no">5</span>ゲートごとの判定基準</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>ゲート</th><th>判定基準（すべて満たすと Go）</th><th>判定者</th><th>判定書</th></tr></thead>
+    <tbody>
+      <tr><td class="id">G0</td><td>
+        <ul>
+          <li>企画構想案とデモで、対象業務と効果の仮説を説明できる</li>
+          <li>プロジェクト憲章（目的・範囲・体制・予算）が合意されている</li>
+          <li>リポジトリの分離と正本の範囲（ADR-0001）が仮決定している</li>
+          <li>PoC の検証項目と成功基準が決まっている</li>
+        </ul></td><td>スポンサー、プロダクトオーナー、アーキテクト</td><td><a href="charter.html">SLT-DOC-02</a> の承認欄</td></tr>
+      <tr><td class="id">G1</td><td>
+        <ul>
+          <li>必須の検証項目（T1〜T5、T7）がすべて成功基準を満たす</li>
+          <li>T6（MCIP への承認記録）は満たすか、MVP までの代替手段と期限が決まっている</li>
+          <li>パイロット現場とデータ提供元の候補が決まっている</li>
+          <li>MVP までの費用と体制の見込みが立っている</li>
+        </ul></td><td>スポンサー、プロダクトオーナー、アーキテクト</td><td><a href="../10-poc/poc-report-gate1.html">SLT-DOC-31</a></td></tr>
+      <tr><td class="id">G2</td><td>
+        <ul>
+          <li>主要タスクの完了率が80%以上</li>
+          <li>SUS（使いやすさの評価）が70以上</li>
+          <li>重大な操作上の問題（誤操作で承認してしまうなど）が残っていない</li>
+        </ul></td><td>プロダクトオーナー、現場協力者</td><td><a href="../20-prototype/usability-test.html">SLT-DOC-40</a></td></tr>
+      <tr><td class="id">G3</td><td>
+        <ul>
+          <li>KPI の目標のうち、利用率と工程会議での利用を含む4項目以上を達成している</li>
+          <li>パイロット現場が継続利用を希望している</li>
+          <li>重大な不具合と、データの誤り（工程・原価の値の不一致）が残っていない</li>
+          <li>リポジトリの分離（ADR-0001）を再評価し、結論が出ている</li>
+        </ul></td><td>スポンサー、プロダクトオーナー、アーキテクト</td><td><a href="../30-mvp/mvp-definition.html">SLT-DOC-50</a> の判定欄</td></tr>
+      <tr><td class="id">G4</td><td>
+        <ul>
+          <li>セキュリティ診断で重大・高の指摘が残っていない</li>
+          <li>負荷試験で性能目標を満たす</li>
+          <li>バックアップからの復旧訓練を1回以上実施し、目標時間内に戻せた</li>
+          <li>運用手順書と利用者マニュアルがそろい、研修の準備ができている</li>
+          <li>ポートフォリオへの登録（<code>systems.yaml</code>・<code>releases.yaml</code>）が済んでいる</li>
+        </ul></td><td>スポンサー、プロダクトオーナー、アーキテクト、情報セキュリティ担当、運用担当</td><td><a href="../40-staging/release-readiness.html">SLT-DOC-61</a></td></tr>
+      <tr><td class="id">G5</td><td>
+        <ul>
+          <li>四半期の KPI と利用状況を振り返り、次のリリースの範囲を決める</li>
+          <li>続ける・広げる・縮める・やめる のいずれかを判断する</li>
+        </ul></td><td>スポンサー、プロダクトオーナー、運用担当</td><td><a href="../60-operations/improvement-plan.html">SLT-DOC-80</a> の改善記録</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s6">
+  <h2><span class="no">6</span>フェーズ別の文書</h2>
+  <p class="note">作＝このフェーズで作る　更＝更新する　判＝ゲートの判定に使う　—＝対象外</p>
+  <div class="tbl"><table>
+    <thead><tr><th>文書</th><th class="c">構想</th><th class="c">PoC</th><th class="c">Prototype</th><th class="c">MVP</th><th class="c">Staging</th><th class="c">Release</th><th class="c">運用</th></tr></thead>
+    <tbody>
+      <tr><td><a href="concept.html">SLT-DOC-01 企画構想案</a></td><td class="c y">作</td><td class="c">更</td><td class="c n">—</td><td class="c">更</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td></tr>
+      <tr><td><a href="charter.html">SLT-DOC-02 プロジェクト憲章</a></td><td class="c y">作・判</td><td class="c">更</td><td class="c n">—</td><td class="c">更</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td></tr>
+      <tr><td>SLT-DOC-03 フェーズゲート定義書（本書）</td><td class="c y">作</td><td class="c">更</td><td class="c">更</td><td class="c">更</td><td class="c">更</td><td class="c n">—</td><td class="c n">—</td></tr>
+      <tr><td><a href="risk-register.html">SLT-DOC-04 リスク・課題管理台帳</a></td><td class="c y">作</td><td class="c">更</td><td class="c">更</td><td class="c">更</td><td class="c">更</td><td class="c">更</td><td class="c">更</td></tr>
+      <tr><td><a href="../01-requirements/requirements.html">SLT-DOC-10 要件定義書</a></td><td class="c y">作</td><td class="c">更</td><td class="c">更</td><td class="c">更</td><td class="c n">—</td><td class="c n">—</td><td class="c">更</td></tr>
+      <tr><td><a href="../02-design/screen-design.html">SLT-DOC-20 画面設計書</a></td><td class="c y">作</td><td class="c">更</td><td class="c">更</td><td class="c">更</td><td class="c n">—</td><td class="c n">—</td><td class="c">更</td></tr>
+      <tr><td><a href="../02-design/architecture.html">SLT-DOC-21 アーキテクチャ設計書</a></td><td class="c y">作</td><td class="c">更</td><td class="c n">—</td><td class="c">更</td><td class="c">更</td><td class="c n">—</td><td class="c">更</td></tr>
+      <tr><td><a href="../02-design/data-integration.html">SLT-DOC-22 データ設計・連携仕様書</a></td><td class="c y">作</td><td class="c">更</td><td class="c n">—</td><td class="c">更</td><td class="c">更</td><td class="c n">—</td><td class="c">更</td></tr>
+      <tr><td><a href="../adr/0001-repository-and-sor-scope.html">ADR-0001</a>・<a href="../adr/0002-tech-stack.html">ADR-0002</a></td><td class="c y">作・判</td><td class="c">更</td><td class="c n">—</td><td class="c">判</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td></tr>
+      <tr><td><a href="../10-poc/poc-plan.html">SLT-DOC-30 PoC計画書</a></td><td class="c y">作</td><td class="c">更</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td></tr>
+      <tr><td><a href="../10-poc/poc-report-gate1.html">SLT-DOC-31 PoC結果報告書・G1判定書</a></td><td class="c n">—</td><td class="c y">作・判</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td></tr>
+      <tr><td><a href="../20-prototype/usability-test.html">SLT-DOC-40 プロトタイプ評価計画・結果</a></td><td class="c n">—</td><td class="c">作</td><td class="c y">更・判</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td></tr>
+      <tr><td><a href="../30-mvp/mvp-definition.html">SLT-DOC-50 MVP定義書</a></td><td class="c n">—</td><td class="c">作</td><td class="c">更</td><td class="c y">更・判</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td></tr>
+      <tr><td><a href="../30-mvp/test-plan.html">SLT-DOC-51 テスト計画書</a></td><td class="c n">—</td><td class="c">作</td><td class="c n">—</td><td class="c y">更</td><td class="c">更</td><td class="c n">—</td><td class="c">更</td></tr>
+      <tr><td><a href="../40-staging/operations-design.html">SLT-DOC-60 運用設計書</a></td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td><td class="c">作</td><td class="c y">更</td><td class="c">更</td><td class="c">更</td></tr>
+      <tr><td><a href="../40-staging/release-readiness.html">SLT-DOC-61 チェックリスト・G4判定書</a></td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td><td class="c y">作・判</td><td class="c n">—</td><td class="c n">—</td></tr>
+      <tr><td><a href="../50-release/release-plan.html">SLT-DOC-70 リリース計画書</a></td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td><td class="c">作</td><td class="c y">更</td><td class="c n">—</td></tr>
+      <tr><td><a href="../50-release/user-manual.html">SLT-DOC-71 利用者マニュアル</a></td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td><td class="c">作</td><td class="c">更</td><td class="c y">更</td><td class="c">更</td></tr>
+      <tr><td><a href="../60-operations/improvement-plan.html">SLT-DOC-80 運用・改善計画</a></td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td><td class="c">作</td><td class="c">更</td><td class="c y">更・判</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">いまの時点で、後のフェーズの文書もひな形として作ってあります。各フェーズに入ったら中身を埋めて更新します。</p>
+</section>
+
+<section id="s7">
+  <h2><span class="no">7</span>ゲート判定の進め方</h2>
+  <ol>
+    <li>プロダクトオーナーが判定書の案を作り、判定会議の3営業日前までに配る</li>
+    <li>判定会議で、基準ごとに証跡（測定結果・テスト結果・診断結果）を確認する</li>
+    <li>判定（Go／条件付きGo／やり直し／ピボット／No-Go）と、条件・期限を判定書に書く</li>
+    <li>判定者が承認欄に記入し、判定書をリポジトリに保存する（CHANGELOG にも記録）</li>
+    <li>リスク・課題管理台帳と、次のフェーズの計画を更新する</li>
+  </ol>
+</section>
+
+<footer>SiteLive Twin（現場ライブツイン） ／ フェーズゲート定義書 v0.1 ／ 2026年10月21日</footer>
+</main>
+</div>
+
+</body>
+</html>

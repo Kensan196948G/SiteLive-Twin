@@ -1,0 +1,1244 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>現場ライブツイン システム</title>
+<style>
+:root{
+  --bg:#f2f4f7; --surface:#ffffff; --surface2:#f4f6f9; --text:#18212e; --muted:#5d6878; --line:#dde2ea;
+  --primary:#1f5fbf; --primary-soft:#e6eefb; --accent:#e8890c; --accent-soft:#fff1dc;
+  --ok:#1f9d55; --warn:#c08a00; --ng:#d64545; --info:#2f6fb3; --plan:#a9bcd3;
+  --nav:#0f1d31; --nav2:#16294a; --navtext:#c3cfdf;
+  --shadow:0 1px 2px rgba(20,30,50,.05),0 2px 10px rgba(20,30,50,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0c1117; --surface:#151c26; --surface2:#1b2430; --text:#e6ebf2; --muted:#98a4b6; --line:#2a3443;
+    --primary:#6aa0ef; --primary-soft:#1c2b44; --accent:#f3a33a; --accent-soft:#3a2a12;
+    --ok:#3fbf75; --warn:#e8bf2a; --ng:#ef6a6a; --info:#6aa6e8; --plan:#4c6584;
+    --nav:#0a121d; --nav2:#13203a; --navtext:#b4c1d3;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 2px 10px rgba(0,0,0,.2);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0c1117; --surface:#151c26; --surface2:#1b2430; --text:#e6ebf2; --muted:#98a4b6; --line:#2a3443;
+  --primary:#6aa0ef; --primary-soft:#1c2b44; --accent:#f3a33a; --accent-soft:#3a2a12;
+  --ok:#3fbf75; --warn:#e8bf2a; --ng:#ef6a6a; --info:#6aa6e8; --plan:#4c6584;
+  --nav:#0a121d; --nav2:#13203a; --navtext:#b4c1d3;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 2px 10px rgba(0,0,0,.2);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+button,select,textarea,input{font-family:inherit;font-size:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--primary);text-decoration:none}
+a:hover{text-decoration:underline}
+[hidden]{display:none!important}
+.ic{width:18px;height:18px;flex:0 0 18px}
+
+/* ログイン */
+.login{min-height:100vh;display:grid;place-items:center;padding:24px 16px;background:radial-gradient(circle at 20% 10%,#1f3a63 0,#0f1d31 55%,#0a1322 100%)}
+.lcard{width:100%;max-width:460px;background:var(--surface);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.35);padding:28px}
+.lbrand{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.lbrand .logo{width:44px;height:44px;font-size:16px}
+.lcard h1{font-size:20px;margin:0}
+.lcard .lsub{color:var(--muted);font-size:13px;margin:0 0 16px}
+.acc{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;cursor:pointer}
+.acc:hover{border-color:var(--primary)}
+.acc.on{border-color:var(--primary);background:var(--primary-soft)}
+.acc input{accent-color:var(--primary)}
+.acc small{display:block;color:var(--muted);font-size:12px}
+.lnote{font-size:12px;color:var(--muted);margin-top:14px;padding:10px 12px;background:var(--surface2);border-radius:8px}
+
+/* アプリ枠 */
+.app{display:grid;grid-template-columns:var(--nw,248px) minmax(0,1fr);min-height:100vh;transition:grid-template-columns .2s}
+.app.collapsed{--nw:68px}
+.snav{position:sticky;top:0;height:100vh;background:var(--nav);color:var(--navtext);display:flex;flex-direction:column;overflow:hidden;z-index:30}
+.brand{display:flex;align-items:center;gap:10px;padding:14px 14px 12px;border-bottom:1px solid rgba(255,255,255,.07);white-space:nowrap}
+.logo{width:36px;height:36px;border-radius:9px;background:#e8890c;color:#fff;display:grid;place-items:center;font-weight:900;font-size:13px;flex:0 0 auto}
+.brand b{color:#fff;font-size:14px;display:block;line-height:1.25}
+.brand small{font-size:11px;color:#8ea1bb}
+.navlist{flex:1;overflow-y:auto;overflow-x:hidden;padding:8px 8px 12px}
+.ngrp{font-size:11px;font-weight:700;letter-spacing:.06em;color:#7f93b0;padding:12px 10px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nitem{display:flex;align-items:center;gap:11px;width:100%;border:0;background:transparent;color:var(--navtext);padding:8px 10px;border-radius:8px;text-align:left;white-space:nowrap;position:relative}
+.nitem:hover{background:rgba(255,255,255,.06);color:#fff}
+.nitem.on{background:var(--nav2);color:#fff}
+.nitem.on::before{content:"";position:absolute;left:-8px;top:6px;bottom:6px;width:3px;border-radius:0 3px 3px 0;background:#e8890c}
+.nitem .nb{margin-left:auto;background:#d64545;color:#fff;font-size:10.5px;font-weight:800;border-radius:999px;padding:0 6px;line-height:1.6}
+.snav-foot{padding:10px;border-top:1px solid rgba(255,255,255,.07)}
+.snav-foot button{width:100%;display:flex;align-items:center;gap:10px;border:0;background:transparent;color:#8ea1bb;padding:7px 10px;border-radius:8px;white-space:nowrap}
+.snav-foot button:hover{background:rgba(255,255,255,.06);color:#fff}
+.app.collapsed .brand > div:not(.logo),.app.collapsed .ngrp,.app.collapsed .nitem span,.app.collapsed .snav-foot span{display:none}
+.app.collapsed .nitem{justify-content:center}
+.app.collapsed .nitem .nb{position:absolute;top:2px;right:4px}
+.app.collapsed .ngrp{height:10px;padding:0}
+
+.mainc{min-width:0;display:flex;flex-direction:column}
+.topbar{position:sticky;top:0;z-index:25;display:flex;align-items:center;gap:10px;padding:8px 18px;background:var(--surface);border-bottom:1px solid var(--line);min-height:56px}
+.crumb{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);white-space:nowrap;min-width:0;overflow:hidden}
+.crumb b{color:var(--text)}
+.tb-sp{flex:1}
+.tb-search{position:relative;width:min(320px,30vw)}
+.tb-search input{width:100%;border:1px solid var(--line);background:var(--surface2);border-radius:8px;padding:7px 10px 7px 32px}
+.tb-search .ic{position:absolute;left:9px;top:9px;color:var(--muted);width:16px;height:16px}
+.sdrop{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.15);max-height:360px;overflow:auto;z-index:50}
+.sdrop button{display:flex;width:100%;gap:8px;align-items:center;border:0;background:transparent;padding:8px 12px;text-align:left}
+.sdrop button:hover,.sdrop button.hl{background:var(--surface2)}
+.sdrop small{color:var(--muted);margin-left:auto;font-size:11px;white-space:nowrap}
+.tb-btn{position:relative;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 10px;white-space:nowrap}
+.tb-btn:hover{background:var(--surface2)}
+.tb-btn .badge{position:absolute;top:-6px;right:-6px;background:#d64545;color:#fff;font-size:10.5px;font-weight:800;border-radius:999px;padding:0 5px;line-height:1.6;min-width:18px;text-align:center}
+.feed .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 var(--ok);animation:live 1.8s infinite}
+.feed.off .dot{background:var(--muted);animation:none}
+@keyframes live{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 60%,transparent)}100%{box-shadow:0 0 0 8px transparent}}
+.feed small{color:var(--muted);font-size:11px}
+.av{width:30px;height:30px;border-radius:50%;background:var(--primary);color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px}
+.ubtn{display:flex;align-items:center;gap:8px;border:0;background:transparent;padding:2px 4px;border-radius:8px;text-align:left;line-height:1.25}
+.ubtn:hover{background:var(--surface2)}
+.ubtn small{display:block;color:var(--muted);font-size:11px}
+.pop{position:absolute;top:calc(100% + 6px);right:0;background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 36px rgba(0,0,0,.18);z-index:60;min-width:280px;padding:12px}
+.popwrap{position:relative}
+.pop h4{margin:0 0 8px;font-size:13px}
+.nlist{max-height:380px;overflow:auto;margin:0 -12px}
+.nrow{display:flex;gap:10px;padding:8px 12px;border-top:1px solid var(--line);cursor:pointer;font-size:13px}
+.nrow:hover{background:var(--surface2)}
+.nrow.unread{background:var(--primary-soft)}
+.nrow .d{font-size:11px;color:var(--muted);white-space:nowrap}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:5px 9px;font-size:12px;color:var(--muted)}
+.seg button.on{background:var(--primary);color:#fff;font-weight:700}
+
+.page{padding:18px 20px 40px;max-width:1560px;width:100%;margin:0 auto}
+.page.enter{animation:pin .3s ease-out}
+@keyframes pin{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:none}}
+.ph1{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.ph1 h1{font-size:21px;margin:0;line-height:1.3}
+.ph1 p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.acts{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:6px;background:var(--primary);color:#fff;border:1px solid var(--primary);border-radius:8px;padding:7px 14px;font-weight:700}
+.btn:hover{filter:brightness(1.07)}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.btn.sub{background:var(--surface);color:var(--text);border-color:var(--line);font-weight:600}
+.btn.sub:hover{background:var(--surface2)}
+.btn.ok{background:var(--ok);border-color:var(--ok)}
+.btn.ng{background:var(--ng);border-color:var(--ng)}
+.btn.sm{padding:4px 10px;font-size:12px}
+.btn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:14px 16px;min-width:0}
+.ch{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.ch b{font-size:14px}
+.ch small{color:var(--muted);font-size:12px}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:14px}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:14px}
+.g21{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:14px;margin-bottom:14px}
+.g12{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:14px;margin-bottom:14px}
+@media (max-width:1100px){.g3{grid-template-columns:1fr 1fr}.g21,.g12{grid-template-columns:1fr}}
+@media (max-width:760px){.g2,.g3{grid-template-columns:1fr}}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;box-shadow:var(--shadow);min-width:0}
+.kpi .l{font-size:11.5px;color:var(--muted)}
+.kpi .v{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kpi .s{font-size:11px;color:var(--muted)}
+.mini{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mini .kpi{box-shadow:none;padding:8px 10px}
+.mini .kpi .v{font-size:18px}
+.c-ok{color:var(--ok)}.c-warn{color:var(--warn)}.c-ng{color:var(--ng)}.c-info{color:var(--info)}
+.muted{color:var(--muted)}
+.note{font-size:12px;color:var(--muted);margin:6px 0 0}
+.pill{display:inline-block;font-size:11px;padding:0 8px;border-radius:999px;font-weight:700;white-space:nowrap;line-height:1.75}
+.p-ok{background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok)}
+.p-warn{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+.p-ng{background:color-mix(in srgb,var(--ng) 15%,transparent);color:var(--ng)}
+.p-idle{background:var(--surface2);color:var(--muted);border:1px solid var(--line)}
+.p-info{background:color-mix(in srgb,var(--info) 15%,transparent);color:var(--info)}
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:8px 9px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{font-size:12px;color:var(--muted);font-weight:700;background:var(--surface2);white-space:nowrap}
+th.sort{cursor:pointer}
+th.sort:hover{color:var(--text)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.click{cursor:pointer}
+tr.click:hover td{background:var(--surface2)}
+tr.sel td{background:var(--primary-soft)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.in,select.in{border:1px solid var(--line);border-radius:8px;padding:6px 9px;background:var(--surface)}
+textarea.in{width:100%;min-height:70px;resize:vertical}
+.tabs2{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:12px;overflow-x:auto}
+.tabs2 button{border:0;background:transparent;padding:8px 14px;border-bottom:2px solid transparent;color:var(--muted);font-weight:700;white-space:nowrap}
+.tabs2 button.on{color:var(--primary);border-bottom-color:var(--primary)}
+.alerts{list-style:none;margin:0;padding:0}
+.alerts li{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.alerts li:last-child{border-bottom:0}
+.alerts .d{font-size:12px;color:var(--muted);white-space:nowrap;min-width:62px;font-variant-numeric:tabular-nums}
+.bar{height:8px;border-radius:999px;background:var(--surface2);overflow:hidden;position:relative}
+.bar i{position:absolute;left:0;top:0;bottom:0;border-radius:999px}
+.prow{display:grid;grid-template-columns:150px 1fr 90px;gap:10px;align-items:center;padding:5px 0;font-size:13px}
+.prow .bars{display:flex;flex-direction:column;gap:3px}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:4px 12px;font-size:13px}
+.kv dt{color:var(--muted)}
+.kv dd{margin:0}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+.lock{font-size:12px;color:var(--muted);display:inline-flex;gap:4px;align-items:center}
+
+/* 3D */
+.twin{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:14px}
+@media (max-width:1150px){.twin{grid-template-columns:1fr}}
+.cv{position:relative;border-radius:12px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);background:var(--surface2)}
+.cv canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
+.cv canvas:active{cursor:grabbing}
+.cv.big{height:clamp(380px,calc(100vh - 190px),780px)}
+.cv.half{height:340px}
+.ov{position:absolute;pointer-events:none;font-size:12px}
+.ov > *{pointer-events:auto}
+.ov.tl{left:10px;top:10px}.ov.bl{left:10px;bottom:10px}.ov.br{right:10px;bottom:10px}
+.glass{background:color-mix(in srgb,var(--surface) 88%,transparent);border:1px solid var(--line);border-radius:8px;padding:6px 10px;backdrop-filter:blur(4px)}
+.lg{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
+.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.side{display:flex;flex-direction:column;gap:12px;min-width:0}
+.mtbl td{padding:5px 6px;font-size:12px}
+.mtbl tr{cursor:pointer}
+.mtbl tr:hover td{background:var(--surface2)}
+.detail{font-size:13px;background:var(--surface2);border-radius:8px;padding:8px 10px}
+.gantt{width:100%;height:auto;display:block;user-select:none}
+.gantt text{font-size:12px;fill:var(--text)}
+.gantt .g-tick{font-size:10px;fill:var(--muted)}
+.gantt .g-grid{stroke:var(--line);stroke-width:1}
+.gantt .g-plan{fill:var(--plan)}
+.ctl4d{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.ctl4d input[type=range]{flex:1;min-width:200px;accent-color:var(--primary)}
+svg.chart{width:100%;height:auto;display:block}
+svg.chart text{font-size:10.5px;fill:var(--muted)}
+
+/* 対策シミュレーション */
+.opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;cursor:pointer;background:var(--surface)}
+.opt:hover{border-color:var(--primary)}
+.opt.on{border-color:var(--primary);background:var(--primary-soft)}
+.opt.dis{opacity:.6;cursor:default}
+.opt input{margin-top:4px;width:17px;height:17px;accent-color:var(--primary)}
+.opt .t{font-weight:700}
+.opt .d{font-size:12px;color:var(--muted)}
+.verdict{margin-top:10px;padding:10px 12px;border-radius:8px;font-weight:700;font-size:13px}
+.v-ok{background:color-mix(in srgb,var(--ok) 13%,transparent);color:var(--ok)}
+.v-warn{background:color-mix(in srgb,var(--warn) 15%,transparent);color:var(--warn)}
+.v-ng{background:color-mix(in srgb,var(--ng) 13%,transparent);color:var(--ng)}
+.badge{font-size:11px;font-weight:800;padding:0 7px;border-radius:5px;margin-left:4px;white-space:nowrap}
+.b-cost{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok)}
+.b-time{background:color-mix(in srgb,var(--info) 18%,transparent);color:var(--info)}
+#wiTimeline svg{width:100%;height:auto;display:block}
+#wiTimeline text{font-size:11px;fill:var(--text)}
+.fld{display:flex;flex-direction:column;gap:4px;margin-bottom:10px;font-size:13px}
+.fld > span{font-size:12px;color:var(--muted);font-weight:700}
+.fld .err{color:var(--ng);font-size:12px}
+
+/* ドロワー・モーダル */
+.scrim{position:fixed;inset:0;background:rgba(8,14,22,.45);z-index:80}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(560px,100vw);background:var(--surface);z-index:81;box-shadow:-10px 0 40px rgba(0,0,0,.25);display:flex;flex-direction:column;animation:din .25s ease-out}
+@keyframes din{0%{transform:translateX(40px);opacity:0}100%{transform:none;opacity:1}}
+.dh{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.dh h2{margin:0;font-size:17px}
+.db{padding:14px 18px;overflow:auto;flex:1}
+.df{padding:12px 18px;border-top:1px solid var(--line)}
+.sec{margin-bottom:14px}
+.sec h3{font-size:12.5px;color:var(--muted);margin:0 0 6px}
+.tl{list-style:none;margin:0;padding:0 0 0 14px;border-left:2px solid var(--line)}
+.tl li{position:relative;padding:0 0 10px 10px;font-size:13px}
+.tl li::before{content:"";position:absolute;left:-21px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--primary);border:2px solid var(--surface)}
+.tl li.ok::before{background:var(--ok)}.tl li.ng::before{background:var(--ng)}
+.modal{position:fixed;inset:0;display:grid;place-items:center;z-index:90;padding:16px;background:rgba(8,14,22,.5)}
+.mbox{background:var(--surface);border-radius:14px;width:100%;max-width:640px;max-height:88vh;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.3);animation:pin .25s ease-out}
+.mbox .dh,.mbox .db,.mbox .df{padding-left:20px;padding-right:20px}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:#0f1d31;color:#fff;padding:10px 18px;border-radius:10px;font-weight:700;opacity:0;transition:.25s;z-index:120;pointer-events:none;max-width:90vw}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.sens{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:14px}
+.sens .card .v{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums}
+
+#btnMenu{display:none}
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .snav{position:fixed;left:0;top:0;width:248px;transform:translateX(-100%);transition:transform .25s}
+  .app.mopen .snav{transform:none;box-shadow:10px 0 40px rgba(0,0,0,.35)}
+  .app.collapsed .brand > div:not(.logo),.app.collapsed .ngrp,.app.collapsed .nitem span{display:revert}
+  #btnMenu{display:inline-flex}
+  #btnCollapse{display:none!important}
+  .tb-search{display:none}
+  .topbar{padding:8px 10px;gap:6px;flex-wrap:wrap}
+  .crumb{order:10;width:100%}
+  .ubtn .un{display:none}
+  .page{padding:12px 10px 30px}
+}
+@media print{
+  .snav,.topbar,.acts,.noprint{display:none!important}
+  .app{display:block}
+  body{background:#fff}
+  .card{box-shadow:none;break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<!-- ログイン -->
+<div class="login" id="login" hidden>
+  <div class="lcard">
+    <div class="lbrand"><div class="logo">LT</div><div><h1>現場ライブツイン</h1><div class="muted" style="font-size:12px">建設現場と経営をつなぐ統合プラットフォーム</div></div></div>
+    <p class="lsub"><span class="pill p-info">サンプル環境（完全オフライン）</span> ログインするアカウントを選んでください。</p>
+    <div id="accList"></div>
+    <button class="btn" id="btnLogin" type="button" style="width:100%;justify-content:center;margin-top:6px">ログイン</button>
+    <div class="lnote">本番環境では、シングルサインオン（例：Microsoft Entra ID）と多要素認証を想定しています。このサンプルは認証を省略し、ロール（権限）の違いだけを体験できます。データはこのブラウザ内にのみ保存されます。</div>
+  </div>
+</div>
+
+<!-- アプリ -->
+<div class="app" id="app" hidden>
+  <aside class="snav" id="snav">
+    <div class="brand"><div class="logo">LT</div><div><b>現場ライブツイン</b><small>Enterprise ／ サンプル環境</small></div></div>
+    <nav class="navlist" id="navList" aria-label="メインメニュー"></nav>
+    <div class="snav-foot"><button type="button" id="btnCollapse"><span class="ic-wrap" id="icCollapse"></span><span>メニューを折りたたむ</span></button></div>
+  </aside>
+  <div class="mainc">
+    <header class="topbar">
+      <button class="tb-btn" id="btnMenu" type="button" aria-label="メニュー"></button>
+      <div class="crumb" id="crumb"></div>
+      <div class="tb-sp"></div>
+      <div class="tb-search"><span id="icSearch"></span><input id="q" type="search" placeholder="検索（現場・重機・工種・申請番号…）" autocomplete="off"><div class="sdrop" id="qDrop" hidden></div></div>
+      <div class="popwrap">
+        <button class="tb-btn feed" id="btnFeed" type="button" title="データ連携（シミュレーション）"><span class="dot"></span><span id="feedTxt">—</span></button>
+        <div class="pop" id="feedPop" hidden></div>
+      </div>
+      <div class="popwrap">
+        <button class="tb-btn" id="btnBell" type="button" aria-label="通知"><span id="icBell"></span><span class="badge" id="bellN" hidden></span></button>
+        <div class="pop" id="bellPop" hidden style="width:360px"></div>
+      </div>
+      <div class="popwrap">
+        <button class="ubtn" id="btnUser" type="button"><span class="av" id="uAv"></span><span class="un"><b id="uName"></b><small id="uRole"></small></span></button>
+        <div class="pop" id="userPop" hidden></div>
+      </div>
+    </header>
+    <section class="page" id="page"></section>
+  </div>
+</div>
+
+<div id="overlay"></div>
+<div id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+//@@A
+
+/* ================= 状態・保存 ================= */
+const STORE = 'slt-system-webui-v1';
+const DEFAULT_T = new Date(2026, 9, 21, 8, 0).getTime();
+const DEFAULT_CFG = {spiWarn:.95, spiNg:.8, utilWarn:.6, notify:{delay:true, util:true, approval:true, safety:true}};
+const S = {scn:'delay', t:DEFAULT_T, playing:true, speed:300, decisions:[], requests:[], dailies:[], audit:[], notifs:[], notifRead:[],
+  cfg: JSON.parse(JSON.stringify(DEFAULT_CFG)), user:null, collapsed:false,
+  page:'dash', compare:false, sel:null, whatif:new Set(['dump','crew']), draftTitle:'', draftComment:'', play4d:false, apprTab:'pending', siteSort:{k:'id', d:1}};
+const PERSIST = ['scn','t','speed','decisions','requests','dailies','audit','notifs','notifRead','cfg','user','collapsed'];
+try{
+  const j = JSON.parse(localStorage.getItem(STORE) || 'null');
+  if(j) PERSIST.forEach(p => { if(j[p] !== undefined) S[p] = j[p]; });
+  S.cfg = Object.assign({}, DEFAULT_CFG, S.cfg); S.cfg.notify = Object.assign({}, DEFAULT_CFG.notify, S.cfg.notify);
+}catch(e){}
+function save(){ try{ const o = {}; PERSIST.forEach(p => o[p] = S[p]); localStorage.setItem(STORE, JSON.stringify(o)); }catch(e){} }
+
+function nowInfo(){
+  const dt = new Date(S.t); const key = k(dt);
+  const h = dt.getHours() + dt.getMinutes()/60;
+  return {dt, key, h, minute: dt.getHours()*60 + dt.getMinutes() + dt.getSeconds()/60, frac: clamp((h-8)/9, 0, 1), tomorrow: k(addDays(dt,1)), hm: pad(dt.getHours())+':'+pad(dt.getMinutes())};
+}
+function activeOpts(key){
+  const s = new Set();
+  for(const d of S.decisions){ if(!d.archived && d.scn === S.scn && d.effective <= key) d.options.forEach(o => s.add(o)); }
+  return s;
+}
+let ACT = null, FC = null, ALERTS = [], TREND = [];
+const dirty = {all:true};
+function forecast(extra){
+  const nf = nowInfo();
+  const optsAt = key => { const s = activeOpts(key); extra.forEach(o => s.add(o)); return s; };
+  const r = simulate({scn:S.scn, from:nf.tomorrow, init:{prog:ACT.prog, cost:ACT.cost, optCost:ACT.optCost, pcCharged:ACT.pcCharged}, optsAt, noise:false});
+  const all = ACT.recs.concat(r.recs);
+  const sp = spans(all);
+  const finish = sp.fin.f || END_KEY;
+  return {recs:r.recs, all, sp, finish, eac: r.cost + r.optCost + indirect(finish) + ldCost(finish), optAdd: r.optCost - ACT.optCost, optTotal: r.optCost};
+}
+function recompute(){
+  const nf = nowInfo();
+  ACT = simulate({scn:S.scn, from:START_KEY, init:ZERO(), optsAt:activeOpts, noise:true, until:nf.key});
+  FC = forecast(EMPTY);
+  ALERTS = computeAlerts();
+  TREND = ACT.recs.filter(r => r.key < nf.key).map(r => ({key:r.key, spi: evmAt(r.key, 1).SPI}));
+  dirty.all = true;
+}
+//@@B
+
+/* ================= ユーザー・権限・監査・通知 ================= */
+const USERS = [
+  {id:'exec',  name:'支店長',         org:'○○支店',   role:'exec',  ini:'支'},
+  {id:'gm',    name:'工事部長',       org:'○○支店 工事部', role:'exec', ini:'部'},
+  {id:'pm',   name:'現場所長',       org:'A現場',    role:'pm',    ini:'所'},
+  {id:'eng',   name:'工務担当',       org:'A現場',    role:'eng',   ini:'工'},
+  {id:'admin', name:'システム管理者', org:'DX推進部', role:'admin', ini:'管'},
+];
+const ROLE_NAME = {exec:'経営層', pm:'現場所長', eng:'工務', admin:'システム管理者'};
+const PERM = {view:['exec','pm','eng','admin'], draft:['exec','pm','eng'], approve:['exec'], daily:['pm','eng'], settings:['admin']};
+const PERM_NAME = {view:'閲覧', draft:'対策の起案', approve:'承認・差戻し', daily:'日報の作成', settings:'設定の変更・リセット'};
+const me = () => USERS.find(u => u.id === S.user);
+const can = p => !!me() && PERM[p].indexOf(me().role) >= 0;
+// 職務分掌：起案者本人は承認・差戻しできない（createdById がない旧データは名前で判定）
+const isOwnRequest = r => !!me() && (r.createdById ? r.createdById === me().id : r.createdBy === me().name);
+const canDecide = r => r.status === 'pending' && can('approve') && !isOwnRequest(r) && r.scn === S.scn;
+function audit(action, target, detail){
+  const nf = nowInfo(), u = me();
+  S.audit.push({ts:new Date().toISOString(), sim:nf.key+' '+nf.hm, user:u ? u.name : '—', role:u ? ROLE_NAME[u.role] : '', action, target:target||'', detail:detail||''});
+  if(S.audit.length > 600) S.audit.splice(0, S.audit.length - 600);
+  save();
+}
+function notify(text, lv, link, kind){
+  const nf = nowInfo();
+  S.notifs.push({id:'n'+Date.now().toString(36)+Math.floor(Math.random()*1e4), key:nf.key, hm:nf.hm, text, lv, link, kind:kind||'approval', scn:S.scn});
+  if(S.notifs.length > 150) S.notifs.shift();
+  save();
+}
+function allNotifs(){
+  const cfg = S.cfg.notify;
+  const a = ALERTS.filter(x => x.lv !== 'info').filter(x => (/BH-01/.test(x.text) ? cfg.util : cfg.delay)).map(x => ({id:'a'+x.key+'|'+x.text, key:x.key, text:'A現場：'+x.text, lv:x.lv, link:'overview'}));
+  const s = safetyEvents().filter(() => cfg.safety).map(x => ({id:'s'+x.key+'|'+x.text, key:x.key, text:'A現場：'+x.text, lv:x.lv, link:'safety'}));
+  const w = S.notifs.filter(n => n.scn === S.scn && cfg.approval).map(n => ({id:n.id, key:n.key, text:n.text, lv:n.lv, link:n.link}));
+  return a.concat(s, w).sort((x, y) => x.key < y.key ? 1 : x.key > y.key ? -1 : 0);
+}
+
+/* ================= 共通UI部品 ================= */
+const ICONS = {
+  dash:'M3 3h7v9H3z M14 3h7v5h-7z M14 12h7v9h-7z M3 16h7v5H3z',
+  sites:'M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z M12 7a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z',
+  check:'M9 11l3 3 8-8 M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9',
+  report:'M6 3h9l4 4v14H6z M14 3v5h5 M9 13h7 M9 17h7',
+  home:'M3 11l9-8 9 8 M5 9.5V21h5v-6h4v6h5V9.5',
+  cube:'M12 2l9 5v10l-9 5-9-5V7z M3 7l9 5 9-5 M12 12v10',
+  gantt:'M4 5h8 M7 10h10 M10 15h8 M5 20h14',
+  sim:'M4 19V5 M4 19h16 M8 15l4-4 3 3 5-6',
+  truck:'M2 7h11v9H2z M13 10h4l3 3v3h-7 M6 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z M17 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z',
+  note:'M5 3h14v18H5z M8 8h8 M8 12h8 M8 16h5',
+  shield:'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z M9 12l2 2 4-4',
+  yen:'M6 4l6 8 6-8 M12 12v8 M7 13h10 M7 16.5h10',
+  gear:'M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z M12 2v3 M12 19v3 M2 12h3 M19 12h3 M4.9 4.9l2.1 2.1 M17 17l2.1 2.1 M4.9 19.1L7 17 M17 7l2.1-2.1',
+  list:'M8 6h13 M8 12h13 M8 18h13 M3.5 6h.01 M3.5 12h.01 M3.5 18h.01',
+  users:'M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z M2 21c0-4 3-6.5 7-6.5s7 2.5 7 6.5 M16 3.3a4 4 0 0 1 0 7.4 M22 21c0-3-1.7-5.2-4.5-6',
+  bell:'M6 16v-5a6 6 0 0 1 12 0v5l2 2H4z M10 21h4',
+  search:'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14z M20 20l-4-4',
+  menu:'M4 6h16 M4 12h16 M4 18h16',
+  left:'M15 6l-6 6 6 6',
+  right:'M9 6l6 6-6 6',
+  lock:'M6 11h12v10H6z M8 11V8a4 4 0 0 1 8 0v3',
+};
+const icon = (n, cls) => `<svg class="ic ${cls||''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${ICONS[n]}"/></svg>`;
+const kpi = (l, v, cls, s) => `<div class="kpi"><div class="l">${l}</div><div class="v ${cls||''}">${v}</div>${s ? `<div class="s">${s}</div>` : ''}</div>`;
+const pill = (lv, t) => `<span class="pill p-${lv}">${t}</span>`;
+const head = (t, sub, acts) => `<div class="ph1"><div><h1>${t}</h1>${sub ? `<p>${sub}</p>` : ''}</div><div class="acts">${acts||''}</div></div>`;
+const lvName = lv => lv === 'ng' ? '危険' : lv === 'warn' ? '注意' : lv === 'ok' ? '回復' : '情報';
+const lockNote = p => `<span class="lock">${icon('lock')} ${PERM_NAME[p]}の権限がありません</span>`;
+const spiCls = v => v < S.cfg.spiNg ? 'c-ng' : v < S.cfg.spiWarn ? 'c-warn' : 'c-ok';
+function alertsHTML(list, n){
+  return list.length ? list.slice(0, n).map(a => `<li><span class="d">${mdw(a.key)}</span>${pill(a.lv === 'info' ? 'info' : a.lv, lvName(a.lv))}<span>${esc(a.text)}</span></li>`).join('') : '<li class="muted">お知らせはありません</li>';
+}
+function closeOverlay(){ $('#overlay').innerHTML = ''; }
+function openDrawer(html){
+  $('#overlay').innerHTML = `<div class="scrim" data-close="1"></div><div class="drawer" role="dialog">${html}</div>`;
+}
+function openModal(html){
+  $('#overlay').innerHTML = `<div class="modal" data-close="1"><div class="mbox" role="dialog">${html}</div></div>`;
+}
+$('#overlay').addEventListener('click', e => { if(e.target.getAttribute('data-close') || e.target.closest('[data-x]')) closeOverlay(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape'){ closeOverlay(); hidePops(); } });
+function download(name, text, type){
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], {type})); a.download = name;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+const csvOf = rows => '﻿' + rows.map(r => r.map(v => '"'+String(v == null ? '' : v).replace(/"/g,'""')+'"').join(',')).join('\r\n');
+
+/* SVG折れ線グラフ（日付軸） */
+function lineChart(o){
+  const W = o.w || 640, H = o.h || 200, L = 44, R = 14, T = o.legend ? 32 : 12, B = 24;
+  const days = Math.max(1, calDiff(o.x0, o.x1));
+  const X = key => L + (W-L-R) * clamp(calDiff(o.x0, key), 0, days)/days;
+  const Y = v => T + (H-T-B) * (o.yMax - clamp(v, o.yMin, o.yMax))/(o.yMax - o.yMin);
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.label||'グラフ')}">`;
+  (o.bands||[]).forEach(b => { s += `<rect x="${L}" y="${Y(b.to)}" width="${W-L-R}" height="${Math.max(0, Y(b.from)-Y(b.to))}" fill="${b.color}" opacity="${b.op||.08}"/>`; });
+  for(let i=0;i<=4;i++){ const v = o.yMin + (o.yMax-o.yMin)*i/4; s += `<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L-5}" y="${Y(v)+3.5}" text-anchor="end">${o.yFmt ? o.yFmt(v) : v}</text>`; }
+  (o.xticks||[]).forEach(kk => { s += `<text x="${X(kk)}" y="${H-7}" text-anchor="middle">${md(kk)}</text>`; });
+  (o.vlines||[]).forEach(v => { const x = X(v.key); s += `<line x1="${x}" x2="${x}" y1="${T}" y2="${H-B}" stroke="${v.color}" stroke-dasharray="${v.dash||'4 3'}"/>${v.label ? `<text x="${x+3}" y="${T+10}" style="fill:${v.color}">${v.label}</text>` : ''}`; });
+  o.series.forEach(se => { if(se.pts.length < 2) return; s += `<polyline fill="none" stroke="${se.color}" stroke-width="${se.width||2}" ${se.dash ? `stroke-dasharray="${se.dash}"` : ''} points="${se.pts.map(p => X(p[0]).toFixed(1)+','+Y(p[1]).toFixed(1)).join(' ')}"/>`; });
+  if(o.legend) s += `<g>${o.series.filter(se => se.name).map((se, i) => `<g transform="translate(${L + 8 + i*112},12)"><line x1="0" x2="16" y1="0" y2="0" stroke="${se.color}" stroke-width="2.5" ${se.dash ? `stroke-dasharray="${se.dash}"` : ''}/><text x="20" y="3.5" style="fill:var(--text)">${se.name}</text></g>`).join('')}</g>`;
+  return s + '</svg>';
+}
+
+/* ================= 現場データ ================= */
+const SITES = [
+  {id:'A', name:'県道○○線 道路改良工事', kind:'道路改良', client:'○○県 ○○土木事務所', manager:'現場所長', start:'2026-10-01', x:372, y:178, live:true},
+  {id:'B', name:'○○川 護岸改修工事', kind:'河川', client:'○○県 河川課', manager:'所長B', start:'2026-06-01', x:214, y:262, p0:.58, rate:.006, spi:1.02, cpi:1.01, end:'2027-02-26'},
+  {id:'C', name:'○○橋 下部工工事', kind:'橋梁', client:'○○市 道路課', manager:'所長C', start:'2026-08-03', x:452, y:300, p0:.36, rate:.005, spi:.97, cpi:.99, end:'2027-03-19'},
+  {id:'D', name:'○○団地 造成工事', kind:'造成', client:'○○開発（株）', manager:'所長D', start:'2026-04-06', x:150, y:128, p0:.74, rate:.008, spi:1.04, cpi:1.03, end:'2026-12-25'},
+  {id:'E', name:'○○地区 下水道管渠工事', kind:'下水道', client:'○○市 下水道課', manager:'所長E', start:'2026-09-01', x:300, y:348, p0:.21, rate:.004, spi:.96, cpi:.98, end:'2027-03-31'},
+];
+function otherSite(s, key){
+  const days = Math.max(0, calDiff('2026-10-21', key));
+  const prog = clamp(s.p0 + days*s.rate, 0, 1);
+  const spi = s.spi + Math.sin(days/5 + s.x)*.006, cpi = s.cpi + Math.cos(days/6 + s.y)*.005;
+  return {prog, spi, cpi, finish:s.end, contract:s.end, st: siteStatus(spi, null)};
+}
+function siteA(){
+  const nf = nowInfo(), e = evmAt(nf.key, nf.frac);
+  return {prog: e.EV/BUDGET, spi:e.SPI, cpi:e.CPI, finish:FC.finish, contract:CONTRACT, st: siteStatus(e.SPI, FC.finish), e};
+}
+function siteRows(){ const nf = nowInfo(), A = siteA(); return SITES.map(s => Object.assign({s}, s.live ? A : otherSite(s, nf.key))); }
+function openSite(id){ if(id === 'A') go('overview'); else toast('このサンプルではA現場のみデータ連携しています'); }
+const ST_VAR = {ok:'var(--ok)', warn:'var(--warn)', ng:'var(--ng)'};
+function mapSVG(){
+  return `<svg viewBox="0 0 600 420" style="width:100%;height:auto;display:block" role="img" aria-label="全現場マップ">
+    <rect width="600" height="420" rx="10" fill="var(--surface2)"/>
+    <path d="M70,120 C95,70 170,55 230,62 C300,70 340,40 410,48 C480,56 540,95 548,160 C556,230 520,268 500,318 C480,370 410,392 340,388 C270,384 230,402 170,380 C110,358 70,320 62,262 C54,205 50,165 70,120 Z" fill="var(--surface)" stroke="var(--line)" stroke-width="2"/>
+    <path d="M95,330 C150,300 190,280 230,250 C270,220 300,215 340,225 C390,238 430,250 520,232" stroke="var(--info)" stroke-width="5" fill="none" opacity=".35" stroke-linecap="round"/>
+    <path d="M90,150 C180,170 260,160 330,175 C400,190 470,180 540,170" stroke="var(--muted)" stroke-width="2.5" fill="none" opacity=".45"/>
+    <path d="M300,62 C300,140 290,220 310,300 C320,340 330,370 335,388" stroke="var(--muted)" stroke-width="2.5" fill="none" opacity=".45"/>
+    <text x="555" y="166" font-size="10" fill="var(--muted)" text-anchor="end">国道○号</text>
+    <text x="520" y="226" font-size="10" fill="var(--info)" text-anchor="end">○○川</text>
+    ${SITES.map(s => `<g class="pin" style="cursor:pointer" data-site="${s.id}" transform="translate(${s.x},${s.y})">
+      <circle class="pring" r="13" fill="var(--ok)" opacity="0"/>
+      <circle class="pinc" r="10" fill="var(--ok)" stroke="#fff" stroke-width="2.5"/>
+      <text x="16" y="-4" font-size="13" font-weight="700" fill="var(--text)">${s.id}現場</text>
+      <text class="pspi" x="16" y="12" font-size="11" fill="var(--muted)"></text></g>`).join('')}
+  </svg>`;
+}
+function updateMap(el, rows){
+  rows.forEach(r => {
+    const g = el.querySelector('.pin[data-site="'+r.s.id+'"]'); if(!g) return;
+    g.querySelector('.pinc').setAttribute('fill', ST_VAR[r.st]);
+    const ring = g.querySelector('.pring'); ring.setAttribute('fill', ST_VAR[r.st]);
+    if(r.st !== 'ok'){ ring.style.animation = 'live 1.6s infinite'; ring.setAttribute('opacity', '.45'); ring.setAttribute('r', '15'); } else { ring.setAttribute('opacity', '0'); }
+    g.querySelector('.pspi').textContent = ST_LABEL[r.st] + ' SPI ' + f2(r.spi);
+  });
+}
+function trendSVG(){
+  const nf = nowInfo(), A = siteA();
+  const pts = TREND.concat([{key:nf.key, spi:A.spi}]).filter(p => p.key >= '2026-10-02').map(p => [p.key, p.spi]);
+  const vl = S.decisions.filter(d => !d.archived && d.scn === S.scn && d.simDate <= nf.key).map(d => ({key:d.simDate, color:'var(--info)', label:'対策承認'}));
+  return lineChart({x0:START_KEY, x1:'2026-12-04', yMin:.6, yMax:1.15, yFmt:v => v.toFixed(2), label:'SPI推移', h:180,
+    bands:[{from:S.cfg.spiWarn, to:1.15, color:'var(--ok)'}, {from:S.cfg.spiNg, to:S.cfg.spiWarn, color:'var(--warn)', op:.12}, {from:.6, to:S.cfg.spiNg, color:'var(--ng)'}],
+    xticks:['2026-10-01','2026-10-15','2026-11-01','2026-11-15','2026-12-01'], vlines:vl, series:[{pts, color:'var(--accent)', width:2.5}]});
+}
+
+/* ================= ナビゲーション ================= */
+const NAV = [
+  {group:'全社', items:[['dash','全社ダッシュボード','dash'],['sites','現場一覧','sites'],['approvals','承認ワークフロー','check'],['reports','レポート','report']]},
+  {group:'A現場 県道○○線 道路改良', items:[['overview','現場概要','home'],['twin','ライブツイン','cube'],['schedule','4D工程','gantt'],['sim','対策シミュレーション','sim'],['machines','重機・稼働','truck'],['daily','日報','note'],['safety','安全・環境','shield'],['cost','原価管理（EVM）','yen']]},
+  {group:'管理', items:[['settings','設定','gear'],['audit','監査ログ','list'],['users','ユーザー・権限','users']]},
+];
+const PAGE_INFO = {}; NAV.forEach(g => g.items.forEach(it => PAGE_INFO[it[0]] = {title:it[1], group:g.group, icon:it[2]}));
+function renderNav(){
+  const pend = S.requests.filter(r => r.status === 'pending' && r.scn === S.scn).length;
+  setHTML($('#navList'), NAV.map(g => `<div class="ngrp" title="${esc(g.group)}">${esc(g.group)}</div>` + g.items.map(it =>
+    `<button class="nitem ${S.page === it[0] ? 'on' : ''}" type="button" data-go="${it[0]}" title="${it[1]}">${icon(it[2])}<span>${it[1]}</span>${it[0] === 'approvals' && pend ? `<em class="nb">${pend}</em>` : ''}</button>`).join('')).join(''));
+}
+$('#navList').addEventListener('click', e => { const b = e.target.closest('[data-go]'); if(b){ go(b.getAttribute('data-go')); $('#app').classList.remove('mopen'); } });
+// 画面遷移はURLの#/画面名と同期する（ブラウザの戻る・進むにも対応）
+function go(p){
+  showPage(p);
+  try{ if(location.hash !== '#/'+p) history.pushState(null, '', '#/'+p); }catch(e){}
+}
+function pageFromHash(){ const p = (location.hash.match(/^#\/(\w+)/) || [])[1]; return p && PAGES[p] ? p : null; }
+window.addEventListener('popstate', () => { const p = pageFromHash(); if(p && S.user) showPage(p); });
+window.addEventListener('hashchange', () => { const p = pageFromHash(); if(p && S.user && p !== S.page) showPage(p); });
+document.addEventListener('click', e => { const a = e.target.closest('a[href^="#/"]'); if(!a) return; e.preventDefault(); const p = a.getAttribute('href').slice(2); if(PAGES[p]) go(p); });
+let curPage = null;
+function showPage(p){
+  if(!PAGES[p]) p = 'dash';
+  S.page = p; curPage = PAGES[p];
+  const info = PAGE_INFO[p];
+  setHTML($('#crumb'), `<span>${esc(info.group)}</span>${icon('right')}<b>${info.title}</b>`);
+  renderNav();
+  const el = $('#page'); el.innerHTML = ''; el._h = null;
+  curPage.render(el);
+  el.classList.remove('enter'); void el.offsetWidth; el.classList.add('enter');
+  window.scrollTo({top:0});
+}
+
+/* ================= ページ：全社ダッシュボード ================= */
+function renderDash(el){
+  el.innerHTML = head('全社ダッシュボード', '全現場の状況をリアルタイムに把握します', `<button class="btn sub sm" type="button" data-go2="sites">現場一覧へ</button><button class="btn sm" type="button" data-go2="approvals">承認ワークフロー</button>`) +
+    `<div class="kpis" id="dKpi"></div>
+     <div class="g12"><div class="card"><div class="ch"><b>現場マップ</b><small>ピンをクリックで現場概要へ</small></div><div id="dMap">${mapSVG()}</div></div>
+       <div class="card"><div class="ch"><b>現場ステータス</b><a href="#/sites">すべて表示</a></div><div class="tbl" id="dSites"></div></div></div>
+     <div class="g3"><div class="card"><div class="ch"><b>A現場 SPI推移</b><small>1.00＝計画どおり</small></div><div id="dTrend"></div></div>
+       <div class="card"><div class="ch"><b>最新アラート</b><a href="#/overview">A現場へ</a></div><ul class="alerts" id="dAlerts"></ul></div>
+       <div class="card"><div class="ch"><b>承認待ち</b><a href="#/approvals">すべて表示</a></div><div id="dPend"></div></div></div>`;
+  el.querySelectorAll('#dMap .pin').forEach(p => p.addEventListener('click', () => openSite(p.getAttribute('data-site'))));
+  bindGo2(el);
+  el.querySelector('#dSites').addEventListener('click', e => { const tr = e.target.closest('tr[data-site]'); if(tr) openSite(tr.getAttribute('data-site')); });
+  updDash();
+}
+function bindGo2(el){ el.querySelectorAll('[data-go2]').forEach(b => b.addEventListener('click', () => go(b.getAttribute('data-go2')))); }
+function updDash(){
+  const rows = siteRows(), A = rows[0];
+  const nW = rows.filter(r => r.st === 'warn').length, nN = rows.filter(r => r.st === 'ng').length;
+  const pend = S.requests.filter(r => r.status === 'pending' && r.scn === S.scn);
+  const avg = rows.reduce((a, r) => a + r.spi, 0)/rows.length;
+  setHTML($('#dKpi'), kpi('稼働中の現場', rows.length+'<small style="font-size:13px"> 現場</small>') + kpi('注意', nW, nW ? 'c-warn' : '', '黄色の現場') + kpi('危険', nN, nN ? 'c-ng' : '', '赤色の現場') +
+    kpi('承認待ち', pend.length+'<small style="font-size:13px"> 件</small>', pend.length ? 'c-info' : '', '対策の起案') + kpi('平均SPI', f2(avg), spiCls(avg), '全現場の工程効率') +
+    kpi('A現場 完成予測', mdw(A.finish), A.finish > CONTRACT ? 'c-ng' : 'c-ok', '契約工期 '+mdw(CONTRACT)));
+  updateMap($('#dMap'), rows);
+  setHTML($('#dSites'), `<table><thead><tr><th>現場</th><th class="num">出来高</th><th class="num">SPI</th><th class="num">CPI</th><th>完成予定</th><th>状態</th></tr></thead><tbody>` +
+    rows.map(r => `<tr class="click" data-site="${r.s.id}"><td><b>${r.s.id}現場</b> <span class="muted" style="font-size:12px">${esc(r.s.kind)}</span></td><td class="num">${pct(r.prog)}</td><td class="num ${spiCls(r.spi)}">${f2(r.spi)}</td><td class="num">${f2(r.cpi)}</td><td>${mdw(r.finish)}</td><td>${pill(r.st, ST_LABEL[r.st])}</td></tr>`).join('') + '</tbody></table>');
+  setHTML($('#dTrend'), trendSVG());
+  setHTML($('#dAlerts'), alertsHTML(ALERTS, 6));
+  setHTML($('#dPend'), pend.length ? '<ul class="alerts">' + pend.slice(-5).reverse().map(r => `<li><span class="d">${esc(r.id)}</span><span><a href="#/approvals" data-req="${r.id}">${esc(r.title)}</a><br><span class="muted" style="font-size:12px">${esc(r.createdBy)} ／ ${mdw(r.simDate)}</span></span></li>`).join('') + '</ul>' : '<div class="empty" style="padding:16px">承認待ちはありません</div>');
+}
+
+/* ================= ページ：現場一覧 ================= */
+function renderSites(el){
+  el.innerHTML = head('現場一覧', '担当する全現場の工程・原価の状況', `<button class="btn sub sm" type="button" id="sCsv">CSV出力</button>`) +
+    `<div class="card"><div class="filters"><input class="in" id="sQ" placeholder="工事名・発注者で絞り込み" style="min-width:220px">
+      <select class="in" id="sSt"><option value="">状態：すべて</option><option value="ok">順調</option><option value="warn">注意</option><option value="ng">危険</option></select>
+      <select class="in" id="sKind"><option value="">工種：すべて</option>${Array.from(new Set(SITES.map(s => s.kind))).map(x => `<option>${x}</option>`).join('')}</select>
+      <span class="muted" id="sCount" style="font-size:12px"></span></div><div class="tbl" id="sTbl"></div></div>`;
+  ['#sQ','#sSt','#sKind'].forEach(id => el.querySelector(id).addEventListener('input', updSites));
+  el.querySelector('#sTbl').addEventListener('click', e => {
+    const th = e.target.closest('th[data-k]'); if(th){ const kk = th.getAttribute('data-k'); S.siteSort = {k:kk, d: S.siteSort.k === kk ? -S.siteSort.d : 1}; updSites(); return; }
+    const tr = e.target.closest('tr[data-site]'); if(tr) openSite(tr.getAttribute('data-site'));
+  });
+  el.querySelector('#sCsv').addEventListener('click', () => { const rows = filteredSites(); download('sites.csv', csvOf([['現場','工事名','発注者','工種','所長','着工','完成予定','出来高','SPI','CPI','状態']].concat(rows.map(r => [r.s.id, r.s.name, r.s.client, r.s.kind, r.s.manager, r.s.start, r.finish, pct(r.prog), f2(r.spi), f2(r.cpi), ST_LABEL[r.st]]))), 'text/csv'); audit('CSV出力', '現場一覧'); });
+  updSites();
+}
+function filteredSites(){
+  const q = ($('#sQ') || {}).value || '', st = ($('#sSt') || {}).value || '', kind = ($('#sKind') || {}).value || '';
+  const rows = siteRows().filter(r => (!q || (r.s.name + r.s.client).indexOf(q) >= 0) && (!st || r.st === st) && (!kind || r.s.kind === kind));
+  const key = {id:r => r.s.id, prog:r => r.prog, spi:r => r.spi, cpi:r => r.cpi, finish:r => r.finish}[S.siteSort.k] || (r => r.s.id);
+  return rows.sort((a, b) => (key(a) > key(b) ? 1 : key(a) < key(b) ? -1 : 0) * S.siteSort.d);
+}
+function updSites(){
+  if(!$('#sTbl')) return;
+  const rows = filteredSites(), ar = k2 => S.siteSort.k === k2 ? (S.siteSort.d > 0 ? ' ▲' : ' ▼') : '';
+  $('#sCount').textContent = rows.length + '件';
+  setHTML($('#sTbl'), `<table><thead><tr><th class="sort" data-k="id">現場${ar('id')}</th><th>発注者</th><th>工種</th><th>所長</th><th>着工</th><th class="sort" data-k="finish">完成予定${ar('finish')}</th><th class="num sort" data-k="prog">出来高${ar('prog')}</th><th class="num sort" data-k="spi">SPI${ar('spi')}</th><th class="num sort" data-k="cpi">CPI${ar('cpi')}</th><th>状態</th></tr></thead><tbody>` +
+    rows.map(r => `<tr class="click" data-site="${r.s.id}"><td><b>${r.s.id}現場</b><br><span class="muted" style="font-size:12px">${esc(r.s.name)}</span></td><td>${esc(r.s.client)}</td><td>${r.s.kind}</td><td>${esc(r.s.manager)}</td><td>${mdw(r.s.start)}</td><td>${mdw(r.finish)}${r.s.live && r.finish > CONTRACT ? '<br><span class="c-ng" style="font-size:11px">契約 '+md(CONTRACT)+' 超過</span>' : ''}</td><td class="num">${pct(r.prog)}</td><td class="num ${spiCls(r.spi)}">${f2(r.spi)}</td><td class="num">${f2(r.cpi)}</td><td>${pill(r.st, ST_LABEL[r.st])}${r.s.live ? ' <span class="pill p-info">連携中</span>' : ''}</td></tr>`).join('') + '</tbody></table>');
+}
+
+/* ================= ページ：承認ワークフロー ================= */
+const RQ_ST = {pending:['承認待ち','warn'], approved:['承認済み','ok'], rejected:['差戻し','ng'], withdrawn:['取下げ','idle']};
+function renderApprovals(el){
+  el.innerHTML = head('承認ワークフロー', '現場からの対策の起案を確認し、承認・差戻しを行います。承認すると翌稼働日から現場に反映されます。起案者本人は承認・差戻しできません', can('approve') ? '' : lockNote('approve')) +
+    `<div class="card"><div class="tabs2" id="aTabs"></div><div class="tbl" id="aTbl"></div></div>`;
+  el.querySelector('#aTabs').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if(b){ S.apprTab = b.getAttribute('data-t'); updApprovals(); } });
+  el.querySelector('#aTbl').addEventListener('click', e => { const tr = e.target.closest('tr[data-req]'); if(tr) openRequest(tr.getAttribute('data-req')); });
+  updApprovals();
+}
+function updApprovals(){
+  if(!$('#aTbl')) return;
+  const list = S.requests.slice().reverse();
+  const cnt = t => t === 'all' ? list.length : list.filter(r => r.status === t).length;
+  setHTML($('#aTabs'), [['pending','承認待ち'],['approved','承認済み'],['rejected','差戻し'],['all','すべて']].map(t => `<button type="button" class="${S.apprTab === t[0] ? 'on' : ''}" data-t="${t[0]}">${t[1]}（${cnt(t[0])}）</button>`).join(''));
+  const rows = S.apprTab === 'all' ? list : list.filter(r => r.status === S.apprTab);
+  const nf = nowInfo(), e = evmAt(nf.key, nf.frac);
+  setHTML($('#aTbl'), rows.length ? `<table><thead><tr><th>申請番号</th><th>件名</th><th>対策</th><th>起案者</th><th>起案日</th><th>完成予測（前→後）</th><th class="num">対策費</th><th>状態</th><th>効果</th></tr></thead><tbody>` + rows.map(r => {
+    const d = r.decisionId && S.decisions.find(x => x.id === r.decisionId);
+    const eff = d && !d.archived && d.scn === S.scn && nf.key >= d.effective ? `SPI ${f2(d.before.spi)}→<b class="${e.SPI >= d.before.spi ? 'c-ok' : 'c-ng'}">${f2(e.SPI)}</b>` : r.status === 'approved' ? '<span class="muted">反映待ち</span>' : '—';
+    return `<tr class="click" data-req="${r.id}"><td><b>${r.id}</b></td><td>${esc(r.title)}</td><td>${r.options.map(o => OB[o].short).join('＋')}</td><td>${esc(r.createdBy)}</td><td>${mdw(r.simDate)} ${r.simTime}</td><td>${md(r.before.finish)} → <b>${md(r.after.finish)}</b></td><td class="num">${man(r.after.cost)}</td><td>${pill(RQ_ST[r.status][1], RQ_ST[r.status][0])}${r.status === 'pending' && isOwnRequest(r) ? '<br><span class="muted" style="font-size:11px">自分の起案</span>' : ''}</td><td>${eff}</td></tr>`;
+  }).join('') + '</tbody></table>' : `<div class="empty">該当する申請はありません。<br>「対策シミュレーション」で対策を選び、起案すると表示されます。</div>`);
+}
+function openRequest(id){
+  const r = S.requests.find(x => x.id === id); if(!r) return;
+  const nf = nowInfo(), e = evmAt(nf.key, nf.frac);
+  const d = r.decisionId && S.decisions.find(x => x.id === r.decisionId);
+  const canAct = canDecide(r);
+  openDrawer(`<div class="dh"><div><div class="muted" style="font-size:12px">${r.id} ／ ${pill(RQ_ST[r.status][1], RQ_ST[r.status][0])}</div><h2>${esc(r.title)}</h2></div><button class="btn sub sm" data-x="1" type="button">閉じる</button></div>
+    <div class="db">
+      <div class="sec"><h3>対策内容</h3>${r.options.map(o => `<div style="margin-bottom:4px"><b>${OB[o].name}</b><br><span class="muted" style="font-size:12px">${OB[o].desc} ／ 費用：${OB[o].cost}</span></div>`).join('')}</div>
+      ${r.comment ? `<div class="sec"><h3>起案者のコメント</h3><div>${esc(r.comment)}</div></div>` : ''}
+      <div class="sec"><h3>判断の根拠（起案時点 ${mdw(r.simDate)} ${r.simTime}）</h3><dl class="kv"><dt>SPI ／ CPI</dt><dd>${f2(r.before.spi)} ／ ${f2(r.before.cpi)}</dd><dt>擁壁工の遅れ</dt><dd>${f1(Math.max(0, r.before.wallDelay))}日</dd><dt>重機稼働率</dt><dd>${r.before.util != null ? pct(r.before.util) : '—'}（BH-01 ${r.before.bh1 != null ? pct(r.before.bh1) : '—'}）</dd></dl></div>
+      <div class="sec"><h3>試算</h3><dl class="kv"><dt>完成予測</dt><dd>${mdw(r.before.finish)} → <b>${mdw(r.after.finish)}</b>（契約 ${mdw(CONTRACT)}）</dd><dt>擁壁工の完了</dt><dd>${mdw(r.after.wallFinish)}</dd><dt>最終原価見込み</dt><dd>${man(r.before.eac)} → <b>${man(r.after.eac)}</b></dd><dt>対策費</dt><dd>${man(r.after.cost)}</dd></dl></div>
+      ${d ? `<div class="sec"><h3>効果の検証</h3>${!d.archived && d.scn === S.scn && nf.key >= d.effective ? `SPI ${f2(d.before.spi)} → <b>${f2(e.SPI)}</b>（${mdw(nf.key)}時点）<br>現在の完成予測 ${mdw(FC.finish)}（承認時の試算 ${mdw(d.after.finish)}）` : !d.archived && d.scn === S.scn ? mdw(d.effective)+' から反映されます' : 'リセット前の記録です'}</div>` : ''}
+      <div class="sec"><h3>履歴</h3><ul class="tl">${r.history.map(h => `<li class="${h.action === '承認' ? 'ok' : h.action === '差戻し' ? 'ng' : ''}"><b>${h.action}</b> ${esc(h.by)} <span class="muted" style="font-size:12px">${mdw(h.sim.slice(0,10))} ${h.sim.slice(11)}</span>${h.comment ? `<br><span style="font-size:12px">${esc(h.comment)}</span>` : ''}</li>`).join('')}</ul></div>
+    </div>
+    <div class="df">${canAct ? `<textarea class="in" id="apC" placeholder="承認・差戻しのコメント（差戻しの場合は必須）"></textarea><div class="fld"><span class="err" id="apErr"></span></div><div class="acts"><button class="btn ok" id="apOk" type="button">承認する</button><button class="btn ng" id="apNg" type="button">差戻す</button></div>`
+      : r.status !== 'pending' ? '<span class="muted">この申請は処理済みです</span>'
+      : !can('approve') ? lockNote('approve')
+      : isOwnRequest(r) ? `<span class="lock">${icon('lock')} 自分が起案した申請は承認・差戻しできません（職務分掌）。他の承認者が判断します</span>`
+      : '<span class="muted">シナリオが異なるため操作できません</span>'}</div>`);
+  if(canAct){
+    $('#apOk').addEventListener('click', () => decide(r.id, true, $('#apC').value.trim()));
+    $('#apNg').addEventListener('click', () => { const c = $('#apC').value.trim(); if(!c){ $('#apErr').textContent = '差戻しの理由を入力してください'; return; } decide(r.id, false, c); });
+  }
+}
+function beforeSnapshot(){
+  const nf = nowInfo(), e = evmAt(nf.key, nf.frac), u = todayUtil();
+  return {spi:e.SPI, cpi:e.CPI, wallDelay:taskDelay('wall', nf.key, nf.frac), util:u.avg, bh1:u.bh1, finish:FC.finish, eac:FC.eac};
+}
+function decide(id, ok, comment){
+  const r = S.requests.find(x => x.id === id); if(!r || !canDecide(r)) return;
+  const nf = nowInfo();
+  r.status = ok ? 'approved' : 'rejected';
+  r.history.push({at:new Date().toISOString(), sim:nf.key+' '+nf.hm, by:me().name, action: ok ? '承認' : '差戻し', comment});
+  if(ok){
+    const cand = forecast(new Set(r.options));
+    const d = {id:Date.now(), ts:new Date().toISOString(), scn:S.scn, simDate:nf.key, simTime:nf.hm, effective:nf.tomorrow, approver:me().name, comment: comment || r.comment, options:r.options.slice(),
+      before:beforeSnapshot(), after:{finish:cand.finish, eac:cand.eac, wallFinish:cand.sp.wall.f, cost:cand.optAdd - FC.optAdd}, reqId:r.id};
+    S.decisions.push(d); r.decisionId = d.id;
+    recompute();
+  }
+  audit(ok ? '承認' : '差戻し', r.id, r.title + (comment ? '／' + comment : ''));
+  notify(`${r.id}「${r.title}」が${ok ? '承認' : '差し戻し'}されました`, ok ? 'ok' : 'warn', 'approvals');
+  save(); closeOverlay(); renderNav(); updApprovals();
+  toast(ok ? '承認しました。翌稼働日（'+mdw(nextWorkKey(nf.key))+'）から現場に反映されます' : '差し戻しました');
+}
+
+/* ================= ページ：レポート（週報） ================= */
+function weekList(){
+  const nf = nowInfo(), out = []; let d = parseK('2026-09-28');
+  while(k(d) <= nf.key){ out.push(k(d)); d = addDays(d, 7); }
+  return out.reverse();
+}
+let repWeek = null;
+function renderReports(el){
+  const weeks = weekList(); if(!repWeek || weeks.indexOf(repWeek) < 0) repWeek = weeks[0];
+  el.innerHTML = head('レポート', 'A現場の週報を自動で作成します。印刷やPDF保存にも対応しています',
+    `<select class="in" id="rW">${weeks.map(w => `<option value="${w}" ${w === repWeek ? 'selected' : ''}>${md(w)}〜${md(k(addDays(parseK(w),6)))} の週</option>`).join('')}</select><button class="btn sub" type="button" id="rCsv">CSV出力</button><button class="btn" type="button" id="rPrint">印刷・PDF</button>`) + `<div id="rBody"></div>`;
+  el.querySelector('#rW').addEventListener('change', e => { repWeek = e.target.value; updReports(true); });
+  el.querySelector('#rPrint').addEventListener('click', () => { audit('印刷', '週報 '+repWeek); window.print(); });
+  el.querySelector('#rCsv').addEventListener('click', () => { download('weekly-'+repWeek+'.csv', csvOf(weekRows().map(x => [x.key, x.weather, x.workers, x.works, Math.round(x.ev)])), 'text/csv'); audit('CSV出力', '週報 '+repWeek); });
+  updReports(true);
+}
+function weekRows(){
+  const s = repWeek, e = k(addDays(parseK(repWeek), 6)), nf = nowInfo();
+  return ACT.recs.filter(r => r.key >= s && r.key <= e && r.key < nf.key).map(autoDaily);
+}
+function updReports(force){
+  if(!$('#rBody') || (!force && !dirty.all)) return;
+  const nf = nowInfo(), s = repWeek, e = k(addDays(parseK(repWeek), 6));
+  const endKey = e < nf.key ? e : nf.key, frac = e < nf.key ? 1 : nf.frac;
+  const ev1 = evmAt(endKey, frac), st0 = stateAt(ACT.recs, k(addDays(parseK(s), -1)), 1).prog, st1 = stateAt(ACT.recs, endKey, frac).prog, pl1 = stateAt(PLAN.recs, endKey, frac).prog;
+  const evs = ALERTS.filter(a => a.key >= s && a.key <= e);
+  const decs = S.decisions.filter(d => !d.archived && d.scn === S.scn && d.simDate >= s && d.simDate <= e);
+  const ns = k(addDays(parseK(s), 7)), ne = k(addDays(parseK(s), 13));
+  const nextTasks = TASKS.filter(t => FC.all.some(r => r.key >= ns && r.key <= ne && r.active.indexOf(t.id) >= 0));
+  const days = weekRows();
+  setHTML($('#rBody'), `<div class="card" style="margin-bottom:14px"><div class="ch"><b>週報：A現場 県道○○線 道路改良工事</b><small>${mdw(s)}〜${mdw(e)} ／ 作成 ${mdw(nf.key)} ${nf.hm}（自動作成）</small></div>
+    <div class="kpis" style="margin-bottom:6px">${kpi('SPI（工程）', f2(ev1.SPI), spiCls(ev1.SPI))}${kpi('CPI（原価）', f2(ev1.CPI), ev1.CPI < .95 ? 'c-warn' : 'c-ok')}${kpi('出来高率', pct(ev1.EV/BUDGET))}${kpi('擁壁工の遅れ', f1(Math.max(0, taskDelay('wall', endKey, frac)))+'日')}${kpi('完成予測', mdw(FC.finish), FC.finish > CONTRACT ? 'c-ng' : 'c-ok', '契約 '+mdw(CONTRACT))}</div></div>
+    <div class="g2"><div class="card"><div class="ch"><b>工種別の進捗</b><small>週初 → 週末（計画）</small></div><div class="tbl"><table><thead><tr><th>工種</th><th class="num">週初</th><th class="num">週末</th><th class="num">計画</th><th class="num">差</th></tr></thead><tbody>${TASKS.map(t => { const a0 = st0[t.id]/t.qty, a1 = st1[t.id]/t.qty, p1 = pl1[t.id]/t.qty, d = a1 - p1; return `<tr><td>${t.name}</td><td class="num">${pct(a0)}</td><td class="num"><b>${pct(a1)}</b></td><td class="num">${pct(p1)}</td><td class="num ${d < -.03 ? 'c-ng' : ''}">${d >= 0 ? '+' : '−'}${Math.abs(Math.round(d*100))}pt</td></tr>`; }).join('')}</tbody></table></div></div>
+      <div class="card"><div class="ch"><b>今週の主な出来事</b></div><ul class="alerts">${alertsHTML(evs, 10)}</ul>${decs.length ? '<div class="ch" style="margin-top:12px"><b>承認された対策</b></div><ul class="alerts">' + decs.map(d => `<li><span class="d">${mdw(d.simDate)}</span><span>${d.options.map(o => OB[o].short).join('＋')}（${esc(d.approver)}）</span></li>`).join('') + '</ul>' : ''}
+      <div class="ch" style="margin-top:12px"><b>来週の予定（予測）</b></div><div>${nextTasks.length ? nextTasks.map(t => pill('info', t.name)).join(' ') : '<span class="muted">予定はありません</span>'}</div></div></div>
+    <div class="card"><div class="ch"><b>日別の実績</b></div><div class="tbl"><table><thead><tr><th>日付</th><th>天候</th><th class="num">作業員</th><th>主な作業</th><th class="num">出来高</th></tr></thead><tbody>${days.length ? days.map(x => `<tr><td>${mdw(x.key)}</td><td>${x.weather}</td><td class="num">${x.workers}名</td><td>${esc(x.works)}</td><td class="num">${man(x.ev)}</td></tr>`).join('') : '<tr><td colspan="5" class="muted">実績はまだありません</td></tr>'}</tbody></table></div></div>`);
+}
+
+/* ================= ページ：現場概要 ================= */
+function renderOverview(el){
+  el.innerHTML = head('A現場 現場概要', '県道○○線 道路改良工事（擁壁工 L型12ブロック・延長220m）', `<button class="btn sub sm" type="button" data-go2="twin">ライブツイン</button><button class="btn sub sm" type="button" data-go2="schedule">4D工程</button><button class="btn sm" type="button" data-go2="sim">対策シミュレーション</button>`) +
+    `<div class="kpis" id="oKpi"></div>
+     <div class="g21"><div class="card"><div class="ch"><b>工種別の進捗</b><small>上：計画 ／ 下：実績</small></div><div id="oProg"></div></div>
+       <div class="card"><div class="ch"><b>工事情報</b></div><dl class="kv">
+         <dt>工事名</dt><dd>県道○○線 道路改良工事</dd><dt>発注者</dt><dd>○○県 ○○土木事務所</dd><dt>工期</dt><dd>${mdw(START_KEY)} 〜 ${mdw(CONTRACT)}</dd>
+         <dt>請負金額</dt><dd>${man(CONTRACT_AMOUNT)}（サンプル）</dd><dt>実行予算</dt><dd>${man(PLAN_EAC)}</dd><dt>主な工種</dt><dd>土工・擁壁工・排水工・路盤工・舗装工</dd><dt>現場所長</dt><dd>現場所長</dd></dl></div></div>
+     <div class="g2"><div class="card"><div class="ch"><b>アラート・お知らせ</b></div><ul class="alerts" id="oAl"></ul></div>
+       <div class="card"><div class="ch"><b>本日の現場</b><small id="oToday"></small></div><div id="oDay"></div></div></div>`;
+  bindGo2(el); updOverview();
+}
+function updOverview(){
+  if(!$('#oKpi')) return;
+  const nf = nowInfo(), A = siteA(), e = A.e, wd = taskDelay('wall', nf.key, nf.frac), u = todayUtil();
+  setHTML($('#oKpi'), kpi('状態', ST_LABEL[A.st], 'c-'+A.st) + kpi('SPI ／ CPI', f2(e.SPI)+' ／ '+f2(e.CPI), spiCls(e.SPI)) + kpi('出来高率', pct(A.prog), '', man(e.EV)+' ／ '+man(BUDGET)) +
+    kpi('擁壁工の遅れ', wd > .05 ? f1(wd)+'日' : 'なし', wd >= 2 ? 'c-ng' : wd > .5 ? 'c-warn' : 'c-ok') + kpi('重機稼働率（本日）', u.avg != null ? pct(u.avg) : '—', u.avg != null && u.avg < .65 ? 'c-ng' : '') + kpi('完成予測', mdw(FC.finish), FC.finish > CONTRACT ? 'c-ng' : 'c-ok', '契約 '+mdw(CONTRACT)));
+  const p = stateAt(PLAN.recs, nf.key, nf.frac).prog, a = stateAt(ACT.recs, nf.key, nf.frac).prog;
+  setHTML($('#oProg'), TASKS.map(t => { const pp = p[t.id]/t.qty, aa = a[t.id]/t.qty, late = pp - aa > .03; return `<div class="prow"><span>${t.name}</span><span class="bars"><span class="bar"><i style="width:${pp*100}%;background:var(--plan)"></i></span><span class="bar"><i style="width:${aa*100}%;background:${late ? 'var(--ng)' : 'var(--ok)'}"></i></span></span><span class="num" style="text-align:right;font-size:12px">${pct(aa)} <span class="muted">/ ${pct(pp)}</span></span></div>`; }).join(''));
+  setHTML($('#oAl'), alertsHTML(ALERTS, 7));
+  const rec = stateAt(ACT.recs, nf.key, nf.frac).rec, sv = sensorAt(nf.key, nf.h);
+  $('#oToday').textContent = mdw(nf.key) + ' ' + nf.hm;
+  setHTML($('#oDay'), rec ? `<dl class="kv"><dt>天候</dt><dd>${weatherOf(nf.key)}（WBGT ${sv.wbgt.toFixed(1)} ／ 風速 ${sv.wind.toFixed(1)}m/s）</dd><dt>施工中の工種</dt><dd>${rec.active.map(id => TB[id].name).join('、')}</dd><dt>作業員</dt><dd>${crewOf(rec)}名</dd><dt>実施中の対策</dt><dd>${rec.opts.length ? rec.opts.map(o => OB[o].short).join('、') : 'なし'}</dd></dl>` : '<div class="muted">本日は作業日ではありません</div>');
+}
+
+/* ================= ページ：ライブツイン ================= */
+const CAMS = {
+  all:   {tx:128, ty:4, tz:0, yaw:-.12, pitch:.8,  dist:150},
+  wall:  {tx:90,  ty:8, tz:2, yaw:-.38, pitch:.46, dist:70},
+  earth: {tx:160, ty:0, tz:0, yaw:-.3,  pitch:.55, dist:60},
+};
+const camTwin = Object.assign({}, CAMS.all);
+const cam4d = {tx:92, ty:8, tz:1, yaw:-.34, pitch:.42, dist:92};
+let vTwin = null, vPlan = null, vAct = null, lastMS = null;
+function renderTwinPage(el){
+  el.innerHTML = head('ライブツイン', '現場の3Dモデル上で、重機・作業員・進捗をリアルタイムに表示します',
+    `<button class="btn sub sm" type="button" data-cam="all">全体</button><button class="btn sub sm" type="button" data-cam="wall">擁壁</button><button class="btn sub sm" type="button" data-cam="earth">土工</button><button class="btn sub sm" type="button" data-cam="zin">＋</button><button class="btn sub sm" type="button" data-cam="zout">－</button><button class="btn sub sm ${S.compare ? 'on' : ''}" type="button" id="btnCmp">計画比較 色分け</button>`) +
+    `<div class="twin"><div class="cv big"><canvas id="cvTwin"></canvas><div class="ov tl"><div class="glass" id="twTitle"></div></div><div class="ov bl"><div class="glass lg" id="twLegend"></div></div><div class="ov br"><div class="glass muted" style="font-size:11px">ドラッグ：回転 ／ Shift＋ドラッグ：移動 ／ ホイール：拡大縮小</div></div></div>
+     <aside class="side"><div class="card"><div class="ch"><b>現場の状況</b><small id="twSub"></small></div><div class="mini" id="twKpis"></div></div>
+       <div class="card"><div class="ch"><b>選択中の重機</b></div><div id="twDetail" class="detail muted">3D上の重機名か、下の一覧をクリックしてください。</div></div>
+       <div class="card"><div class="ch"><b>警告・お知らせ</b></div><ul class="alerts" id="twAlerts"></ul></div>
+       <div class="card"><div class="ch"><b>重機一覧</b><small id="twMcount"></small></div><div class="tbl"><table class="mtbl" id="twMachines"></table></div></div></aside></div>`;
+  vTwin = makeView($('#cvTwin'));
+  attachCam(vTwin, () => camTwin, (x, y) => { const hit = vTwin.hits.slice().reverse().find(h => x >= h.x0 && x <= h.x1 && y >= h.y0 && y <= h.y1); S.sel = hit ? hit.id : null; renderTwinSide(true); });
+  el.querySelectorAll('[data-cam]').forEach(b => b.addEventListener('click', () => {
+    const c = b.getAttribute('data-cam');
+    if(c === 'zin') camTwin.dist = clamp(camTwin.dist*.75, 18, 900);
+    else if(c === 'zout') camTwin.dist = clamp(camTwin.dist/.75, 18, 900);
+    else { Object.assign(camTwin, CAMS[c]); const nf = nowInfo(), p = stateAt(ACT.recs, nf.key, nf.frac).prog; if(c === 'wall') camTwin.tx = WX0 + Math.min(11, Math.floor(p.wall))*BL + BL/2; if(c === 'earth') camTwin.tx = front('earth', p) - 8; }
+  }));
+  el.querySelector('#btnCmp').addEventListener('click', e => { S.compare = !S.compare; e.currentTarget.classList.toggle('on', S.compare); renderLegend(); });
+  el.querySelector('#twMachines').addEventListener('pointerdown', e => { const tr = e.target.closest('tr[data-m]'); if(!tr) return; S.sel = tr.getAttribute('data-m'); const s = lastMS && lastMS.list.find(x => x.m.id === S.sel); if(s && s.vis !== false){ camTwin.tx = s.x; camTwin.ty = s.y; camTwin.dist = Math.min(camTwin.dist, 90); } renderTwinSide(true); });
+  renderLegend(); drawTwin(performance.now()/1000); renderTwinSide(true);
+}
+//@@E
+
+/* ================= ページ：4D工程 ================= */
+//@@C1
+//@@C2
+function renderSchedule(el){
+  el.innerHTML = head('4D工程', '工程表と3Dモデルを連動させ、計画と実績（予測）を比べます', `<button class="btn sub sm" type="button" id="sCsv2">工程CSV出力</button>`) +
+    `<div class="card" style="margin-bottom:14px"><div class="ch"><b>計画と実績（予測）</b><small>薄い帯＝計画 ／ 濃い帯＝実績 ／ 点線＝予測。図をクリックするとその日の姿を表示</small></div><div id="gantt"></div>
+      <div class="ctl4d"><button class="btn sm" id="b4Play" type="button">▶ 再生</button><button class="btn sub sm" id="b4Today" type="button">今日へ</button><input type="range" id="r4" min="0" max="${G.days-1}" step="1" value="${calDiff(START_KEY, nowInfo().key)}" aria-label="表示する日付"><b id="l4Date" style="min-width:150px"></b></div></div>
+     <div class="g2"><div class="cv half"><canvas id="cvPlan"></canvas><div class="ov tl"><div class="glass"><b>計画の姿</b> <span id="l4Plan" class="muted"></span></div></div></div>
+       <div class="cv half"><canvas id="cvAct"></canvas><div class="ov tl"><div class="glass"><b id="l4ActT">実績の姿</b> <span id="l4Act" class="muted"></span></div></div><div class="ov bl"><div class="glass lg"><span><i style="background:#39a96b"></i>完了</span><span><i style="background:#e0a03a"></i>施工中</span><span><i style="background:#d64545"></i>計画より遅れ</span><span><i style="background:#3f7fd0;opacity:.5"></i>未着手</span></div></div></div></div>
+     <div class="card"><div class="ch"><b>工種別の比較</b><small id="l4Sub"></small></div><div class="tbl"><table id="t4"></table></div></div>`;
+  vPlan = makeView($('#cvPlan')); vAct = makeView($('#cvAct'));
+  attachCam(vPlan, () => cam4d); attachCam(vAct, () => cam4d);
+  el.querySelector('#gantt').addEventListener('click', e => { const svg = $('#gSvg'); if(!svg) return; const r = svg.getBoundingClientRect(); const x = (e.clientX - r.left)*G.W/r.width; if(x < G.L) return; $('#r4').value = clamp(Math.floor((x - G.L)/G.px), 0, G.days-1); on4dChange(); });
+  el.querySelector('#r4').addEventListener('input', on4dChange);
+  el.querySelector('#b4Today').addEventListener('click', () => { $('#r4').value = calDiff(START_KEY, nowInfo().key); on4dChange(); });
+  el.querySelector('#b4Play').addEventListener('click', () => { S.play4d = !S.play4d; $('#b4Play').textContent = S.play4d ? '⏸ 停止' : '▶ 再生'; if(S.play4d && +$('#r4').value >= G.days-1) $('#r4').value = 0; });
+  el.querySelector('#sCsv2').addEventListener('click', () => { download('schedule.csv', csvOf([['工種','数量','単位','計画開始','計画完了','実績開始','完了予測']].concat(TASKS.map(t => [t.name, t.qty, t.unit, PLAN_SP[t.id].s, PLAN_SP[t.id].f, FC.sp[t.id].s && FC.sp[t.id].s <= nowInfo().key ? FC.sp[t.id].s : '', FC.sp[t.id].f]))), 'text/csv'); audit('CSV出力', '工程表'); });
+  S.play4d = false; on4dChange();
+}
+function draw4d(){ const vk = viewKey(), s = state4d(vk); drawScene(vPlan, buildScene(s.plan, {}), cam4d); drawScene(vAct, buildScene(s.act, {cmpPlan:s.plan}), cam4d); }
+function on4dChange(){ renderGantt(); render4dInfo(); }
+let last4d = 0;
+
+/* ================= ページ：対策シミュレーション ================= */
+//@@D
+function renderSim(el){
+  el.innerHTML = head('対策シミュレーション', '対策を選ぶと、工期と最終原価への影響をすぐに試算します。結果を添えて承認を依頼できます') +
+    `<div class="g12"><div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+       <div class="card"><div class="ch"><b>現状（A現場）</b><small>このまま何もしない場合の予測を含みます</small></div><div id="wiNow"></div></div>
+       <div class="card"><div class="ch"><b>対策を選ぶ</b><small>複数選択できます</small></div><div id="wiOpts"></div></div>
+       <div class="card"><div class="ch"><b>承認を依頼する（起案）</b>${can('draft') ? '' : lockNote('draft')}</div>
+         <label class="fld"><span>件名</span><input class="in" id="wiTitle" maxlength="60" placeholder="例：擁壁工の遅れ回復のための体制強化" value="${esc(S.draftTitle)}" ${can('draft') ? '' : 'disabled'}></label>
+         <label class="fld"><span>理由・コメント</span><textarea class="in" id="wiComment" placeholder="例：ダンプ不足が根本原因のため、搬出能力と擁壁の施工能力を同時に回復させる" ${can('draft') ? '' : 'disabled'}>${esc(S.draftComment)}</textarea></label>
+         <div class="fld"><span class="err" id="wiErr"></span></div>
+         <button class="btn" id="wiApprove" type="button">起案して承認を依頼する</button>
+         <p class="note">承認者（経営層）が「承認ワークフロー」で承認すると、翌稼働日から現場に反映されます。起案者本人は承認できません。</p></div></div>
+     <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+       <div class="card"><div class="ch"><b>試算結果</b></div><div id="wiRes"></div></div>
+       <div class="card"><div class="ch"><b>完成時期の比較</b></div><div id="wiTimeline"></div></div>
+       <div class="card"><div class="ch"><b>すべての組み合わせ</b><small>最終原価見込みの安い順。行をクリックで選択</small></div><div class="tbl" id="wiRank"></div></div></div></div>`;
+  el.querySelector('#wiOpts').addEventListener('change', e => { const id = e.target.getAttribute('data-opt'); if(!id) return; if(e.target.checked) S.whatif.add(id); else S.whatif.delete(id); updSim(); });
+  el.querySelector('#wiRank').addEventListener('click', e => { const tr = e.target.closest('tr[data-combo]'); if(!tr) return; S.whatif = new Set(tr.getAttribute('data-combo').split(',').filter(Boolean)); updSim(); });
+  el.querySelector('#wiTitle').addEventListener('input', e => S.draftTitle = e.target.value);
+  el.querySelector('#wiComment').addEventListener('input', e => S.draftComment = e.target.value);
+  el.querySelector('#wiApprove').addEventListener('click', draftRequest);
+  updSim();
+}
+function updSim(){ if(!$('#wiRes')) return; renderWhatIf(); if(!can('draft')) $('#wiApprove').disabled = true; }
+function draftRequest(){
+  if(!can('draft')) return;
+  const sel = Array.from(selectedOpts());
+  const title = S.draftTitle.trim();
+  if(!sel.length){ $('#wiErr').textContent = '対策を1つ以上選んでください'; return; }
+  if(!title){ $('#wiErr').textContent = '件名を入力してください'; $('#wiTitle').focus(); return; }
+  const nf = nowInfo(), cand = forecast(new Set(sel));
+  const id = 'REQ-' + String(S.requests.length + 1).padStart(4, '0');
+  S.requests.push({id, title, options:sel, status:'pending', scn:S.scn, createdBy:me().name, createdById:me().id, createdAt:new Date().toISOString(), simDate:nf.key, simTime:nf.hm, comment:S.draftComment.trim(),
+    before:beforeSnapshot(), after:{finish:cand.finish, eac:cand.eac, wallFinish:cand.sp.wall.f, cost:cand.optAdd - FC.optAdd},
+    history:[{at:new Date().toISOString(), sim:nf.key+' '+nf.hm, by:me().name, action:'起案', comment:S.draftComment.trim()}]});
+  audit('起案', id, title + '／' + sel.map(o => OB[o].short).join('＋'));
+  notify(`${id}「${title}」の承認依頼が届きました（${me().name}）`, 'info', 'approvals');
+  S.draftTitle = ''; S.draftComment = ''; S.whatif.clear(); save();
+  toast(id + ' を起案しました。承認ワークフローで確認できます');
+  S.apprTab = 'pending'; go('approvals');
+}
+
+/* ================= ページ：重機・稼働 ================= */
+let mFilter = '';
+function renderMachines(el){
+  el.innerHTML = head('重機・稼働', '重機の状態と稼働率を一覧で確認します（テレマティクス連携を想定）', `<button class="btn sub sm" type="button" id="mCsv">CSV出力</button>`) +
+    `<div class="kpis" id="mKpi"></div><div class="g21"><div class="card"><div class="filters"><select class="in" id="mF"><option value="">状態：すべて</option><option>稼働</option><option>待機</option><option>故障</option><option>休止</option></select><span class="muted" style="font-size:12px">直近7稼働日の稼働率を棒で表示</span></div><div class="tbl" id="mTbl"></div></div>
+     <div class="card"><div class="ch"><b>主要機械の平均稼働率</b><small>直近15稼働日</small></div><div id="mChart"></div><p class="note">赤い線：注意しきい値（${pct(S.cfg.utilWarn)}）</p></div></div>`;
+  el.querySelector('#mF').value = mFilter;
+  el.querySelector('#mF').addEventListener('input', e => { mFilter = e.target.value; updMachines(); });
+  el.querySelector('#mTbl').addEventListener('click', e => { const tr = e.target.closest('tr[data-m]'); if(tr){ S.sel = tr.getAttribute('data-m'); go('twin'); } });
+  el.querySelector('#mCsv').addEventListener('click', () => { const nf = nowInfo(), ms = machineStates(nf, stateAt(ACT.recs, nf.key, nf.frac).prog); download('machines.csv', csvOf([['ID','名称','担当工種','状態','理由']].concat(ms.list.map(s => [s.m.id, s.m.name, TB[s.m.task].name, s.st, s.why]))), 'text/csv'); audit('CSV出力', '重機一覧'); });
+  updMachines();
+}
+function updMachines(){
+  if(!$('#mTbl')) return;
+  const nf = nowInfo(), ms = machineStates(nf, stateAt(ACT.recs, nf.key, nf.frac).prog), u = todayUtil();
+  const shown = ms.list.filter(s => !s.m.option || ms.opts.has(s.m.option));
+  const cnt = st => shown.filter(s => s.st === st).length;
+  setHTML($('#mKpi'), kpi('保有台数（現場）', shown.length+'台') + kpi('稼働', cnt('稼働'), 'c-ok') + kpi('待機', cnt('待機'), cnt('待機') ? 'c-warn' : '') + kpi('故障', cnt('故障'), cnt('故障') ? 'c-ng' : '') + kpi('本日の稼働率', u.avg != null ? pct(u.avg) : '—', u.avg != null && u.avg < .65 ? 'c-ng' : '', '主要機械の平均'));
+  const past = ACT.recs.filter(r => r.key < nf.key).slice(-7);
+  const spark = m => '<span style="display:inline-flex;gap:2px;align-items:flex-end;height:22px">' + past.map(r => { const o = new Set(r.opts); const on = r.active.indexOf(m.task) >= 0 && (!m.option || o.has(m.option)); const v = on ? (m.type === 'dt' ? .9 : machineUtil(m, r.key, o, S.scn)) : 0; return `<i title="${md(r.key)} ${on ? pct(v) : '休止'}" style="display:inline-block;width:6px;height:${Math.max(2, v*22)}px;border-radius:2px;background:${!on ? 'var(--line)' : v < S.cfg.utilWarn ? 'var(--ng)' : v < .75 ? 'var(--warn)' : 'var(--ok)'}"></i>`; }).join('') + '</span>';
+  setHTML($('#mTbl'), `<table><thead><tr><th>ID</th><th>名称</th><th>担当工種</th><th>状態</th><th>理由・作業</th><th>直近7日</th></tr></thead><tbody>` + shown.filter(s => !mFilter || s.st === mFilter).map(s => `<tr class="click" data-m="${s.m.id}"><td><b>${s.m.id}</b></td><td>${esc(s.m.name)}</td><td>${TB[s.m.task].name}</td><td><span class="pill ${ST_PILL[s.st]}">${s.st}</span></td><td style="font-size:12px">${esc(s.why || '')}</td><td>${spark(s.m)}</td></tr>`).join('') + '</tbody></table>');
+  if(dirty.all || !$('#mChart').innerHTML){
+    const recs = ACT.recs.filter(r => r.key < nf.key).slice(-15), W = 520, H = 190, L = 34, B = 26, bw = (W - L - 10)/Math.max(1, recs.length);
+    let s = `<svg class="chart" viewBox="0 0 ${W} ${H}">`;
+    [0, .25, .5, .75, 1].forEach(v => { const y = 10 + (H-10-B)*(1-v); s += `<line x1="${L}" x2="${W-10}" y1="${y}" y2="${y}" stroke="var(--line)"/><text x="${L-4}" y="${y+3.5}" text-anchor="end">${pct(v)}</text>`; });
+    recs.forEach((r, i) => { const du = dayUtil(r.key, r.active, new Set(r.opts), S.scn).avg || 0, h = (H-10-B)*du, x = L + i*bw + 3; s += `<rect x="${x}" y="${H-B-h}" width="${bw-6}" height="${h}" rx="3" fill="${du < S.cfg.utilWarn ? 'var(--ng)' : du < .75 ? 'var(--warn)' : 'var(--ok)'}" opacity=".85"><title>${md(r.key)} ${pct(du)}</title></rect>`; if(i % 3 === 0) s += `<text x="${x + (bw-6)/2}" y="${H-8}" text-anchor="middle">${md(r.key)}</text>`; });
+    const yw = 10 + (H-10-B)*(1-S.cfg.utilWarn); s += `<line x1="${L}" x2="${W-10}" y1="${yw}" y2="${yw}" stroke="var(--ng)" stroke-dasharray="4 3"/>`;
+    $('#mChart').innerHTML = s + '</svg>';
+  }
+}
+
+/* ================= ページ：日報 ================= */
+const WEATHERS = ['晴れ','晴れ','晴れ','曇り','曇り','小雨'];
+const weatherOf = key => WEATHERS[Math.floor(hash(key+'w')*WEATHERS.length)];
+const crewOf = r => r.active.reduce((a, id) => a + TB[id].crew, 0) + (r.active.indexOf('wall') >= 0 && r.opts.indexOf('crew') >= 0 ? 6 : 0);
+function amtText(t, v){ return t.unit === 'BL' ? f1(v)+'BL' : t.unit === '日' ? '' : Math.round(v).toLocaleString()+t.unit; }
+function autoDaily(r){
+  let ev = 0; TASKS.forEach(t => ev += t.budget*(r.end[t.id] - r.start[t.id])/t.qty);
+  return {key:r.key, weather:weatherOf(r.key), workers:crewOf(r), works:r.active.map(id => { const t = TB[id], a = amtText(t, r.end[id] - r.start[id]); return t.name.replace(/（.*/, '') + (a ? ' ' + a : ''); }).join('、'), ev, note:ALERTS.filter(a => a.key === r.key).map(a => a.text).join(' ／ '), ky:true, by:'自動作成', status:'auto'};
+}
+function dailyList(){
+  const nf = nowInfo(), manual = S.dailies.filter(d => d.scn === S.scn);
+  const out = ACT.recs.filter(r => r.key < nf.key).map(r => { const m = manual.filter(d => d.key === r.key).pop(); return m ? Object.assign({ev:autoDaily(r).ev}, m) : autoDaily(r); });
+  manual.filter(d => d.key >= nf.key).forEach(d => { if(!out.some(o => o.key === d.key)) out.push(Object.assign({ev:0}, d)); });
+  return out.sort((a, b) => a.key < b.key ? 1 : -1);
+}
+function renderDaily(el){
+  el.innerHTML = head('日報', '日々の作業実績です。重機・入退場データから自動作成し、現場で確認・追記して提出します', (can('daily') ? `<button class="btn" type="button" id="dNew">本日の日報を作成</button>` : lockNote('daily')) + `<button class="btn sub" type="button" id="dCsv">CSV出力</button>`) +
+    `<div class="card"><div class="tbl" id="dTbl"></div></div>`;
+  if(can('daily')) el.querySelector('#dNew').addEventListener('click', () => dailyForm());
+  el.querySelector('#dCsv').addEventListener('click', () => { download('daily.csv', csvOf([['日付','天候','作業員','主な作業','出来高(万円)','特記事項','状態','作成者']].concat(dailyList().map(d => [d.key, d.weather, d.workers, d.works, Math.round(d.ev), d.note, d.status === 'auto' ? '自動作成' : '提出済', d.by]))), 'text/csv'); audit('CSV出力', '日報'); });
+  el.querySelector('#dTbl').addEventListener('click', e => { const tr = e.target.closest('tr[data-d]'); if(tr) dailyView(tr.getAttribute('data-d')); });
+  updDaily();
+}
+function updDaily(){
+  if(!$('#dTbl')) return;
+  const list = dailyList();
+  setHTML($('#dTbl'), `<table><thead><tr><th>日付</th><th>天候</th><th class="num">作業員</th><th>主な作業</th><th class="num">出来高</th><th>特記事項</th><th>状態</th><th>作成者</th></tr></thead><tbody>` +
+    (list.length ? list.map(d => `<tr class="click" data-d="${d.key}"><td><b>${mdw(d.key)}</b></td><td>${d.weather}</td><td class="num">${d.workers}名</td><td style="font-size:12px">${esc(d.works)}</td><td class="num">${man(d.ev)}</td><td style="font-size:12px;max-width:280px">${esc(d.note || '—')}</td><td>${d.status === 'auto' ? pill('idle', '自動作成') : pill('ok', '提出済')}</td><td>${esc(d.by)}</td></tr>`).join('') : '<tr><td colspan="8" class="muted">日報はまだありません</td></tr>') + '</tbody></table>');
+}
+function dailyForm(){
+  const nf = nowInfo(), rec = stateAt(ACT.recs, nf.key, nf.frac).rec;
+  const base = rec ? autoDaily(rec) : {workers:0, works:''};
+  openModal(`<div class="dh"><div><div class="muted" style="font-size:12px">A現場</div><h2>日報の作成 ${mdw(nf.key)}</h2></div><button class="btn sub sm" data-x="1" type="button">閉じる</button></div>
+    <div class="db"><p class="note" style="margin:0 0 10px">作業員数と作業内容は、入退場・重機データから自動で入力しています。確認して必要なら修正してください。</p>
+      <label class="fld"><span>天候</span><select class="in" id="fW">${['晴れ','曇り','小雨','雨','強風'].map(w => `<option ${w === weatherOf(nf.key) ? 'selected' : ''}>${w}</option>`).join('')}</select></label>
+      <label class="fld"><span>作業員数（名）</span><input class="in" id="fN" type="number" min="1" max="200" value="${base.workers}"></label>
+      <label class="fld"><span>作業内容</span><textarea class="in" id="fWk">${esc(base.works)}</textarea></label>
+      <label class="fld"><span>特記事項（ヒヤリハット・協議事項など）</span><textarea class="in" id="fNote" placeholder="例：BH-01 のダンプ待ちが多い。午後に残土受入地と調整"></textarea></label>
+      <label style="display:flex;gap:8px;align-items:center;font-size:13px"><input type="checkbox" id="fKy" checked> 朝礼・KY（危険予知）活動を実施した</label>
+      <div class="fld"><span class="err" id="fErr"></span></div></div>
+    <div class="df"><div class="acts"><button class="btn" type="button" id="fSave">提出する</button><button class="btn sub" type="button" data-x="1">キャンセル</button></div></div>`);
+  $('#fSave').addEventListener('click', () => {
+    const n = +$('#fN').value, wk = $('#fWk').value.trim();
+    if(!(n >= 1 && n <= 200)){ $('#fErr').textContent = '作業員数は1〜200で入力してください'; return; }
+    if(!wk){ $('#fErr').textContent = '作業内容を入力してください'; return; }
+    S.dailies.push({key:nf.key, scn:S.scn, weather:$('#fW').value, workers:n, works:wk, note:$('#fNote').value.trim(), ky:$('#fKy').checked, by:me().name, at:new Date().toISOString(), status:'submitted'});
+    audit('日報提出', mdw(nf.key), wk.slice(0, 40)); notify(`日報（${mdw(nf.key)}）が提出されました（${me().name}）`, 'info', 'daily'); save(); closeOverlay(); updDaily(); toast('日報を提出しました');
+  });
+}
+function dailyView(key){
+  const d = dailyList().find(x => x.key === key); if(!d) return;
+  openModal(`<div class="dh"><div><div class="muted" style="font-size:12px">A現場 ／ ${d.status === 'auto' ? '自動作成' : '提出済'}</div><h2>日報 ${mdw(d.key)}</h2></div><button class="btn sub sm" data-x="1" type="button">閉じる</button></div>
+    <div class="db"><dl class="kv"><dt>天候</dt><dd>${d.weather}</dd><dt>作業員</dt><dd>${d.workers}名</dd><dt>作業内容</dt><dd>${esc(d.works)}</dd><dt>出来高</dt><dd>${man(d.ev)}</dd><dt>特記事項</dt><dd>${esc(d.note || '—')}</dd><dt>KY活動</dt><dd>${d.ky ? '実施' : '未実施'}</dd><dt>作成者</dt><dd>${esc(d.by)}</dd></dl></div>`);
+}
+
+/* ================= ページ：安全・環境 ================= */
+function sensorAt(key, h){
+  const q = Math.floor(h*4), n = s => hash(key+s+q) - .5, day = Math.max(0, calDiff(START_KEY, key));
+  const wbgt = 20.5 - day*.06 + 3.6*Math.sin(Math.PI*clamp((h-8)/9, 0, 1)) + n('w')*1.0;
+  let wind = 3.2 + 2*Math.sin(h/2 + hash(key)*6) + n('v')*1.6; if(key === '2026-10-23' && h >= 13 && h < 15) wind += 7.5;
+  const noise = 66 + 7*Math.sin(h*1.3 + hash(key)*3) + n('n')*4, vib = 57 + 5*Math.sin(h + hash(key+'b')*4) + n('b')*3;
+  return {wbgt, wind:Math.max(0, wind), noise, vib};
+}
+const SENS = [
+  {k:'wbgt', name:'暑さ指数（WBGT）', unit:'℃', warn:25, ng:28, max:32, min:10, fmt:v => v.toFixed(1)},
+  {k:'wind', name:'風速', unit:'m/s', warn:8, ng:10, max:16, min:0, fmt:v => v.toFixed(1), note:'10m/s以上でクレーン作業中止'},
+  {k:'noise', name:'騒音', unit:'dB', warn:80, ng:85, max:95, min:50, fmt:v => v.toFixed(0), note:'規制基準 85dB'},
+  {k:'vib', name:'振動', unit:'dB', warn:70, ng:75, max:85, min:40, fmt:v => v.toFixed(0), note:'規制基準 75dB'},
+];
+function safetyEvents(){
+  if(!ACT) return [];
+  const nf = nowInfo(), out = [];
+  ACT.recs.filter(r => r.key <= nf.key).forEach(r => {
+    if(r.key === nf.key && nf.h < 13) return;
+    if(r.key === '2026-10-23' && r.active.indexOf('wall') >= 0) out.push({key:r.key, lv:'warn', text:'強風（最大風速10m/s超）のため、クレーン作業を一時中止しました（13:00〜15:00）'});
+    if(hash(r.key+'near') < .18 && r.key < nf.key) out.push({key:r.key, lv:'warn', text:'重機接近警報：'+(r.active.indexOf('wall') >= 0 ? 'BH-02' : 'BH-01')+' の旋回範囲に作業員が接近（自動停止で回避）'});
+  });
+  return out.sort((a, b) => a.key < b.key ? 1 : -1);
+}
+function renderSafety(el){
+  el.innerHTML = head('安全・環境', '現場のセンサーと安全イベントを監視します（IoTセンサー連携を想定）') +
+    `<div class="kpis" id="yKpi"></div><div class="sens" id="ySens"></div>
+     <div class="g2"><div class="card"><div class="ch"><b>本日の推移</b><small>8:00〜現在（15分ごと）</small></div><div id="yChart"></div></div>
+       <div class="card"><div class="ch"><b>安全イベント</b></div><ul class="alerts" id="yEv"></ul></div></div>`;
+  updSafety();
+}
+function updSafety(){
+  if(!$('#ySens')) return;
+  const nf = nowInfo(), sv = sensorAt(nf.key, nf.h), evs = safetyEvents();
+  const lvOf = (c, v) => v >= c.ng ? 'ng' : v >= c.warn ? 'warn' : 'ok';
+  const todayD = S.dailies.filter(d => d.scn === S.scn && d.key === nf.key).pop();
+  setHTML($('#yKpi'), kpi('無災害日数', (calDiff(START_KEY, nf.key)+1)+'日', 'c-ok', '着工から') + kpi('本日の作業員', (() => { const r = stateAt(ACT.recs, nf.key, nf.frac).rec; return r ? crewOf(r)+'名' : '—'; })()) +
+    kpi('安全イベント（直近7日）', evs.filter(e => calDiff(e.key, nf.key) < 7).length+'件', '') + kpi('本日のKY活動', todayD ? (todayD.ky ? '実施済み' : '未実施') : '日報未提出', todayD && todayD.ky ? 'c-ok' : 'c-warn'));
+  setHTML($('#ySens'), SENS.map(c => { const v = sv[c.k], lv = lvOf(c, v); return `<div class="card"><div class="ch"><b>${c.name}</b>${pill(lv, lv === 'ng' ? '基準超過' : lv === 'warn' ? '注意' : '正常')}</div><div class="v c-${lv}">${c.fmt(v)}<small style="font-size:13px"> ${c.unit}</small></div><div class="bar" style="margin-top:6px"><i style="width:${clamp((v-c.min)/(c.max-c.min), 0, 1)*100}%;background:var(--${lv})"></i></div><p class="note">注意 ${c.warn}${c.unit} ／ 基準 ${c.ng}${c.unit}${c.note ? '（' + c.note + '）' : ''}</p></div>`; }).join(''));
+  const pts = []; for(let h = 8; h <= Math.min(nf.h, 17) + 1e-6; h += .25) pts.push(h);
+  const W = 560, H = 190, L = 34, B = 24, X = h => L + (W-L-12)*(h-8)/9;
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}">`;
+  [0, .25, .5, .75, 1].forEach(v => { const y = 10 + (H-10-B)*(1-v); s += `<line x1="${L}" x2="${W-12}" y1="${y}" y2="${y}" stroke="var(--line)"/><text x="${L-4}" y="${y+3.5}" text-anchor="end">${Math.round(v*100)}%</text>`; });
+  [8, 10, 12, 14, 16].forEach(h => s += `<text x="${X(h)}" y="${H-7}" text-anchor="middle">${h}:00</text>`);
+  const cols = ['#e8890c', '#2f6fb3', '#7a5af0', '#1f9d55'];
+  SENS.forEach((c, i) => { if(pts.length < 2) return; s += `<polyline fill="none" stroke="${cols[i]}" stroke-width="2" points="${pts.map(h => { const v = sensorAt(nf.key, h)[c.k]; return X(h).toFixed(1)+','+(10 + (H-10-B)*(1 - clamp(v/c.ng, 0, 1.15)/1.15)).toFixed(1); }).join(' ')}"/>`; });
+  s += `<line x1="${L}" x2="${W-12}" y1="${10 + (H-10-B)*(1-1/1.15)}" y2="${10 + (H-10-B)*(1-1/1.15)}" stroke="var(--ng)" stroke-dasharray="4 3"/>`;
+  s += SENS.map((c, i) => `<g transform="translate(${L + 6 + i*128},14)"><line x1="0" x2="14" y1="0" y2="0" stroke="${cols[i]}" stroke-width="2.5"/><text x="18" y="3.5" style="fill:var(--text)">${c.name.replace(/（.*/, '')}</text></g>`).join('');
+  setHTML($('#yChart'), s + '</svg><p class="note">縦軸は各センサーの基準値に対する割合（赤い点線＝基準値）</p>');
+  setHTML($('#yEv'), alertsHTML(evs, 10));
+}
+
+/* ================= ページ：原価管理（EVM） ================= */
+function evSeries(recs, upto){
+  const out = []; recs.forEach(r => { if(upto && r.key > upto) return; let ev = 0; TASKS.forEach(t => ev += t.budget*r.end[t.id]/t.qty); out.push([r.key, ev, r.ce + r.oe]); }); return out;
+}
+function taskAC(recs, upto){
+  const ac = {}; TASKS.forEach(t => ac[t.id] = 0);
+  recs.forEach(r => { if(r.key > upto) return; r.active.forEach(id => { const t = TB[id]; ac[id] += t.dayCost + (r.end[id] - r.start[id])*t.unitCost; }); });
+  return ac;
+}
+function renderCost(el){
+  el.innerHTML = head('原価管理（EVM）', 'アーンドバリュー法で工程と原価を一体で管理します（金額はサンプル・万円）', `<button class="btn sub sm" type="button" id="cCsv">CSV出力</button>`) +
+    `<div class="kpis" id="cKpi"></div><div class="g21"><div class="card"><div class="ch"><b>出来高曲線（Sカーブ）</b><small>PV＝計画出来高 ／ EV＝出来高 ／ AC＝実際原価 ／ 点線＝予測</small></div><div id="cChart"></div></div>
+     <div class="card"><div class="ch"><b>指標の見方</b></div><dl class="kv"><dt>SPI</dt><dd>EV ÷ PV。1未満は工程の遅れ</dd><dt>CPI</dt><dd>EV ÷ AC。1未満は原価の超過</dd><dt>EAC</dt><dd>最終原価見込み（現場管理費・遅延損害金を含む）</dd><dt>VAC</dt><dd>実行予算 − EAC。マイナスは赤字見込み</dd></dl></div></div>
+     <div class="card"><div class="ch"><b>工種別の原価</b><small>現時点（前日までの実績＋本日分）</small></div><div class="tbl" id="cTbl"></div></div>`;
+  el.querySelector('#cCsv').addEventListener('click', () => { const nf = nowInfo(), ac = taskAC(ACT.recs, nf.key), a = stateAt(ACT.recs, nf.key, nf.frac).prog, p = stateAt(PLAN.recs, nf.key, nf.frac).prog; download('evm.csv', csvOf([['工種','実行予算','PV','EV','AC']].concat(TASKS.map(t => [t.name, t.budget, Math.round(t.budget*p[t.id]/t.qty), Math.round(t.budget*a[t.id]/t.qty), Math.round(ac[t.id])]))), 'text/csv'); audit('CSV出力', '原価（EVM）'); });
+  updCost(true);
+}
+function updCost(force){
+  if(!$('#cKpi')) return;
+  const nf = nowInfo(), e = evmAt(nf.key, nf.frac), vac = PLAN_EAC - FC.eac;
+  setHTML($('#cKpi'), kpi('実行予算（直接費）', man(BUDGET)) + kpi('PV 計画出来高', man(e.PV)) + kpi('EV 出来高', man(e.EV)) + kpi('AC 実際原価', man(e.AC)) + kpi('SPI ／ CPI', f2(e.SPI)+' ／ '+f2(e.CPI), spiCls(e.SPI)) + kpi('EAC 最終原価見込み', man(FC.eac), '', '実行予算 '+man(PLAN_EAC)) + kpi('VAC 差異', sman(vac), vac < 0 ? 'c-ng' : 'c-ok'));
+  if(force || dirty.all || !$('#cChart').innerHTML){
+    const pv = []; let acc = 0; PLAN.recs.forEach(r => { let v = 0; TASKS.forEach(t => v += t.budget*r.end[t.id]/t.qty); pv.push([r.key, v]); });
+    const act = evSeries(ACT.recs.filter(r => r.key < nf.key)); act.push([nf.key, e.EV, e.AC]);
+    const fc = [[nf.key, e.EV, e.AC]].concat(evSeries(FC.recs));
+    const ymax = Math.ceil(Math.max(BUDGET, ...fc.map(x => x[2]))/1000)*1000;
+    $('#cChart').innerHTML = lineChart({x0:START_KEY, x1:END_KEY, yMin:0, yMax:ymax, yFmt:v => Math.round(v).toLocaleString(), h:240, label:'出来高曲線', legend:true,
+      xticks:['2026-10-01','2026-10-15','2026-11-01','2026-11-15','2026-12-01','2026-12-15'], vlines:[{key:nf.key, color:'var(--accent)', label:'今日'}, {key:CONTRACT, color:'var(--ng)', label:'契約工期'}],
+      series:[{name:'PV 計画', pts:pv, color:'var(--plan)', width:2.5}, {name:'EV 出来高', pts:act.map(x => [x[0], x[1]]), color:'var(--ok)', width:2.5}, {name:'AC 実際原価', pts:act.map(x => [x[0], x[2]]), color:'var(--ng)', width:2.5},
+        {pts:fc.map(x => [x[0], x[1]]), color:'var(--ok)', dash:'5 4'}, {pts:fc.map(x => [x[0], x[2]]), color:'var(--ng)', dash:'5 4'}]});
+  }
+  const ac = taskAC(ACT.recs, nf.key), a = stateAt(ACT.recs, nf.key, nf.frac).prog, p = stateAt(PLAN.recs, nf.key, nf.frac).prog;
+  let tB = 0, tP = 0, tE = 0, tA = 0;
+  setHTML($('#cTbl'), `<table><thead><tr><th>工種</th><th class="num">実行予算</th><th class="num">PV</th><th class="num">EV</th><th class="num">AC</th><th class="num">工程差異（EV−PV）</th><th class="num">原価差異（EV−AC）</th></tr></thead><tbody>` + TASKS.map(t => {
+    const pv = t.budget*p[t.id]/t.qty, ev = t.budget*a[t.id]/t.qty, acv = ac[t.id]; tB += t.budget; tP += pv; tE += ev; tA += acv;
+    return `<tr><td>${t.name}</td><td class="num">${man(t.budget)}</td><td class="num">${man(pv)}</td><td class="num">${man(ev)}</td><td class="num">${man(acv)}</td><td class="num ${ev - pv < -5 ? 'c-ng' : ''}">${sman(ev - pv)}</td><td class="num ${ev - acv < -5 ? 'c-ng' : ''}">${sman(ev - acv)}</td></tr>`;
+  }).join('') + `<tr><td>対策費</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">${man(e.AC - tA)}</td><td></td><td class="num">${sman(-(e.AC - tA))}</td></tr><tr><th>合計</th><th class="num">${man(tB)}</th><th class="num">${man(tP)}</th><th class="num">${man(tE)}</th><th class="num">${man(e.AC)}</th><th class="num">${sman(tE - tP)}</th><th class="num">${sman(tE - e.AC)}</th></tr></tbody></table>`);
+}
+
+/* ================= ページ：設定 ================= */
+function renderSettings(el){
+  const ro = !can('settings'), c = S.cfg, dis = ro ? 'disabled' : '';
+  el.innerHTML = head('設定', '判定しきい値・通知・データ連携の設定', ro ? lockNote('settings') : '') +
+    `<div class="g2"><div class="card"><div class="ch"><b>判定しきい値</b></div>
+        <label class="fld"><span>SPI 注意（黄）のしきい値</span><input class="in" id="cfW" type="number" step=".01" min=".5" max="1.2" value="${c.spiWarn}" ${dis}></label>
+        <label class="fld"><span>SPI 危険（赤）のしきい値</span><input class="in" id="cfN" type="number" step=".01" min=".3" max="1.2" value="${c.spiNg}" ${dis}></label>
+        <label class="fld"><span>重機稼働率の注意しきい値（%）</span><input class="in" id="cfU" type="number" step="1" min="10" max="100" value="${Math.round(c.utilWarn*100)}" ${dis}></label></div>
+      <div class="card"><div class="ch"><b>通知</b></div>
+        ${[['delay','工程の遅れ・SPIの変化'],['util','重機の稼働率低下'],['approval','承認ワークフロー・日報'],['safety','安全イベント']].map(x => `<label style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><input type="checkbox" data-nt="${x[0]}" ${c.notify[x[0]] ? 'checked' : ''} ${dis}> ${x[1]}</label>`).join('')}
+        <p class="note">本番では、メール・Teams・スマートフォンへのプッシュ通知を想定しています。</p></div></div>
+     <div class="g2"><div class="card"><div class="ch"><b>データ連携</b></div>
+        <label style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><input type="radio" name="ds" checked ${dis}> オフライン（ブラウザ内シミュレーション）</label>
+        <label style="display:flex;gap:8px;align-items:center;margin-bottom:10px" class="muted"><input type="radio" name="ds" disabled> API連携（MVP段階で接続予定）</label>
+        <label class="fld"><span>APIエンドポイント</span><input class="in" disabled placeholder="https://api.example.com/v1（MVPで設定）"></label>
+        <p class="note">連携先の例：重機テレマティクス、入退場管理、IoTセンサー、原価・勤怠システム、BIM/CIM（IFC）</p></div>
+      <div class="card"><div class="ch"><b>シミュレーション（サンプル環境）</b></div>
+        <label class="fld"><span>シナリオ</span><select class="in" id="cfS" ${dis}><option value="delay">遅延（ダンプ不足）</option><option value="normal">順調</option><option value="breakdown">重機故障</option></select></label>
+        <p class="note">シナリオを変えると、時刻が10/21 8:00に戻ります。承認済みの対策は「リセット済み」になります。</p>
+        ${ro ? '' : '<button class="btn sub" type="button" id="cfInit" style="margin-top:6px">サンプルデータを初期化</button>'}</div></div>
+     ${ro ? '' : '<div class="acts"><button class="btn" type="button" id="cfSave">設定を保存</button><span class="err" id="cfErr" style="color:var(--ng);font-size:12px"></span></div>'}`;
+  el.querySelector('#cfS').value = S.scn;
+  if(ro) return;
+  el.querySelector('#cfSave').addEventListener('click', () => {
+    const w = +$('#cfW').value, n = +$('#cfN').value, u = +$('#cfU').value/100;
+    if(!(n < w)){ $('#cfErr').textContent = '危険のしきい値は注意のしきい値より小さくしてください'; return; }
+    const nt = {}; el.querySelectorAll('[data-nt]').forEach(x => nt[x.getAttribute('data-nt')] = x.checked);
+    S.cfg = {spiWarn:w, spiNg:n, utilWarn:u, notify:nt};
+    const scn = $('#cfS').value;
+    audit('設定変更', '判定しきい値・通知', `SPI注意 ${w} ／ SPI危険 ${n} ／ 稼働率注意 ${Math.round(u*100)}%`);
+    if(scn !== S.scn){ S.scn = scn; resetSim(); audit('シナリオ変更', scn); }
+    save(); recompute(); $('#cfErr').textContent = ''; toast('設定を保存しました');
+  });
+  el.querySelector('#cfInit').addEventListener('click', () => { if(!confirm('申請・日報・ログ・設定をすべて初期化します。よろしいですか？')) return; try{ localStorage.removeItem(STORE); }catch(e){} location.hash = ''; location.reload(); });
+}
+
+/* ================= ページ：監査ログ ================= */
+let auU = '', auA = '';
+function renderAudit(el){
+  el.innerHTML = head('監査ログ', '誰が・いつ・何をしたかを記録します（改ざん防止の保管は本番で対応）', `<button class="btn sub sm" type="button" id="auCsv">CSV出力</button>`) +
+    `<div class="card"><div class="filters"><select class="in" id="auU"><option value="">ユーザー：すべて</option>${USERS.map(u => `<option>${u.name}</option>`).join('')}</select><select class="in" id="auA"></select><span class="muted" id="auN" style="font-size:12px"></span></div><div class="tbl" id="auT"></div></div>`;
+  el.querySelector('#auU').value = auU;
+  el.querySelector('#auU').addEventListener('input', e => { auU = e.target.value; updAudit(); });
+  el.querySelector('#auA').addEventListener('input', e => { auA = e.target.value; updAudit(); });
+  el.querySelector('#auCsv').addEventListener('click', () => { download('audit-log.csv', csvOf([['日時','シミュレーション日時','ユーザー','ロール','操作','対象','詳細']].concat(S.audit.map(a => [a.ts, a.sim, a.user, a.role, a.action, a.target, a.detail]))), 'text/csv'); audit('CSV出力', '監査ログ'); });
+  updAudit();
+}
+function updAudit(){
+  if(!$('#auT')) return;
+  const acts = Array.from(new Set(S.audit.map(a => a.action)));
+  setHTML($('#auA'), `<option value="">操作：すべて</option>` + acts.map(a => `<option ${a === auA ? 'selected' : ''}>${a}</option>`).join(''));
+  const rows = S.audit.filter(a => (!auU || a.user === auU) && (!auA || a.action === auA)).slice().reverse();
+  $('#auN').textContent = rows.length + '件';
+  setHTML($('#auT'), `<table><thead><tr><th>日時</th><th>シミュレーション日時</th><th>ユーザー</th><th>操作</th><th>対象</th><th>詳細</th></tr></thead><tbody>` + (rows.length ? rows.slice(0, 300).map(a => `<tr><td style="white-space:nowrap">${new Date(a.ts).toLocaleString('ja-JP')}</td><td style="white-space:nowrap">${mdw(a.sim.slice(0,10))} ${a.sim.slice(11)}</td><td>${esc(a.user)}<br><span class="muted" style="font-size:11px">${esc(a.role)}</span></td><td>${pill('info', esc(a.action))}</td><td>${esc(a.target)}</td><td style="font-size:12px">${esc(a.detail)}</td></tr>`).join('') : '<tr><td colspan="6" class="muted">記録はありません</td></tr>') + '</tbody></table>');
+}
+
+/* ================= ページ：ユーザー・権限 ================= */
+function renderUsers(el){
+  el.innerHTML = head('ユーザー・権限', 'ロールごとの操作権限（サンプル）。本番では社内のアカウント管理と連携します') +
+    `<div class="card"><div class="tbl"><table><thead><tr><th>ユーザー</th><th>所属</th><th>ロール</th>${Object.keys(PERM_NAME).map(p => `<th style="text-align:center">${PERM_NAME[p]}</th>`).join('')}</tr></thead><tbody>${USERS.map(u => `<tr${u.id === S.user ? ' class="sel"' : ''}><td><span style="display:inline-flex;gap:8px;align-items:center"><span class="av" style="width:26px;height:26px;font-size:12px">${u.ini}</span><b>${u.name}</b>${u.id === S.user ? ' <span class="pill p-info">ログイン中</span>' : ''}</span></td><td>${u.org}</td><td>${ROLE_NAME[u.role]}</td>${Object.keys(PERM_NAME).map(p => `<td style="text-align:center">${PERM[p].indexOf(u.role) >= 0 ? '<b class="c-ok">✓</b>' : '<span class="muted">—</span>'}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+     <p class="note">ユーザーを切り替えるには、右上のユーザーメニューから「ログアウト」して別のアカウントでログインしてください。</p></div>`;
+}
+
+/* ================= ページ登録 ================= */
+const PAGES = {
+  dash:{render:renderDash, tick:updDash}, sites:{render:renderSites, tick:updSites}, approvals:{render:renderApprovals, tick:() => { if(dirty.all) updApprovals(); }}, reports:{render:renderReports, tick:() => updReports(false)},
+  overview:{render:renderOverview, tick:updOverview}, twin:{render:renderTwinPage, tick:() => renderTwinSide()}, schedule:{render:renderSchedule, tick:() => { if(dirty.all) on4dChange(); }},
+  sim:{render:renderSim, tick:() => { if(dirty.all) updSim(); }}, machines:{render:renderMachines, tick:updMachines}, daily:{render:renderDaily, tick:() => { if(dirty.all) updDaily(); }},
+  safety:{render:renderSafety, tick:updSafety}, cost:{render:renderCost, tick:() => updCost(false)},
+  settings:{render:renderSettings, tick:() => {}}, audit:{render:renderAudit, tick:() => {}}, users:{render:renderUsers, tick:() => {}},
+};
+
+/* ================= トップバー ================= */
+function hidePops(except){ ['#feedPop','#bellPop','#userPop'].forEach(id => { if(id !== except) $(id).hidden = true; }); $('#qDrop').hidden = true; }
+function togglePop(id, build){ const p = $(id); const open = p.hidden; hidePops(id); p.hidden = !open; if(open) build(); }
+document.addEventListener('click', e => { if(!e.target.closest('.popwrap') && !e.target.closest('.tb-search')) hidePops(); });
+$('#btnFeed').addEventListener('click', () => togglePop('#feedPop', buildFeedPop));
+function buildFeedPop(){
+  setHTML($('#feedPop'), `<h4>データ連携</h4><div class="note" style="margin:0 0 10px">このサンプルはオフラインです。現場データはブラウザ内のシミュレーションで生成しています。</div>
+    <div class="acts" style="margin-bottom:8px"><button class="btn sm" id="fpPlay" type="button">${S.playing ? '⏸ 一時停止' : '▶ 再生'}</button><button class="btn sub sm" id="fpNext" type="button">翌稼働日へ ⏭</button></div>
+    <div class="seg" id="fpSpeed" style="margin-bottom:10px">${[60,300,1800,7200].map(s => `<button type="button" data-s="${s}" class="${S.speed === s ? 'on' : ''}">×${s}</button>`).join('')}</div>
+    <label class="fld"><span>シナリオ</span><select class="in" id="fpScn"><option value="delay">遅延（ダンプ不足）</option><option value="normal">順調</option><option value="breakdown">重機故障</option></select></label>
+    <div class="acts" style="align-items:center"><button class="btn sub sm" id="fpReset" type="button" ${can('settings') ? '' : 'disabled'}>10/21 8:00 にリセット</button>${can('settings') ? '' : lockNote('settings')}</div>`);
+  $('#fpScn').value = S.scn; $('#fpScn').disabled = !can('settings');
+  $('#fpPlay').addEventListener('click', () => { S.playing = !S.playing; buildFeedPop(); });
+  $('#fpNext').addEventListener('click', gotoNextDay);
+  $('#fpSpeed').addEventListener('click', e => { const b = e.target.closest('[data-s]'); if(b){ S.speed = +b.getAttribute('data-s'); save(); buildFeedPop(); } });
+  $('#fpScn').addEventListener('change', e => { if(!can('settings')) return; S.scn = e.target.value; resetSim(); audit('シナリオ変更', S.scn); toast('シナリオを切り替えました（10/21 8:00から）'); buildFeedPop(); });
+  $('#fpReset').addEventListener('click', () => { if(!can('settings')) return; resetSim(); audit('シミュレーションのリセット', '10/21 8:00'); toast('10/21 8:00に戻しました'); buildFeedPop(); });
+}
+$('#btnBell').addEventListener('click', () => togglePop('#bellPop', buildBellPop));
+function buildBellPop(){
+  const list = allNotifs().slice(0, 20), read = new Set(S.notifRead);
+  setHTML($('#bellPop'), `<div style="display:flex;justify-content:space-between;align-items:center"><h4>通知</h4><button class="btn sub sm" id="bpAll" type="button">すべて既読にする</button></div>
+    <div class="nlist">${list.length ? list.map(n => `<div class="nrow ${read.has(n.id) ? '' : 'unread'}" data-n="${esc(n.id)}" data-l="${n.link}">${pill(n.lv === 'info' ? 'info' : n.lv, lvName(n.lv))}<div style="flex:1;min-width:0">${esc(n.text)}<div class="d">${mdw(n.key)}</div></div></div>`).join('') : '<div class="empty">通知はありません</div>'}</div>`);
+  $('#bpAll').addEventListener('click', () => { S.notifRead = allNotifs().map(n => n.id).slice(0, 400); save(); buildBellPop(); updBell(); });
+  $('#bellPop').querySelectorAll('[data-n]').forEach(r => r.addEventListener('click', () => { const id = r.getAttribute('data-n'); if(S.notifRead.indexOf(id) < 0) S.notifRead.push(id); if(S.notifRead.length > 400) S.notifRead.shift(); save(); hidePops(); go(r.getAttribute('data-l')); updBell(); }));
+}
+function updBell(){ const read = new Set(S.notifRead), n = allNotifs().filter(x => !read.has(x.id)).length; const b = $('#bellN'); b.hidden = !n; b.textContent = n > 99 ? '99+' : n; }
+$('#btnUser').addEventListener('click', () => togglePop('#userPop', () => {
+  const u = me();
+  setHTML($('#userPop'), `<div style="display:flex;gap:10px;align-items:center;margin-bottom:10px"><span class="av">${u.ini}</span><div><b>${u.name}</b><div class="muted" style="font-size:12px">${u.org} ／ ${ROLE_NAME[u.role]}</div></div></div>
+    <div class="note" style="margin:0 0 10px">できること：${Object.keys(PERM_NAME).filter(p => can(p)).map(p => PERM_NAME[p]).join('、')}</div>
+    <div class="acts"><button class="btn sub sm" id="upTheme" type="button">表示テーマを切替</button><button class="btn sub sm" id="upOut" type="button">ログアウト</button></div>`);
+  $('#upTheme').addEventListener('click', () => { const r = document.documentElement, cur = r.getAttribute('data-theme'); const nx = !cur ? (isDark() ? 'light' : 'dark') : cur === 'dark' ? 'light' : 'dark'; r.setAttribute('data-theme', nx); try{ localStorage.setItem('slt-theme', nx); }catch(e){} if(curPage) showPage(S.page); });
+  $('#upOut').addEventListener('click', () => { audit('ログアウト', me().name); S.user = null; save(); hidePops(); showLogin(); });
+}));
+$('#btnCollapse').addEventListener('click', () => { S.collapsed = !S.collapsed; $('#app').classList.toggle('collapsed', S.collapsed); save(); });
+$('#btnMenu').addEventListener('click', () => $('#app').classList.toggle('mopen'));
+
+/* 検索 */
+function searchIndex(){
+  const items = [];
+  NAV.forEach(g => g.items.forEach(it => items.push({t:it[1], sub:'画面', go:() => go(it[0])})));
+  SITES.forEach(s => items.push({t:s.id+'現場 '+s.name, sub:'現場', go:() => openSite(s.id)}));
+  MACHINES.forEach(m => items.push({t:m.id+' '+m.name, sub:'重機', go:() => { S.sel = m.id; go('twin'); }}));
+  TASKS.forEach(t => items.push({t:t.name, sub:'工種', go:() => go('schedule')}));
+  S.requests.forEach(r => items.push({t:r.id+' '+r.title, sub:'申請', go:() => { go('approvals'); setTimeout(() => openRequest(r.id), 50); }}));
+  return items;
+}
+let qHits = [], qSel = 0;
+$('#q').addEventListener('input', () => {
+  const q = $('#q').value.trim(); if(!q){ $('#qDrop').hidden = true; return; }
+  qHits = searchIndex().filter(x => x.t.toLowerCase().indexOf(q.toLowerCase()) >= 0).slice(0, 10); qSel = 0;
+  setHTML($('#qDrop'), qHits.length ? qHits.map((x, i) => `<button type="button" data-i="${i}" class="${i === 0 ? 'hl' : ''}">${esc(x.t)}<small>${x.sub}</small></button>`).join('') : '<div class="empty" style="padding:14px">見つかりませんでした</div>');
+  $('#qDrop').hidden = false;
+});
+$('#q').addEventListener('keydown', e => {
+  if($('#qDrop').hidden || !qHits.length) return;
+  if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); qSel = (qSel + (e.key === 'ArrowDown' ? 1 : qHits.length - 1)) % qHits.length; $('#qDrop').querySelectorAll('button').forEach((b, i) => b.classList.toggle('hl', i === qSel)); }
+  if(e.key === 'Enter'){ e.preventDefault(); const h = qHits[qSel]; $('#q').value = ''; $('#qDrop').hidden = true; h.go(); }
+});
+$('#qDrop').addEventListener('click', e => { const b = e.target.closest('[data-i]'); if(!b) return; const h = qHits[+b.getAttribute('data-i')]; $('#q').value = ''; $('#qDrop').hidden = true; h.go(); });
+
+/* ================= 時間の進行 ================= */
+function nextWorkKey(key){ let d = addDays(parseK(key), 1); for(let g=0; g<14; g++){ if(isWorkday(d, activeOpts(k(d)).has('sat'))) break; d = addDays(d,1); } return k(d); }
+function gotoNextDay(){
+  const nf = nowInfo(), nk = nextWorkKey(nf.key);
+  if(nk > END_KEY){ S.playing = false; toast('サンプルの期間（12/31）の終わりに達しました'); return; }
+  const d = parseK(nk); S.t = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 8, 0).getTime();
+  recompute(); save();
+}
+function advance(ms){ const d = new Date(S.t), end = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 17, 0).getTime(); if(S.t + ms >= end) gotoNextDay(); else S.t += ms; }
+function resetSim(){
+  S.decisions.forEach(d => d.archived = true);
+  S.requests.forEach(r => { if(r.status === 'pending'){ r.status = 'withdrawn'; r.history.push({at:new Date().toISOString(), sim:nowInfo().key+' '+nowInfo().hm, by:'システム', action:'取下げ', comment:'シミュレーションのリセットにより取下げ'}); } });
+  S.t = DEFAULT_T; S.sel = null; S.whatif = new Set(['dump','crew']); S.notifRead = [];
+  recompute(); save(); if(curPage) showPage(S.page);
+}
+function updFeed(){
+  const nf = nowInfo();
+  setHTML($('#feedTxt'), `${mdw(nf.key)} <b>${nf.hm}</b> <small>${S.playing ? 'ライブ（×'+S.speed+'）' : '一時停止中'}</small>`);
+  $('#btnFeed').classList.toggle('off', !S.playing);
+}
+
+/* ================= ログイン ================= */
+let loginSel = 'exec';
+function showLogin(){
+  $('#app').hidden = true; $('#login').hidden = false;
+  setHTML($('#accList'), USERS.map(u => `<label class="acc ${u.id === loginSel ? 'on' : ''}"><input type="radio" name="acc" value="${u.id}" ${u.id === loginSel ? 'checked' : ''}><span class="av">${u.ini}</span><span><b>${u.name}</b><small>${u.org} ／ ${ROLE_NAME[u.role]} ／ ${Object.keys(PERM_NAME).filter(p => PERM[p].indexOf(u.role) >= 0).map(p => PERM_NAME[p]).join('・')}</small></span></label>`).join(''));
+}
+$('#accList').addEventListener('change', e => { loginSel = e.target.value; showLogin(); });
+$('#btnLogin').addEventListener('click', () => { S.user = loginSel; audit('ログイン', me().name); save(); startApp(); });
+function startApp(){
+  const u = me();
+  $('#login').hidden = true; $('#app').hidden = false;
+  $('#app').classList.toggle('collapsed', !!S.collapsed);
+  $('#uAv').textContent = u.ini; $('#uName').textContent = u.name; $('#uRole').textContent = ROLE_NAME[u.role] + ' ／ ' + u.org;
+  const p = pageFromHash();
+  if(p) showPage(p); else go(u.role === 'exec' ? 'dash' : u.role === 'admin' ? 'settings' : 'overview');
+  updBell(); updFeed();
+}
+
+/* ================= 起動 ================= */
+(function init(){
+  try{ const th = localStorage.getItem('slt-theme'); if(th) document.documentElement.setAttribute('data-theme', th); }catch(e){}
+  $('#btnMenu').innerHTML = icon('menu'); $('#icBell').innerHTML = icon('bell'); $('#icSearch').innerHTML = icon('search'); $('#icCollapse').innerHTML = icon('left');
+  const d = new Date(S.t);
+  if(!isWorkday(d, activeOpts(k(d)).has('sat')) || d.getHours() >= 17){ const nd = parseK(nextWorkKey(k(d))); S.t = new Date(nd.getFullYear(), nd.getMonth(), nd.getDate(), 8, 0).getTime(); }
+  else if(d.getHours() < 8){ S.t = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 8, 0).getTime(); }
+  recompute();
+  if(S.user && me()) startApp(); else showLogin();
+})();
+
+let lastT = performance.now(), lastUI = 0, lastSave = 0;
+function frame(now){
+  const dt = Math.min(.1, (now - lastT)/1000); lastT = now;
+  if(S.user){
+    if(S.playing) advance(dt * S.speed * 1000);
+    if(S.page === 'twin' && vTwin) drawTwin(now/1000);
+    if(S.page === 'schedule' && vPlan){
+      if(S.play4d && now - last4d > 260){ last4d = now; const v = +$('#r4').value; if(v >= G.days - 1){ S.play4d = false; $('#b4Play').textContent = '▶ 再生'; } else { $('#r4').value = v + 1; on4dChange(); } }
+      draw4d();
+    }
+    if(now - lastUI > 300){
+      lastUI = now; updFeed();
+      if(curPage) curPage.tick();
+      if(dirty.all){ renderNav(); updBell(); }
+      dirty.all = false;
+    }
+    if(now - lastSave > 3000){ lastSave = now; save(); }
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+window.SLT = {S, get ACT(){return ACT;}, get FC(){return FC;}, evmAt, taskDelay, forecast, go, decide, CONTRACT};
+})();
+</script>
+</body>
+</html>

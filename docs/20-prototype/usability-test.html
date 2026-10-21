@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SiteLive Twin プロトタイプ評価</title>
+<style>
+/* SiteLive Twin 文書テンプレート：左に目次、右に本文。表と図は横スクロール可能な枠に入れる */
+:root{
+  --bg:#f5f6f8; --paper:#ffffff; --ink:#1a2230; --sub:#5a6577; --rule:#d9dee6; --tint:#f0f3f7;
+  --navy:#1b3557; --accent:#c8740a; --accent-soft:#fdf1e1;
+  --ok:#1d8a4c; --warn:#a87800; --ng:#c43d3d; --info:#2a64a8;
+  --sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+  --mono:"BIZ UDGothic","Consolas","Menlo",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+    --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+    --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+  --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+  --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{display:grid;grid-template-columns:240px minmax(0,1fr);max-width:1280px;margin:0 auto;gap:28px;padding:28px 16px 60px}
+@media (max-width:900px){.wrap{grid-template-columns:1fr;gap:0}}
+nav.toc{position:sticky;top:20px;align-self:start;font-size:13px;max-height:calc(100vh - 40px);overflow:auto}
+@media (max-width:900px){nav.toc{position:static;max-height:none;margin-bottom:18px}}
+.toc b{display:block;font-size:11px;letter-spacing:.12em;color:var(--sub);margin-bottom:6px}
+.toc a{display:block;color:var(--ink);text-decoration:none;padding:3px 10px;border-left:2px solid var(--rule)}
+.toc a:hover,.toc a:focus-visible{border-left-color:var(--accent);color:var(--accent);outline:none}
+.toc .home{margin-bottom:12px;border-left:0;padding-left:0;color:var(--info)}
+main{min-width:0}
+.cover{background:var(--paper);border:1px solid var(--rule);border-top:5px solid var(--navy);border-radius:6px;padding:26px 28px 20px;margin-bottom:26px}
+.cover .kind{font-size:12px;letter-spacing:.14em;color:var(--sub);font-weight:700}
+.cover h1{margin:4px 0 14px;font-size:clamp(22px,3.4vw,30px);line-height:1.35;text-wrap:balance;color:var(--navy)}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));border-top:1px solid var(--rule);border-left:1px solid var(--rule);font-size:13px}
+.meta div{padding:7px 12px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.meta span{display:block;font-size:11px;color:var(--sub)}
+section{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:22px 26px 18px;margin-bottom:20px;min-width:0}
+h2{font-size:19px;margin:0 0 12px;color:var(--navy);text-wrap:balance;display:flex;gap:10px;align-items:baseline}
+h2 .no{font-family:var(--mono);font-size:14px;color:var(--accent)}
+h3{font-size:15px;margin:20px 0 8px}
+p{margin:0 0 10px;max-width:76ch}
+ul,ol{margin:0 0 10px;padding-left:22px}
+li{margin-bottom:3px}
+.tbl{overflow-x:auto;margin:6px 0 12px;border:1px solid var(--rule);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:640px}
+th,td{border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);padding:7px 9px;text-align:left;vertical-align:top}
+th:last-child,td:last-child{border-right:0}
+tr:last-child td{border-bottom:0}
+thead th{background:var(--tint);font-size:12px;color:var(--sub);white-space:nowrap}
+td.c,th.c{text-align:center}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+code,.id{font-family:var(--mono);font-size:12.5px}
+.id{color:var(--navy);font-weight:700;white-space:nowrap}
+.y{color:var(--ok);font-weight:800}.n{color:var(--sub)}.r{color:var(--warn);font-weight:700}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:0 7px;border-radius:3px;background:var(--tint);border:1px solid var(--rule);white-space:nowrap;margin:1px 2px 1px 0}
+.tag.a{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.st{display:inline-block;font-size:11px;font-weight:800;padding:0 8px;border-radius:999px;white-space:nowrap;border:1px solid currentColor}
+.st.done{color:var(--ok)}.st.wip{color:var(--accent)}.st.todo{color:var(--sub)}.st.tpl{color:var(--info)}
+.note{font-size:12.5px;color:var(--sub)}
+.callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 14px;border-radius:0 4px 4px 0;margin:8px 0 12px;font-size:13.5px}
+.fill{background:var(--tint);border:1px dashed var(--rule);border-radius:4px;padding:2px 8px;color:var(--sub);font-size:12.5px}
+.fig{overflow-x:auto;border:1px solid var(--rule);border-radius:4px;background:var(--tint);padding:10px;margin:8px 0 6px}
+.fig svg{display:block;min-width:760px;width:100%;height:auto}
+.fig text{font-family:var(--sans)}
+.cap{font-size:12px;color:var(--sub);margin:0 0 12px}
+.pri-h{color:var(--ng);font-weight:800}.pri-m{color:var(--warn);font-weight:800}.pri-l{color:var(--sub);font-weight:800}.pri-done{color:var(--ok);font-weight:800}
+a{color:var(--info)}
+footer{font-size:12px;color:var(--sub);padding:6px 4px}
+@media (max-width:640px){section{padding:18px 16px 14px}.cover{padding:20px 16px 16px}}
+@media print{nav.toc{display:none}.wrap{display:block;padding:0}section,.cover{break-inside:avoid;border:0}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="目次">
+  <a class="home" href="../index.html">← ドキュメント一覧</a>
+  <b>目次</b>
+  <a href="#s1">1. 目的と実施要否</a>
+  <a href="#s2">2. 対象プロトタイプ</a>
+  <a href="#s3">3. 参加者</a>
+  <a href="#s4">4. タスクシナリオ</a>
+  <a href="#s5">5. 成功基準</a>
+  <a href="#s6">6. 進め方</a>
+  <a href="#s7">7. 記録様式</a>
+  <a href="#s8">8. 結果</a>
+  <a href="#s9">9. 改善の反映</a>
+  <a href="#s10">10. G2判定基準</a>
+</nav>
+<main>
+<div class="cover">
+  <div class="kind">プロトタイプ評価計画・結果</div>
+  <h1>SiteLive Twin（現場ライブツイン）<br>プロトタイプ評価（ユーザビリティテスト）</h1>
+  <div class="meta">
+    <div><span>文書番号</span>SLT-DOC-40</div>
+    <div><span>版</span>v0.1</div>
+    <div><span>作成日</span>2026年10月21日</div>
+    <div><span>フェーズ</span>Prototype（必要に応じて）</div>
+    <div><span>状態</span>計画（結果欄は未記入）</div>
+  </div>
+</div>
+
+<section id="s1">
+  <h2><span class="no">1</span>目的と実施要否</h2>
+  <p>Prototypeで確かめる問いは<b>「利用者が理解・操作できるか？」</b>です。実際の利用者に操作してもらい、迷う場所・誤解する表示・足りない情報を、MVPの開発前に見つけます。予定期間は2027年1月5日〜1月29日（4週間、案）です。</p>
+  <p>このフェーズは必要に応じて実施します。G1の判定時に、次の基準で実施するかを決めます。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>判断</th><th>基準</th></tr></thead>
+    <tbody>
+      <tr><td class="y">実施する</td><td>次のいずれかに当てはまる：PoCで画面の構成や操作の流れを大きく変えた／新しい画面（3Dの部材と工程の紐付けなど）を追加した／パイロット現場の利用者がまだ画面を見ていない</td></tr>
+      <tr><td class="n">省略する</td><td>システムWebUIサンプルの画面構成から大きな変更がなく、利用者代表がデモで操作を確認済み。この場合は、MVPの最初の2週間で同じタスクを使った簡易評価を行う</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s2">
+  <h2><span class="no">2</span>対象プロトタイプ</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>対象</th><th>置き場所</th><th>評価に使う範囲</th></tr></thead>
+    <tbody>
+      <tr><td>システムWebUIサンプル（15画面、ロール別権限、承認ワークフロー、監査ログ）</td><td><code>prototypes/system-webui/</code></td><td>主な評価対象。全タスク</td></tr>
+      <tr><td>オフラインデモ（5ステップ）</td><td><code>prototypes/offline-demo/sitelive-offline-demo.html</code></td><td>説明用。評価前の導入として見せる</td></tr>
+      <tr><td>PoCで作った画面（3D表示、リアルタイム更新）</td><td><code>src/</code></td><td>PoCで追加・変更した画面がある場合のみ</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">画面の仕様は<a href="../02-design/screen-design.html">画面設計書（SLT-DOC-20）</a>を参照します。サンプルのデータはすべて架空です。</p>
+</section>
+
+<section id="s3">
+  <h2><span class="no">3</span>参加者</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>ロール</th><th class="num">人数</th><th>条件</th><th>主なタスク</th></tr></thead>
+    <tbody>
+      <tr><td>経営層</td><td class="num">2〜3名</td><td>支店長・工事部長、または同等の立場</td><td>タスク1・4</td></tr>
+      <tr><td>現場所長</td><td class="num">2〜3名</td><td>パイロット現場の所長を含む</td><td>タスク1・2・3・5</td></tr>
+      <tr><td>工務</td><td class="num">2〜3名</td><td>工程・原価の管理を担当している</td><td>タスク2・3・5</td></tr>
+      <tr><td>システム管理者</td><td class="num">1〜2名</td><td>DX推進部の担当</td><td>タスク6</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">参加者の名前は記録に残さず、P01、P02…の番号で扱います。開発に関わった人は参加者にしません。</p>
+</section>
+
+<section id="s4">
+  <h2><span class="no">4</span>タスクシナリオ</h2>
+  <p>参加者には「何をしたいか」だけを伝え、どの画面を使うかは伝えません。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>No.</th><th>タスク（参加者への指示）</th><th>完了の条件</th><th class="num">目標時間</th><th>主な画面</th></tr></thead>
+    <tbody>
+      <tr><td class="id">タスク1</td><td>遅れている現場を見つけて、どの工種が遅れているかを答えてください</td><td>A現場と擁壁工を正しく答える</td><td class="num">2分</td><td>全社ダッシュボード、現場概要</td></tr>
+      <tr><td class="id">タスク2</td><td>擁壁工が遅れている原因を、3Dで確かめてください</td><td>ダンプ待ちの重機を特定し、原因を説明できる</td><td class="num">3分</td><td>ライブツイン、重機・稼働</td></tr>
+      <tr><td class="id">タスク3</td><td>遅れを取り戻す対策を比べ、費用が最も少ない組み合わせで承認を依頼してください</td><td>対策を選び、件名を入れて起案できる</td><td class="num">5分</td><td>対策シミュレーション</td></tr>
+      <tr><td class="id">タスク4</td><td>届いている承認依頼の内容を確認し、承認してください（自分の起案でないもの）</td><td>根拠を確認したうえで承認できる。自分の起案は承認できないことを理解している</td><td class="num">3分</td><td>承認ワークフロー、申請詳細</td></tr>
+      <tr><td class="id">タスク5</td><td>今日の日報を作成して提出してください</td><td>必須項目を入れて提出できる</td><td class="num">3分</td><td>日報</td></tr>
+      <tr><td class="id">タスク6</td><td>SPIの注意のしきい値を0.90に変更してください</td><td>設定を保存し、監査ログで変更を確認できる</td><td class="num">2分</td><td>設定、監査ログ</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s5">
+  <h2><span class="no">5</span>成功基準</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>指標</th><th>基準</th><th>測り方</th></tr></thead>
+    <tbody>
+      <tr><td>タスク完了率</td><td>各タスク80%以上（手助けなしで完了）</td><td>完了・手助けありで完了・未完了の3段階で記録</td></tr>
+      <tr><td>所要時間</td><td>参加者の中央値が目標時間以内</td><td>指示を読み終えてから完了までをストップウォッチで計測</td></tr>
+      <tr><td>SUS（システムユーザビリティ尺度）</td><td>平均70点以上</td><td>全タスク終了後に10問のアンケート</td></tr>
+      <tr><td>重大な問題</td><td>0件（誤った判断につながる表示、データを失う操作）</td><td>観察記録から抽出</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s6">
+  <h2><span class="no">6</span>進め方</h2>
+  <ol>
+    <li>参加者1人につき約60分。進行役と記録役の2人で行う（対面またはオンライン）。</li>
+    <li>最初の5分でオフラインデモを使って製品の目的だけを説明する。操作方法は説明しない。</li>
+    <li>タスクを1つずつ渡し、考えていることを声に出しながら操作してもらう（思考発話法）。</li>
+    <li>参加者が3分以上止まった場合のみ、ヒントを1回出す（「手助けあり」として記録）。</li>
+    <li>全タスクの後にSUSのアンケートと、5分間の自由な感想を聞く。</li>
+    <li>画面の録画は参加者の同意を得た場合のみ行い、評価が終わったら削除する。</li>
+  </ol>
+</section>
+
+<section id="s7">
+  <h2><span class="no">7</span>記録様式</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>参加者</th><th>ロール</th><th>タスク</th><th>結果</th><th class="num">時間</th><th>迷った場所・発言</th><th>問題の重大度</th></tr></thead>
+    <tbody>
+      <tr><td>P01</td><td><span class="fill">（記入）</span></td><td>タスク1</td><td><span class="fill">完了／手助けあり／未完了</span></td><td class="num"><span class="fill">分:秒</span></td><td><span class="fill">（記入）</span></td><td><span class="fill">重大／中／軽微</span></td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">問題の重大度：重大＝誤った判断やデータの喪失につながる　中＝完了できたが大きく遠回りした　軽微＝表現や見た目の改善</p>
+</section>
+
+<section id="s8">
+  <h2><span class="no">8</span>結果</h2>
+  <p>評価の終了後に記入します。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>タスク</th><th class="num">完了率</th><th class="num">所要時間（中央値）</th><th class="c">判定</th><th>主な問題</th></tr></thead>
+    <tbody>
+      <tr><td>タスク1</td><td class="num"><span class="fill">（未定）</span></td><td class="num"><span class="fill">（未定）</span></td><td class="c"><span class="fill">○△×</span></td><td><span class="fill">（未定）</span></td></tr>
+      <tr><td>タスク2</td><td class="num"><span class="fill">（未定）</span></td><td class="num"><span class="fill">（未定）</span></td><td class="c"><span class="fill">○△×</span></td><td><span class="fill">（未定）</span></td></tr>
+      <tr><td>タスク3</td><td class="num"><span class="fill">（未定）</span></td><td class="num"><span class="fill">（未定）</span></td><td class="c"><span class="fill">○△×</span></td><td><span class="fill">（未定）</span></td></tr>
+      <tr><td>タスク4</td><td class="num"><span class="fill">（未定）</span></td><td class="num"><span class="fill">（未定）</span></td><td class="c"><span class="fill">○△×</span></td><td><span class="fill">（未定）</span></td></tr>
+      <tr><td>タスク5</td><td class="num"><span class="fill">（未定）</span></td><td class="num"><span class="fill">（未定）</span></td><td class="c"><span class="fill">○△×</span></td><td><span class="fill">（未定）</span></td></tr>
+      <tr><td>タスク6</td><td class="num"><span class="fill">（未定）</span></td><td class="num"><span class="fill">（未定）</span></td><td class="c"><span class="fill">○△×</span></td><td><span class="fill">（未定）</span></td></tr>
+    </tbody>
+  </table></div>
+  <div class="tbl"><table>
+    <thead><tr><th>全体の指標</th><th>結果</th></tr></thead>
+    <tbody>
+      <tr><td>SUSの平均点</td><td><span class="fill">（未定）</span></td></tr>
+      <tr><td>重大な問題の件数</td><td><span class="fill">（未定）</span></td></tr>
+      <tr><td>参加者の主な感想</td><td><span class="fill">（未定）</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s9">
+  <h2><span class="no">9</span>改善の反映</h2>
+  <ol>
+    <li>見つかった問題を重大度順に並べ、画面ごとに改善案を作る。</li>
+    <li>重大な問題はMVPの開発前に必ず直し、同じタスクで再確認する（参加者2名以上）。</li>
+    <li>中・軽微の問題は、MVPの課題一覧に登録して優先度を決める。</li>
+    <li>画面の変更は<a href="../02-design/screen-design.html">画面設計書（SLT-DOC-20）</a>に反映し、版を上げる。</li>
+    <li>要件に影響する場合は<a href="../01-requirements/requirements.html">要件定義書（SLT-DOC-10）</a>も更新する。</li>
+  </ol>
+</section>
+
+<section id="s10">
+  <h2><span class="no">10</span>G2判定基準</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>判定</th><th>条件</th></tr></thead>
+    <tbody>
+      <tr><td class="y">MVPへ進む</td><td>全タスクの完了率80%以上、SUS平均70点以上、重大な問題が0件（修正後の再確認で解消を含む）</td></tr>
+      <tr><td class="r">条件付きで進む</td><td>完了率80%未満のタスクが1つ以内で、改善案がMVPの最初の4週間で入れられる</td></tr>
+      <tr><td style="color:var(--ng);font-weight:800">見直し</td><td>完了率80%未満のタスクが2つ以上、またはSUSが60点未満。画面構成を見直して再評価する</td></tr>
+    </tbody>
+  </table></div>
+  <p>G2の承認者はプロダクトオーナーです。判定の結果は経営層に報告します。フェーズ全体の考え方は<a href="../00-project/phase-gates.html">フェーズゲート定義書（SLT-DOC-03）</a>を参照してください。</p>
+</section>
+
+<footer>SiteLive Twin（現場ライブツイン） ／ プロトタイプ評価（ユーザビリティテスト） v0.1 ／ 2026年10月21日</footer>
+</main>
+</div>
+</body>
+</html>

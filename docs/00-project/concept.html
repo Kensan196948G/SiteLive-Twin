@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SiteLive Twin 企画構想案</title>
+<style>
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --surface2:#eef1f5; --text:#1b2330; --muted:#5b6678; --line:#d9dee6;
+  --navy:#1f3a5f; --accent:#e8890c; --accent-soft:#fff1dc;
+  --ok:#1f9d55; --warn:#d9a400; --ng:#d64545; --idle:#8a94a3; --plan:#9fb3cc; --info:#2f6fb3;
+  --shadow:0 1px 2px rgba(20,30,50,.06),0 4px 16px rgba(20,30,50,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f141b; --surface:#171e28; --surface2:#1e2733; --text:#e6ebf2; --muted:#9aa6b8; --line:#2c3746;
+    --navy:#8fb4e3; --accent:#f3a33a; --accent-soft:#3a2a12;
+    --ok:#3fbf75; --warn:#e8bf2a; --ng:#ef6a6a; --idle:#7b8696; --plan:#4f6683; --info:#6aa6e8;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f141b; --surface:#171e28; --surface2:#1e2733; --text:#e6ebf2; --muted:#9aa6b8; --line:#2c3746;
+  --navy:#8fb4e3; --accent:#f3a33a; --accent-soft:#3a2a12;
+  --ok:#3fbf75; --warn:#e8bf2a; --ng:#ef6a6a; --idle:#7b8696; --plan:#4f6683; --info:#6aa6e8;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);
+  font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+  line-height:1.75;font-size:16px;-webkit-font-smoothing:antialiased}
+a{color:var(--info)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+header.hero{background:linear-gradient(135deg,#16283f 0%,#1f3a5f 60%,#2b4f7d 100%);color:#fff;padding:56px 0 48px}
+.hero .tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.hero .tag{font-size:12px;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:2px 10px;color:#dbe6f5}
+.hero h1{font-size:clamp(26px,4.4vw,42px);line-height:1.3;margin:0 0 10px;letter-spacing:.02em}
+.hero h1 .em{color:#ffb547}
+.hero .sub{font-size:clamp(15px,2vw,18px);color:#d4deeb;margin:0 0 26px}
+.hero .meta{font-size:13px;color:#aebfd6}
+.flow5{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 26px}
+.flow5 span{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);padding:6px 12px;border-radius:8px;font-weight:600;font-size:14px}
+.flow5 i{font-style:normal;color:#ffb547}
+nav.toc{position:sticky;top:0;z-index:10;background:var(--surface);border-bottom:1px solid var(--line);box-shadow:var(--shadow)}
+nav.toc .wrap{display:flex;gap:4px;overflow-x:auto;padding-top:8px;padding-bottom:8px;scrollbar-width:thin}
+nav.toc a{white-space:nowrap;text-decoration:none;color:var(--muted);font-size:13px;padding:6px 10px;border-radius:6px}
+nav.toc a:hover{background:var(--surface2);color:var(--text)}
+section{padding:56px 0 8px}
+.sec-no{font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--accent)}
+h2{font-size:clamp(22px,3vw,28px);margin:4px 0 8px;line-height:1.4}
+.lead{color:var(--muted);margin:0 0 24px}
+h3{font-size:18px;margin:0 0 6px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;box-shadow:var(--shadow)}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.big{font-size:clamp(20px,2.8vw,26px);font-weight:700;line-height:1.55;margin:0}
+.big mark{background:linear-gradient(transparent 60%,var(--accent-soft) 60%);color:inherit}
+.icon{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font-weight:800;margin-bottom:10px}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{border-bottom:1px solid var(--line);padding:10px 8px;text-align:left;vertical-align:top}
+th{background:var(--surface2);font-weight:700}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.tbl table th:first-child,.tbl table td:first-child{padding-left:14px}
+.pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:999px;font-weight:700}
+.p-ok{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok)}
+.p-warn{background:color-mix(in srgb,var(--warn) 20%,transparent);color:var(--warn)}
+.p-ng{background:color-mix(in srgb,var(--ng) 18%,transparent);color:var(--ng)}
+.ba{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:stretch}
+.ba .arrow{display:grid;place-items:center;font-size:28px;color:var(--accent);font-weight:800}
+.ba .before{border-left:4px solid var(--idle)}
+.ba .after{border-left:4px solid var(--accent)}
+.ba ul{margin:6px 0 0;padding-left:20px}
+@media (max-width:720px){.ba{grid-template-columns:1fr}.ba .arrow{transform:rotate(90deg)}}
+/* steps */
+.step{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:20px;align-items:center;margin-bottom:22px}
+@media (max-width:820px){.step{grid-template-columns:1fr}}
+.step .num{display:inline-flex;align-items:center;gap:8px;font-weight:800;color:var(--accent);font-size:14px}
+.step .num b{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-size:15px}
+.step .who{font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:0 8px}
+.step .point{margin-top:10px;background:var(--surface2);border-radius:8px;padding:10px 12px;font-size:14px}
+.step .point b{color:var(--accent)}
+.mock{background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);overflow:hidden}
+.mock .bar{display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--surface2);border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)}
+.mock .bar i{width:9px;height:9px;border-radius:50%;background:var(--line);display:inline-block}
+.mock .body{padding:14px}
+.mock svg{display:block;width:100%;height:auto}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.kpi{background:var(--surface2);border-radius:8px;padding:8px 10px}
+.kpi .l{font-size:11px;color:var(--muted)}
+.kpi .v{font-size:18px;font-weight:800}
+.pulse{animation:pulse 1.6s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(1.35)}}
+@media (prefers-reduced-motion:reduce){.pulse{animation:none}}
+/* 対策シミュレーション */
+.opt{display:flex;gap:10px;align-items:flex-start;padding:10px;border:1px solid var(--line);border-radius:8px;margin-bottom:8px;cursor:pointer;background:var(--surface)}
+.opt:hover{border-color:var(--accent)}
+.opt input{margin-top:5px;accent-color:var(--accent);width:16px;height:16px}
+.opt .t{font-weight:700;font-size:14px}
+.opt .d{font-size:12px;color:var(--muted)}
+.res{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
+.res .kpi .v{font-size:20px}
+.verdict{margin-top:10px;font-size:14px;font-weight:700;padding:8px 12px;border-radius:8px}
+.btn{appearance:none;border:0;background:var(--accent);color:#fff;font-weight:700;padding:9px 16px;border-radius:8px;cursor:pointer;font-size:14px;font-family:inherit}
+.btn:hover{filter:brightness(1.05)}
+.btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+.log{list-style:none;margin:10px 0 0;padding:0;font-size:13px}
+.log li{border-left:3px solid var(--accent);background:var(--surface2);padding:8px 10px;border-radius:0 6px 6px 0;margin-bottom:6px}
+.log li .ts{color:var(--muted);font-size:12px}
+.log li.old{border-left-color:var(--idle)}
+/* appeal */
+.quote{border-left:4px solid var(--accent);padding:6px 0 6px 14px;margin:8px 0 0;font-weight:600}
+/* roadmap */
+.road{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;position:relative}
+@media (max-width:900px){.road{grid-template-columns:1fr}}
+.phase{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;box-shadow:var(--shadow);position:relative}
+.phase .ph{font-size:12px;font-weight:800;color:#fff;background:var(--navy);display:inline-block;padding:1px 10px;border-radius:999px;margin-bottom:6px}
+.phase.now{border:2px solid var(--accent)}
+.phase.now .ph{background:var(--accent)}
+.phase h3{font-size:16px}
+.phase ul{margin:6px 0 0;padding-left:18px;font-size:13px}
+.phase .exit{margin-top:8px;font-size:12px;background:var(--surface2);border-radius:6px;padding:6px 8px}
+.ent{display:flex;flex-wrap:wrap;gap:8px}
+.ent span{background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:13px}
+.ent span b{display:block;font-size:14px}
+footer{padding:48px 0 60px;color:var(--muted);font-size:13px}
+.theme-btn{position:fixed;right:14px;bottom:14px;z-index:20;background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:12px;cursor:pointer;box-shadow:var(--shadow);font-family:inherit}
+.note{font-size:12px;color:var(--muted);margin-top:8px}
+svg text{font-family:inherit}
+@media print{nav.toc,.theme-btn{display:none}section{break-inside:avoid}header.hero{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="tags">
+      <span class="tag">建設土木DX</span><span class="tag">デジタルツイン</span><span class="tag">4D工程</span><span class="tag">フロントローディング</span><span class="tag">経営ダッシュボード</span>
+    </div>
+    <h1>SiteLive Twin（現場ライブツイン）<br><span class="em">企画・構想案</span></h1>
+    <p class="sub">「現場ライブツイン ＋ 4D工程 ＋ 経営コックピット」を1本につなぎ、<br>現場と経営をリアルタイムで結ぶ。</p>
+    <div class="flow5" aria-label="判断の流れ">
+      <span>見る</span><i>→</i><span>気づく</span><i>→</i><span>原因を探す</span><i>→</i><span>対策を比べる</span><i>→</i><span>決める</span>
+    </div>
+    <div class="meta">SLT-DOC-01 ／ 作成日：2026年10月21日 ／ 版：構想 v0.2（社内検討用） ／ <a href="../index.html" style="color:inherit">ドキュメント一覧へ</a></div>
+  </div>
+</header>
+
+<nav class="toc" aria-label="目次">
+  <div class="wrap">
+    <a href="#s1">1. ひとことで</a><a href="#s2">2. 現状の課題</a><a href="#s3">3. コンセプト</a><a href="#s4">4. デモストーリー</a><a href="#s5">5. 訴求ポイント</a><a href="#s6">6. 期待効果</a><a href="#s7">7. フロントローディング</a><a href="#s8">8. データ構成</a><a href="#s9">9. ロードマップ</a><a href="#s10">10. リスクと対策</a><a href="#s11">11. 次のアクション</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- 1 -->
+<section id="s1">
+  <div class="sec-no">01 ／ CONCEPT</div>
+  <h2>ひとことで言うと</h2>
+  <div class="card">
+    <p class="big">全現場の状況を<mark>一目で把握</mark>し、問題の原因を<mark>3Dで確かめ</mark>、対策の効果を<mark>その場で試算</mark>して、<mark>すぐ決める</mark>アプリ。</p>
+    <p class="muted" style="margin:12px 0 0">経営判断の流れ「見る → 気づく → 原因を探す → 対策を比べる → 決める」を、1つの画面の中で途切れずに回せることが最大の特長です。</p>
+  </div>
+</section>
+
+<!-- 2 -->
+<section id="s2">
+  <div class="sec-no">02 ／ PROBLEM</div>
+  <h2>現状の課題</h2>
+  <p class="lead">工程表・現場の状況・原価は、それぞれ別のシステムや紙に分かれています。<b>つながっていないので、判断が遅れます。</b></p>
+  <div class="grid g3">
+    <div class="card"><div class="icon">①</div><h3>情報が分断している</h3><p class="muted small" style="margin:0">工程はExcel、現場はLINEと写真、原価は基幹システム。全体を一度に見られる場所がありません。</p></div>
+    <div class="card"><div class="icon">②</div><h3>気づくのが遅い</h3><p class="muted small" style="margin:0">遅れが経営層に届くのは週報や月次会議のとき。手を打てるのは、問題が大きくなってからです。</p></div>
+    <div class="card"><div class="icon">③</div><h3>原因と効果が見えない</h3><p class="muted small" style="margin:0">「なぜ遅れたか」「対策でどれだけ戻るか」を数字で示せず、勘と経験に頼った判断になりがちです。</p></div>
+  </div>
+  <div class="ba" style="margin-top:16px">
+    <div class="card before"><h3>Before（いま）</h3>
+      <ul class="small"><li>報告を待ってから状況を知る</li><li>現場に行かないと原因がわからない</li><li>対策の効果は会議で議論する</li><li>判断の経緯が残らない</li></ul></div>
+    <div class="arrow">→</div>
+    <div class="card after"><h3>After（導入後）</h3>
+      <ul class="small"><li>異常を<b>自動で色表示</b>し、すぐ気づける</li><li><b>3Dツイン</b>で現場の様子と原因を確認できる</li><li><b>対策シミュレーション</b>で対策を数字で比べられる</li><li>判断が<b>ログとして資産</b>になる</li></ul></div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section id="s3">
+  <div class="sec-no">03 ／ SOLUTION</div>
+  <h2>コンセプト：3つの機能を1本に統合</h2>
+  <p class="lead">それぞれ単体で存在する機能を、<b>同じデータの上でつなぐ</b>ことに価値があります。</p>
+  <div class="grid g3">
+    <div class="card"><div class="icon">経</div><h3>経営コックピット</h3>
+      <p class="small muted" style="margin:0 0 6px">使う人：経営層・支店長</p>
+      <p class="small" style="margin:0">飛行機の計器盤のように、<b>全現場の状態（順調・注意・危険）</b>を地図の上で一目で表示します。</p></div>
+    <div class="card"><div class="icon">現</div><h3>現場ライブツイン</h3>
+      <p class="small muted" style="margin:0 0 6px">使う人：所長・工事担当</p>
+      <p class="small" style="margin:0">3D現場モデルの上で、<b>重機・人・進捗</b>がリアルタイムに動きます。現場に行かなくても状況がわかります。</p></div>
+    <div class="card"><div class="icon">4D</div><h3>4D工程</h3>
+      <p class="small muted" style="margin:0 0 6px">使う人：所長・工務</p>
+      <p class="small" style="margin:0">工程表と3Dモデルを結びつけ、<b>計画と実績のずれ</b>をアニメーションで比べます。遅れている工種がすぐわかります。</p></div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h3>全体の仕組み（データの流れ）</h3>
+    <svg viewBox="0 0 960 300" role="img" aria-label="現場データが統合データ基盤を通って3つの画面に届き、判断が現場に戻る流れ">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker>
+      </defs>
+      <!-- sources -->
+      <g font-size="13" fill="var(--text)">
+        <text x="20" y="28" font-weight="700" fill="var(--muted)" font-size="12">現場のデータ</text>
+        <rect x="20" y="40" width="170" height="38" rx="8" fill="var(--surface2)" stroke="var(--line)"/><text x="105" y="64" text-anchor="middle">重機の位置・稼働</text>
+        <rect x="20" y="88" width="170" height="38" rx="8" fill="var(--surface2)" stroke="var(--line)"/><text x="105" y="112" text-anchor="middle">入退場・人員</text>
+        <rect x="20" y="136" width="170" height="38" rx="8" fill="var(--surface2)" stroke="var(--line)"/><text x="105" y="160" text-anchor="middle">センサー・気象</text>
+        <rect x="20" y="184" width="170" height="38" rx="8" fill="var(--surface2)" stroke="var(--line)"/><text x="105" y="208" text-anchor="middle">日報・写真・点群</text>
+        <rect x="20" y="232" width="170" height="38" rx="8" fill="var(--surface2)" stroke="var(--line)"/><text x="105" y="256" text-anchor="middle">工程表・原価・BIM/CIM</text>
+      </g>
+      <g stroke="var(--accent)" stroke-width="2" fill="none" marker-end="url(#ar)">
+        <path d="M192,59 C240,59 240,150 290,150"/><path d="M192,107 C240,107 240,150 290,150"/><path d="M192,155 L290,155"/><path d="M192,203 C240,203 240,160 290,160"/><path d="M192,251 C240,251 240,160 290,160"/>
+      </g>
+      <!-- hub -->
+      <rect x="296" y="100" width="200" height="110" rx="14" fill="var(--navy)"/>
+      <text x="396" y="146" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">統合データ基盤</text>
+      <text x="396" y="170" text-anchor="middle" fill="#dbe6f5" font-size="12">現場・工程・重機・原価を</text>
+      <text x="396" y="188" text-anchor="middle" fill="#dbe6f5" font-size="12">1つのモデルで管理</text>
+      <g stroke="var(--accent)" stroke-width="2" fill="none" marker-end="url(#ar)">
+        <path d="M498,140 C540,140 540,64 584,64"/><path d="M498,155 L584,155"/><path d="M498,170 C540,170 540,246 584,246"/>
+      </g>
+      <!-- views -->
+      <g font-size="14" font-weight="700" fill="var(--text)">
+        <rect x="590" y="40" width="190" height="48" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><text x="685" y="70" text-anchor="middle">経営コックピット</text>
+        <rect x="590" y="131" width="190" height="48" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><text x="685" y="161" text-anchor="middle">現場ライブツイン</text>
+        <rect x="590" y="222" width="190" height="48" rx="10" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><text x="685" y="251" text-anchor="middle" font-size="12">4D工程 ＋ 対策シミュレーション</text>
+      </g>
+      <g stroke="var(--accent)" stroke-width="2" fill="none" marker-end="url(#ar)"><path d="M782,155 L830,155"/></g>
+      <rect x="836" y="122" width="110" height="66" rx="10" fill="var(--accent)"/>
+      <text x="891" y="150" text-anchor="middle" fill="#fff" font-size="15" font-weight="700">判断・指示</text>
+      <text x="891" y="172" text-anchor="middle" fill="#fff" font-size="11">意思決定ログ</text>
+      <path d="M891,190 C891,292 500,292 105,276" stroke="var(--accent)" stroke-width="2" stroke-dasharray="6 5" fill="none" marker-end="url(#ar)"/>
+      <text x="520" y="290" text-anchor="middle" fill="var(--muted)" font-size="12">現場へフィードバック（指示・通知）</text>
+    </svg>
+  </div>
+</section>
+
+<!-- 4 -->
+<section id="s4">
+  <div class="sec-no">04 ／ DEMO STORY</div>
+  <h2>デモストーリー（5ステップ）</h2>
+  <p class="lead">提案や社内説明では、この5ステップをそのまま実演します。右側は画面のイメージです（数値はサンプル）。</p>
+
+  <!-- step1 -->
+  <div class="step">
+    <div>
+      <div class="num"><b>1</b>異常に気づく <span class="who">経営コックピット</span></div>
+      <p>地図の上に全現場がピンで並び、<b>A現場だけが黄色</b>になっています。色は工程の効率指標（SPI）などから自動で判定します。</p>
+      <p class="small muted">判定の例：SPI 0.95以上＝緑 ／ 0.90以上0.95未満＝黄 ／ 0.90未満＝赤</p>
+      <div class="point"><b>意味：</b>報告を待たずに、経営側が先に異常に気づけます。</div>
+    </div>
+    <div class="mock"><div class="bar"><i></i><i></i><i></i>&nbsp;経営コックピット ― 全現場マップ</div>
+      <div class="body">
+        <svg viewBox="0 0 520 260" role="img" aria-label="地図上の現場ピン。A現場が黄色で点滅">
+          <rect width="520" height="260" rx="8" fill="var(--surface2)"/>
+          <path d="M60,200 C90,150 140,160 170,120 C200,80 260,90 300,70 C340,50 380,60 420,40 C450,30 470,50 460,80 C450,110 410,120 380,150 C350,180 300,190 260,210 C220,230 150,240 100,230 C70,225 50,215 60,200 Z" fill="var(--surface)" stroke="var(--line)" stroke-width="2"/>
+          <g font-size="12" fill="var(--text)">
+            <circle cx="140" cy="190" r="9" fill="var(--ok)"/><text x="154" y="194">B現場</text>
+            <circle cx="230" cy="130" r="9" fill="var(--ok)"/><text x="244" y="134">C現場</text>
+            <circle cx="400" cy="80" r="9" fill="var(--ok)"/><text x="414" y="84">D現場</text>
+            <circle cx="300" cy="185" r="9" fill="var(--ok)"/><text x="314" y="189">E現場</text>
+            <circle cx="330" cy="105" r="16" fill="var(--warn)" class="pulse" opacity=".5"/>
+            <circle cx="330" cy="105" r="10" fill="var(--warn)" stroke="#fff" stroke-width="2"/>
+            <rect x="262" y="38" width="136" height="44" rx="6" fill="var(--surface)" stroke="var(--warn)"/>
+            <text x="272" y="56" font-weight="700">A現場（道路改良）</text>
+            <text x="272" y="73" fill="var(--warn)" font-weight="700">注意 SPI 0.93</text>
+          </g>
+        </svg>
+        <div class="kpis"><div class="kpi"><div class="l">稼働現場</div><div class="v">5</div></div><div class="kpi"><div class="l">注意</div><div class="v" style="color:var(--warn)">1</div></div><div class="kpi"><div class="l">危険</div><div class="v" style="color:var(--ok)">0</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- step2 -->
+  <div class="step">
+    <div>
+      <div class="num"><b>2</b>現場の様子を見る <span class="who">現場ライブツイン</span></div>
+      <p>A現場をクリックすると3D現場モデルに切り替わります。バックホウやダンプが動いており、そのうち何台かが<b>待機中（グレー）</b>です。</p>
+      <p class="small muted">表示の例：重機稼働率 62%／ダンプ待ち 平均18分</p>
+      <div class="point"><b>意味：</b>現場に行かなくても、遅れの原因（この例では「ダンプ待ち」）が推測できます。</div>
+    </div>
+    <div class="mock"><div class="bar"><i></i><i></i><i></i>&nbsp;現場ライブツイン ― A現場（ライブ表示）</div>
+      <div class="body">
+        <svg viewBox="0 0 520 260" role="img" aria-label="現場の俯瞰図。重機が動き、一部が待機中">
+          <rect width="520" height="260" rx="8" fill="var(--surface2)"/>
+          <!-- terrain -->
+          <polygon points="20,200 500,140 500,250 20,250" fill="color-mix(in srgb,var(--accent) 12%,var(--surface))"/>
+          <!-- road -->
+          <path id="haul" d="M40,215 C150,200 260,190 330,175 C380,165 430,158 490,150" stroke="var(--idle)" stroke-width="22" fill="none" opacity=".35"/>
+          <path d="M40,215 C150,200 260,190 330,175 C380,165 430,158 490,150" stroke="var(--surface)" stroke-width="2" stroke-dasharray="10 8" fill="none"/>
+          <!-- retaining wall -->
+          <g>
+            <polygon points="150,110 380,80 380,120 150,150" fill="var(--plan)" opacity=".55"/>
+            <polygon points="150,110 260,96 260,136 150,150" fill="var(--ok)" opacity=".85"/>
+            <polygon points="260,96 290,92 290,132 260,136" fill="var(--ng)" opacity=".85"/>
+            <text x="300" y="72" font-size="12" fill="var(--text)" font-weight="700">擁壁工</text>
+            <text x="300" y="86" font-size="11" fill="var(--muted)">緑＝完了 赤＝遅れ 青＝未着手</text>
+          </g>
+          <!-- backhoe working -->
+          <g transform="translate(205,160)">
+            <rect x="-16" y="-8" width="32" height="16" rx="3" fill="var(--ok)"/>
+            <path d="M10,-6 L28,-22 L36,-12" stroke="var(--ok)" stroke-width="4" fill="none">
+              <animateTransform attributeName="transform" type="rotate" values="0 10 -6; -14 10 -6; 0 10 -6" dur="2.4s" repeatCount="indefinite"/>
+            </path>
+            <text x="0" y="26" font-size="10" text-anchor="middle" fill="var(--text)">BH-01 稼働</text>
+          </g>
+          <!-- moving dump -->
+          <g>
+            <g>
+              <rect x="-14" y="-8" width="28" height="14" rx="3" fill="var(--ok)"/><rect x="8" y="-12" width="8" height="10" rx="2" fill="var(--ok)"/>
+              <animateMotion dur="9s" repeatCount="indefinite" rotate="auto"><mpath href="#haul"/></animateMotion>
+            </g>
+          </g>
+          <!-- waiting dumps -->
+          <g transform="translate(70,232)"><rect x="-14" y="-8" width="28" height="14" rx="3" fill="var(--idle)"/><rect x="8" y="-12" width="8" height="10" rx="2" fill="var(--idle)"/><text x="22" y="4" font-size="10" fill="var(--text)">DT-03 待機</text></g>
+          <g transform="translate(70,205)"><rect x="-14" y="-8" width="28" height="14" rx="3" fill="var(--idle)"/><rect x="8" y="-12" width="8" height="10" rx="2" fill="var(--idle)"/><text x="22" y="4" font-size="10" fill="var(--text)">DT-04 待機</text></g>
+          <!-- workers -->
+          <g fill="var(--info)"><circle cx="240" cy="148" r="4"/><circle cx="252" cy="152" r="4"/><circle cx="270" cy="146" r="4"/></g>
+          <text x="236" y="168" font-size="10" fill="var(--muted)">作業員 6名</text>
+          <!-- alert -->
+          <rect x="350" y="200" width="150" height="40" rx="6" fill="var(--surface)" stroke="var(--warn)"/>
+          <text x="360" y="217" font-size="11" fill="var(--warn)" font-weight="700">⚠ ダンプ待ちが多発</text>
+          <text x="360" y="232" font-size="10" fill="var(--muted)">待機 2台 ／ 平均18分</text>
+        </svg>
+        <div class="kpis"><div class="kpi"><div class="l">重機稼働率</div><div class="v" style="color:var(--warn)">62%</div></div><div class="kpi"><div class="l">待機台数</div><div class="v">2 / 5</div></div><div class="kpi"><div class="l">本日出来高</div><div class="v">71%</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- step3 -->
+  <div class="step">
+    <div>
+      <div class="num"><b>3</b>遅れを特定する <span class="who">4D工程</span></div>
+      <p>工程表と3Dモデルが連動しています。計画（薄い帯）と実績（濃い帯）を比べると、<b>擁壁工だけが3日遅れ</b>ていることがわかります。</p>
+      <p class="small muted">タイムスライダーを動かすと、その日の「計画の姿」と「実際の姿」が3Dで並んで表示されます。</p>
+      <div class="point"><b>意味：</b>「なんとなく遅れている」ではなく、<b>どこが何日遅れているか</b>を特定できます。</div>
+    </div>
+    <div class="mock"><div class="bar"><i></i><i></i><i></i>&nbsp;4D工程 ― 計画と実績の比較</div>
+      <div class="body">
+        <svg viewBox="0 0 520 250" role="img" aria-label="ガントチャート。擁壁工が3日遅れ">
+          <g font-size="11" fill="var(--muted)">
+            <text x="130" y="18">10/1</text><text x="220" y="18">10/8</text><text x="310" y="18">10/15</text><text x="400" y="18">10/22</text><text x="480" y="18">10/29</text>
+          </g>
+          <g stroke="var(--line)"><line x1="130" y1="24" x2="130" y2="235"/><line x1="220" y1="24" x2="220" y2="235"/><line x1="310" y1="24" x2="310" y2="235"/><line x1="400" y1="24" x2="400" y2="235"/></g>
+          <line x1="345" y1="22" x2="345" y2="238" stroke="var(--accent)" stroke-width="2"/>
+          <text x="345" y="248" font-size="10" fill="var(--accent)" text-anchor="middle" font-weight="700">今日 10/21</text>
+          <g font-size="12" fill="var(--text)">
+            <text x="8" y="50">準備工</text>
+            <rect x="130" y="38" width="60" height="9" rx="3" fill="var(--plan)"/><rect x="130" y="49" width="60" height="9" rx="3" fill="var(--ok)"/>
+            <text x="8" y="90">土工（掘削）</text>
+            <rect x="170" y="78" width="120" height="9" rx="3" fill="var(--plan)"/><rect x="170" y="89" width="124" height="9" rx="3" fill="var(--ok)"/>
+            <text x="8" y="130" font-weight="700">擁壁工</text>
+            <rect x="250" y="118" width="130" height="9" rx="3" fill="var(--plan)"/><rect x="262" y="129" width="83" height="9" rx="3" fill="var(--ng)"/>
+            <rect x="345" y="129" width="74" height="9" rx="3" fill="none" stroke="var(--ng)" stroke-dasharray="4 3"/>
+            <rect x="388" y="108" width="62" height="20" rx="4" fill="var(--ng)"/><text x="419" y="122" font-size="11" fill="#fff" text-anchor="middle" font-weight="700">3日遅れ</text>
+            <text x="8" y="170">排水工</text>
+            <rect x="330" y="158" width="100" height="9" rx="3" fill="var(--plan)"/>
+            <text x="8" y="210">舗装工</text>
+            <rect x="420" y="198" width="80" height="9" rx="3" fill="var(--plan)"/>
+          </g>
+          <g font-size="10" fill="var(--muted)"><rect x="130" y="228" width="14" height="6" fill="var(--plan)"/><text x="148" y="234">計画</text><rect x="185" y="228" width="14" height="6" fill="var(--ok)"/><text x="203" y="234">実績（順調）</text><rect x="268" y="228" width="14" height="6" fill="var(--ng)"/><text x="286" y="234">実績（遅れ）</text></g>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- step4 -->
+  <div class="step">
+    <div>
+      <div class="num"><b>4</b>対策を試算する <span class="who">対策シミュレーション</span></div>
+      <p>対策を選ぶと、<b>工期とコストへの影響がすぐに表示</b>されます。右の画面で実際に選んでみてください（複数選択できます）。</p>
+      <p class="small muted">試算の前提（サンプル）：遅延1日あたりの間接費 25万円。対策の効果と費用は過去の実績単価から算出する想定です。</p>
+      <div class="point"><b>意味：</b>勘ではなく、<b>数字で比べて選べます</b>。</div>
+    </div>
+    <div class="mock"><div class="bar"><i></i><i></i><i></i>&nbsp;対策シミュレーション ― 擁壁工の遅れ回復</div>
+      <div class="body">
+        <label class="opt"><input type="checkbox" data-days="3" data-cost="80"><div><div class="t">班を1つ追加（型枠・鉄筋班）</div><div class="d">回復 3日 ／ 追加 80万円</div></div></label>
+        <label class="opt"><input type="checkbox" data-days="1.5" data-cost="40"><div><div class="t">ダンプを2台追加（待機の解消）</div><div class="d">回復 1.5日 ／ 追加 40万円</div></div></label>
+        <label class="opt"><input type="checkbox" data-days="2" data-cost="35"><div><div class="t">土曜も稼働（2週間）</div><div class="d">回復 2日 ／ 追加 35万円</div></div></label>
+        <div class="res">
+          <div class="kpi"><div class="l">残る遅れ</div><div class="v" id="wDelay">3日</div></div>
+          <div class="kpi"><div class="l">対策費</div><div class="v" id="wCost">0万円</div></div>
+          <div class="kpi"><div class="l">総影響額<span class="small">（対策費＋遅延間接費）</span></div><div class="v" id="wTotal">75万円</div></div>
+        </div>
+        <div class="verdict" id="wVerdict"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- step5 -->
+  <div class="step">
+    <div>
+      <div class="num"><b>5</b>決めて記録する <span class="who">意思決定ログ</span></div>
+      <p>「承認」を押すと、<b>日時・判断者・根拠データ</b>が自動で記録され、現場に通知が届きます。</p>
+      <p class="small muted">ステップ4で選んだ対策が、そのまま記録されます。</p>
+      <div class="point"><b>意味：</b>判断の履歴が会社の資産（ナレッジ）になり、次の現場で生かせます。</div>
+    </div>
+    <div class="mock"><div class="bar"><i></i><i></i><i></i>&nbsp;意思決定ログ ― A現場</div>
+      <div class="body">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <button class="btn" id="approve" type="button">選んだ対策を承認する</button>
+          <button class="btn ghost" id="resetLog" type="button">ログをリセット</button>
+        </div>
+        <ul class="log" id="log">
+          <li class="old"><div class="ts">2026/10/14 09:12 ／ 所長 承認</div>土工（掘削）：バックホウ1台を追加 → 遅れ2日を回復（根拠：稼働率 58%→81%）</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="s5">
+  <div class="sec-no">05 ／ MESSAGE</div>
+  <h2>訴求ポイント（説明するときの言い回し）</h2>
+  <div class="grid g2">
+    <div class="card"><h3>① リアルタイム性</h3><p class="quote">「現場の情報をリアルに吸い上げ、経営と現場をリアルタイムにつなぎます。」</p></div>
+    <div class="card"><h3>② 判断スピード</h3><p class="quote">「週報や会議で数日かかっていた判断が、数分で済みます。」</p></div>
+    <div class="card"><h3>③ 見える化</h3><p class="quote">「デジタルツインで、現場に行かなくても状況と原因がわかります。」</p></div>
+    <div class="card"><h3>④ フロントローディングへの発展</h3><p class="quote">「同じ対策シミュレーションを着工前に使えば、問題を事前に潰せます。」</p></div>
+    <div class="card" style="grid-column:1/-1;border-color:var(--accent)"><h3>⑤ 実績との接続（ここが説得力の核）</h3><p class="quote">「私の実績では、フロントローディングで手戻りを ○○％、会議時間を ○○％ 削減しました。この仕組みはそれを全社に広げるものです。」</p><p class="note">※ ○○ の部分にご自身の実績値を入れてください。</p></div>
+  </div>
+</section>
+
+<!-- 6 -->
+<section id="s6">
+  <div class="sec-no">06 ／ IMPACT</div>
+  <h2>期待効果（KPI）</h2>
+  <p class="lead">MVPの段階から、次の指標を測って効果を示します。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>指標</th><th>現状のイメージ</th><th>導入後のイメージ</th><th>測り方</th></tr></thead>
+    <tbody>
+      <tr><td><b>遅延に気づくまでの時間</b></td><td>数日〜1週間（週報ベース）</td><td><span class="pill p-ok">当日</span> 自動判定</td><td>遅延の発生から検知までの日数</td></tr>
+      <tr><td><b>対策を決めるまでの時間</b></td><td>次回の会議まで</td><td><span class="pill p-ok">その場</span></td><td>検知から承認までの時間（ログから算出）</td></tr>
+      <tr><td><b>重機の待機時間</b></td><td>把握できていない</td><td><span class="pill p-ok">数値で見える</span> 改善できる</td><td>稼働・待機・停止の時間比率</td></tr>
+      <tr><td><b>報告書の作成時間</b></td><td>手作業で集計</td><td><span class="pill p-ok">自動集計</span></td><td>作成にかかった時間（導入前後で比較）</td></tr>
+      <tr><td><b>手戻り</b></td><td>発生してから対応</td><td><span class="pill p-ok">事前に予防</span></td><td>手戻りの件数と金額</td></tr>
+      <tr><td><b>会議時間</b></td><td>資料を集める時間が長い</td><td><span class="pill p-ok">短縮</span> 同じ画面を見て議論</td><td>工程会議の所要時間</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 7 -->
+<section id="s7">
+  <div class="sec-no">07 ／ FRONT-LOADING</div>
+  <h2>フロントローディングとのつながり</h2>
+  <p class="lead">変更のコストは、工事が進むほど大きくなります。<b>同じ仕組みを「施工中」だけでなく「着工前」にも使う</b>のがフロントローディングです。</p>
+  <div class="card">
+    <svg viewBox="0 0 900 290" role="img" aria-label="工事の段階が進むほど変更コストが上がり、検討の重心を前に移すと手戻りが減ることを示すグラフ">
+      <line x1="70" y1="240" x2="870" y2="240" stroke="var(--line)" stroke-width="2"/>
+      <line x1="70" y1="30" x2="70" y2="240" stroke="var(--line)" stroke-width="2"/>
+      <g font-size="13" fill="var(--muted)" text-anchor="middle">
+        <text x="170" y="262">計画・設計</text><text x="370" y="262">施工計画</text><text x="570" y="262">施工</text><text x="770" y="262">完成・維持管理</text>
+      </g>
+      <text x="40" y="135" font-size="12" fill="var(--muted)" transform="rotate(-90 40 135)" text-anchor="middle">影響・コスト</text>
+      <!-- cost of change -->
+      <path d="M80,230 C300,225 520,160 860,45" stroke="var(--ng)" stroke-width="3" fill="none"/>
+      <text x="760" y="60" font-size="13" fill="var(--ng)" font-weight="700">変更にかかるコスト</text>
+      <!-- traditional effort -->
+      <path d="M80,225 C250,215 420,90 560,80 C680,72 780,170 860,215" stroke="var(--idle)" stroke-width="3" stroke-dasharray="8 6" fill="none"/>
+      <text x="575" y="68" font-size="13" fill="var(--idle)" font-weight="700">従来：施工中に検討が集中</text>
+      <!-- front loading -->
+      <path d="M80,200 C160,60 300,60 400,130 C500,195 700,225 860,232" stroke="var(--accent)" stroke-width="4" fill="none"/>
+      <text x="200" y="58" font-size="13" fill="var(--accent)" font-weight="700">フロントローディング：着工前に集中</text>
+      <rect x="100" y="150" width="310" height="60" rx="8" fill="var(--accent-soft)" stroke="var(--accent)"/>
+      <text x="255" y="174" font-size="12" text-anchor="middle" fill="var(--text)" font-weight="700">ここで 4D・対策シミュレーション・干渉チェック</text>
+      <text x="255" y="194" font-size="12" text-anchor="middle" fill="var(--text)">→ 安いうちに問題を潰す</text>
+    </svg>
+    <div class="grid g3" style="margin-top:10px">
+      <div><h3>着工前（フロントローディング）</h3><p class="small muted" style="margin:0">4D工程で施工手順を確認し、対策シミュレーションで班の数や重機配置を比べ、干渉や手戻りの原因を事前に取り除きます。</p></div>
+      <div><h3>施工中（ライブツイン）</h3><p class="small muted" style="margin:0">計画と実績のずれを自動で検知し、対策シミュレーションで対策を比べて、その場で判断します。</p></div>
+      <div><h3>完成後（ナレッジ化）</h3><p class="small muted" style="margin:0">意思決定ログと実績データを、次の現場の計画（フロントローディング）に生かします。</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 -->
+<section id="s8">
+  <div class="sec-no">08 ／ DATA</div>
+  <h2>データ構成（最初はすべてダミーで可）</h2>
+  <p class="lead">構想段階のデモから、この形でデータを作ります。あとで<b>取得元を「ダミー → API → 実センサー」に差し替えるだけ</b>で済むように設計します。</p>
+  <div class="card">
+    <div class="ent">
+      <span><b>現場</b>名称・位置・工期・予算</span>
+      <span><b>部材（3D）</b>擁壁・道路・地形</span>
+      <span><b>工程</b>工種・計画日・実績進捗</span>
+      <span><b>重機</b>位置・状態・稼働時間</span>
+      <span><b>作業員</b>職種・人数・エリア</span>
+      <span><b>センサー</b>気象・騒音・振動</span>
+      <span><b>原価</b>予算・実績・単価</span>
+      <span><b>イベント</b>警告・検知・通知</span>
+      <span><b>意思決定</b>日時・判断者・根拠</span>
+    </div>
+    <p class="note">オフラインサンプルでは「シミュレーションエンジン」がこれらを自動で作ります。時間を早送りすると遅延が発生し、デモの5ステップが再現される仕組みです。</p>
+  </div>
+</section>
+
+<!-- 9 -->
+<section id="s9">
+  <div class="sec-no">09 ／ ROADMAP</div>
+  <h2>ロードマップ（段階リリース）</h2>
+  <p class="lead">小さく作って見せ、効果を測ってから広げます。各段階に「次へ進む条件」を設けます。</p>
+  <p class="note" style="margin:0 0 10px"><b>現在地：構想フェーズの終盤（G0 前）。</b>企画構想案・オフラインデモ・システムWebUIサンプル・画面設計書ができています。これらは Prototype の先行成果物としても使います。判定基準の詳細は <a href="phase-gates.html">フェーズゲート定義書（SLT-DOC-03）</a> を参照してください。</p>
+  <div class="road">
+    <div class="phase now"><span class="ph">PoC ／ 次に着手</span><h3>技術的に成立するか？</h3>
+      <ul><li>重機テレマティクス・位置データの取り込み</li><li>CEOS（工程・原価）・ArcSphere（3D）・MCIP（承認・証跡）との連携</li><li>リアルタイム配信、対策シミュレーションの速度</li><li>Entra ID による認証とサーバー側の権限判定</li></ul>
+      <div class="exit"><b>G1 Go/No-Go：</b>必須の検証項目（T1〜T5、T7）を満たす ／ 2026/11〜12</div></div>
+    <div class="phase"><span class="ph">Prototype（必要に応じて）</span><h3>利用者が理解・操作できるか？</h3>
+      <ul><li>ロール別のユーザビリティテスト</li><li>システムWebUIサンプルや PoC の画面を使う</li><li>画面と操作の流れを改善する</li></ul>
+      <div class="exit"><b>G2：</b>タスク完了率80%以上、SUS 70以上 ／ 2027/01</div></div>
+    <div class="phase"><span class="ph">MVP</span><h3>最小の価値で、本当に使われるか？</h3>
+      <ul><li>実際の1現場で運用する</li><li>工程会議でこの画面を使う</li><li>KPI（気づくまでの時間・判断までの時間・利用率など）を測る</li></ul>
+      <div class="exit"><b>G3：</b>KPI の目標を達成し、現場が継続利用を希望する ／ 2027/02〜04</div></div>
+    <div class="phase"><span class="ph">Staging</span><h3>本番に近い条件で、安全・安定して運用できるか？</h3>
+      <ul><li>本番と同じ構成の検証環境</li><li>負荷試験とセキュリティ診断</li><li>バックアップと復旧の訓練、運用手順の確認</li></ul>
+      <div class="exit"><b>G4 リリース判定：</b>品質・セキュリティ・運用の基準を満たす ／ 2027/05〜06</div></div>
+    <div class="phase"><span class="ph">Release</span><h3>本番環境で、対象ユーザーへ正式提供する</h3>
+      <ul><li>パイロット現場から順に展開する</li><li>ロール別の研修と利用者マニュアル</li><li>リリース後2週間の重点監視</li></ul>
+      <div class="exit"><b>時期：</b>2027/07</div></div>
+    <div class="phase"><span class="ph">運用・改善</span><h3>計測 → 学習 → 改善 → 次リリース</h3>
+      <ul><li>KPI と利用ログを計測する</li><li>利用者ヒアリングで学ぶ</li><li>定期的に改善をリリースする</li></ul>
+      <div class="exit"><b>G5：</b>四半期ごとの改善レビューで、続ける・広げる・縮めるを判断</div></div>
+  </div>
+
+  <div class="tbl" style="margin-top:16px"><table>
+    <thead><tr><th>段階</th><th>技術構成の例</th></tr></thead>
+    <tbody>
+      <tr><td>構想（デモ）</td><td>HTML／JavaScript（1ファイル完結）、3D表示、グラフ表示、ブラウザ内保存（localStorage）</td></tr>
+      <tr><td>PoC</td><td>FastAPI（Python 3.13）＋ PostgreSQL 18、React＋TypeScript＋Vite、リアルタイム配信、Entra ID＋Cloudflare Access、CEOS・ArcSphere・MCIP との版付き契約</td></tr>
+      <tr><td>MVP</td><td>IFC・3D Tiles の参照表示（ArcSphere）、PWA（電波がなくても日報を入力）、重機テレマティクス連携、KPI の自動計測</td></tr>
+      <tr><td>Staging／Release</td><td>Docker Compose、OpenTofu（インフラのコード化）、CI/CD、SBOM・署名・digest 固定のリリース、監視とバックアップ</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">技術の選び方は「みらい建設土木DX・AI統合基盤」の OS・アプリ選定ベストプラクティス V3.5 に従います（ADR-0002）。</p>
+</section>
+
+<!-- 10 -->
+<section id="s10">
+  <div class="sec-no">10 ／ RISK</div>
+  <h2>リスクと対策</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>リスク</th><th>内容</th><th>対策</th></tr></thead>
+    <tbody>
+      <tr><td><b>データが取れない</b></td><td>重機メーカーとの連携に契約が必要。現場ごとに機器が違う</td><td>最初はダミーと手入力で始め、取れるデータから順に自動化する</td></tr>
+      <tr><td><b>現場の負担が増える</b></td><td>入力作業が増えると使われなくなる</td><td>入力は最小限にし、日報など既存の業務から自動で集める</td></tr>
+      <tr><td><b>定着しない</b></td><td>見るだけの画面で終わってしまう</td><td>工程会議でこの画面を使うことを運用ルールにする</td></tr>
+      <tr><td><b>セキュリティ</b></td><td>工事情報や原価は機密性が高い</td><td>権限管理と監査ログを用意し、Staging段階で診断を受ける</td></tr>
+      <tr><td><b>他製品との重複</b></td><td>3D・工程・原価・承認は既存製品（ArcSphere・CEOS・MCIP）が正本を持つ</td><td>正本は「現場ライブ状態」と「対策シミュレーション案」に限り、他は参照する（ADR-0001）</td></tr>
+      <tr><td><b>作り込みすぎ</b></td><td>機能を広げすぎて完成しない</td><td>5ステップのデモに必要な機能だけに絞って作る</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 11 -->
+<section id="s11">
+  <div class="sec-no">11 ／ NEXT</div>
+  <h2>次のアクション</h2>
+  <div class="grid g3">
+    <div class="card"><div class="icon">1</div><h3>G0 で PoC 着手の承認を得る</h3><p class="small muted" style="margin:0">プロジェクト憲章・フェーズゲート定義書・ADR-0001 を説明し、体制と予算を決めます。</p></div>
+    <div class="card"><div class="icon">2</div><h3>パイロット現場とデータ提供元を探す</h3><p class="small muted" style="margin:0">重機テレマティクス・入退場・IoT のデータを出せる現場を、G1 までに決めます。</p></div>
+    <div class="card"><div class="icon">3</div><h3>PoC（8週間）を始める</h3><p class="small muted" style="margin:0">検証項目 T1〜T7 を順に確かめ、G1 で Go/No-Go を判定します。</p></div>
+  </div>
+</section>
+
+</main>
+
+<footer><div class="wrap">SiteLive Twin（現場ライブツイン） 企画・構想案 v0.2 ／ 画面イメージと数値はすべてサンプルです。この資料はネット接続なしで表示できます。</div></footer>
+
+<button class="theme-btn" id="themeBtn" type="button">表示：自動</button>
+
+<script>
+(function(){
+  // 対策シミュレーション
+  var BASE_DELAY = 3, DAILY_OVERHEAD = 25;
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('.opt input'));
+  var elD = document.getElementById('wDelay'), elC = document.getElementById('wCost'),
+      elT = document.getElementById('wTotal'), elV = document.getElementById('wVerdict');
+  function fmt(n){ return (Math.round(n*10)/10).toString(); }
+  function calc(){
+    var rec = 0, cost = 0, names = [];
+    boxes.forEach(function(b){ if(b.checked){ rec += +b.dataset.days; cost += +b.dataset.cost; names.push(b.closest('.opt').querySelector('.t').textContent); } });
+    var delay = Math.max(0, BASE_DELAY - rec);
+    var total = cost + delay * DAILY_OVERHEAD;
+    elD.textContent = fmt(delay) + '日';
+    elD.style.color = delay === 0 ? 'var(--ok)' : (delay < BASE_DELAY ? 'var(--warn)' : 'var(--ng)');
+    elC.textContent = fmt(cost) + '万円';
+    elT.textContent = fmt(total) + '万円';
+    if(names.length === 0){
+      elV.textContent = '何もしない場合：3日遅れたまま。遅延による間接費 75万円に加え、後工程（排水工・舗装工）にも影響します。';
+      elV.style.background = 'color-mix(in srgb,var(--ng) 14%,transparent)'; elV.style.color = 'var(--ng)';
+    } else if(delay === 0 && rec > BASE_DELAY + 0.01){
+      elV.textContent = '工期は回復しますが、対策が過剰です（余裕 ' + fmt(rec - BASE_DELAY) + '日分）。費用を抑えられる組み合わせを検討しましょう。';
+      elV.style.background = 'color-mix(in srgb,var(--warn) 16%,transparent)'; elV.style.color = 'var(--warn)';
+    } else if(delay === 0){
+      elV.textContent = '工期を回復できます。追加費用は ' + fmt(cost) + '万円です。';
+      elV.style.background = 'color-mix(in srgb,var(--ok) 14%,transparent)'; elV.style.color = 'var(--ok)';
+    } else {
+      elV.textContent = 'まだ ' + fmt(delay) + '日の遅れが残ります。対策を組み合わせてみましょう。';
+      elV.style.background = 'color-mix(in srgb,var(--warn) 16%,transparent)'; elV.style.color = 'var(--warn)';
+    }
+    return {names:names, delay:delay, cost:cost, rec:rec};
+  }
+  boxes.forEach(function(b){ b.addEventListener('change', calc); });
+  boxes[0].checked = true;
+  calc();
+
+  // Decision log
+  var log = document.getElementById('log');
+  var initial = log.innerHTML;
+  document.getElementById('approve').addEventListener('click', function(){
+    var r = calc();
+    var li = document.createElement('li');
+    var d = new Date();
+    var p = function(n){ return ('0'+n).slice(-2); };
+    var ts = d.getFullYear()+'/'+p(d.getMonth()+1)+'/'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());
+    var what = r.names.length ? r.names.join('＋') : '対策なし（経過観察）';
+    li.innerHTML = '<div class="ts">'+ts+' ／ 支店長 承認 ／ 現場へ通知済み</div>擁壁工：'+what+' → 残る遅れ '+fmt(r.delay)+'日、対策費 '+fmt(r.cost)+'万円（根拠：SPI 0.93、重機稼働率 62%、ダンプ待ち 平均18分）';
+    log.insertBefore(li, log.firstChild);
+  });
+  document.getElementById('resetLog').addEventListener('click', function(){ log.innerHTML = initial; });
+
+  // Theme toggle
+  var btn = document.getElementById('themeBtn'), root = document.documentElement;
+  var modes = ['auto','light','dark'], labels = {auto:'表示：自動', light:'表示：ライト', dark:'表示：ダーク'};
+  var cur = 'auto';
+  try { cur = localStorage.getItem('slt-theme') || 'auto'; } catch(e){}
+  function apply(m){ if(m === 'auto') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', m); btn.textContent = labels[m]; }
+  apply(cur);
+  btn.addEventListener('click', function(){
+    cur = modes[(modes.indexOf(cur)+1) % modes.length]; apply(cur);
+    try { localStorage.setItem('slt-theme', cur); } catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

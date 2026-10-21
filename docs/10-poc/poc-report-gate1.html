@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SiteLive Twin PoC結果報告書・G1判定書</title>
+<style>
+/* SiteLive Twin 文書テンプレート：左に目次、右に本文。表と図は横スクロール可能な枠に入れる */
+:root{
+  --bg:#f5f6f8; --paper:#ffffff; --ink:#1a2230; --sub:#5a6577; --rule:#d9dee6; --tint:#f0f3f7;
+  --navy:#1b3557; --accent:#c8740a; --accent-soft:#fdf1e1;
+  --ok:#1d8a4c; --warn:#a87800; --ng:#c43d3d; --info:#2a64a8;
+  --sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+  --mono:"BIZ UDGothic","Consolas","Menlo",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+    --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+    --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+  --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+  --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{display:grid;grid-template-columns:240px minmax(0,1fr);max-width:1280px;margin:0 auto;gap:28px;padding:28px 16px 60px}
+@media (max-width:900px){.wrap{grid-template-columns:1fr;gap:0}}
+nav.toc{position:sticky;top:20px;align-self:start;font-size:13px;max-height:calc(100vh - 40px);overflow:auto}
+@media (max-width:900px){nav.toc{position:static;max-height:none;margin-bottom:18px}}
+.toc b{display:block;font-size:11px;letter-spacing:.12em;color:var(--sub);margin-bottom:6px}
+.toc a{display:block;color:var(--ink);text-decoration:none;padding:3px 10px;border-left:2px solid var(--rule)}
+.toc a:hover,.toc a:focus-visible{border-left-color:var(--accent);color:var(--accent);outline:none}
+.toc .home{margin-bottom:12px;border-left:0;padding-left:0;color:var(--info)}
+main{min-width:0}
+.cover{background:var(--paper);border:1px solid var(--rule);border-top:5px solid var(--navy);border-radius:6px;padding:26px 28px 20px;margin-bottom:26px}
+.cover .kind{font-size:12px;letter-spacing:.14em;color:var(--sub);font-weight:700}
+.cover h1{margin:4px 0 14px;font-size:clamp(22px,3.4vw,30px);line-height:1.35;text-wrap:balance;color:var(--navy)}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));border-top:1px solid var(--rule);border-left:1px solid var(--rule);font-size:13px}
+.meta div{padding:7px 12px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.meta span{display:block;font-size:11px;color:var(--sub)}
+section{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:22px 26px 18px;margin-bottom:20px;min-width:0}
+h2{font-size:19px;margin:0 0 12px;color:var(--navy);text-wrap:balance;display:flex;gap:10px;align-items:baseline}
+h2 .no{font-family:var(--mono);font-size:14px;color:var(--accent)}
+h3{font-size:15px;margin:20px 0 8px}
+p{margin:0 0 10px;max-width:76ch}
+ul,ol{margin:0 0 10px;padding-left:22px}
+li{margin-bottom:3px}
+.tbl{overflow-x:auto;margin:6px 0 12px;border:1px solid var(--rule);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:640px}
+th,td{border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);padding:7px 9px;text-align:left;vertical-align:top}
+th:last-child,td:last-child{border-right:0}
+tr:last-child td{border-bottom:0}
+thead th{background:var(--tint);font-size:12px;color:var(--sub);white-space:nowrap}
+td.c,th.c{text-align:center}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+code,.id{font-family:var(--mono);font-size:12.5px}
+.id{color:var(--navy);font-weight:700;white-space:nowrap}
+.y{color:var(--ok);font-weight:800}.n{color:var(--sub)}.r{color:var(--warn);font-weight:700}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:0 7px;border-radius:3px;background:var(--tint);border:1px solid var(--rule);white-space:nowrap;margin:1px 2px 1px 0}
+.tag.a{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.st{display:inline-block;font-size:11px;font-weight:800;padding:0 8px;border-radius:999px;white-space:nowrap;border:1px solid currentColor}
+.st.done{color:var(--ok)}.st.wip{color:var(--accent)}.st.todo{color:var(--sub)}.st.tpl{color:var(--info)}
+.note{font-size:12.5px;color:var(--sub)}
+.callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 14px;border-radius:0 4px 4px 0;margin:8px 0 12px;font-size:13.5px}
+.fill{background:var(--tint);border:1px dashed var(--rule);border-radius:4px;padding:2px 8px;color:var(--sub);font-size:12.5px}
+.fig{overflow-x:auto;border:1px solid var(--rule);border-radius:4px;background:var(--tint);padding:10px;margin:8px 0 6px}
+.fig svg{display:block;min-width:760px;width:100%;height:auto}
+.fig text{font-family:var(--sans)}
+.cap{font-size:12px;color:var(--sub);margin:0 0 12px}
+.pri-h{color:var(--ng);font-weight:800}.pri-m{color:var(--warn);font-weight:800}.pri-l{color:var(--sub);font-weight:800}.pri-done{color:var(--ok);font-weight:800}
+a{color:var(--info)}
+footer{font-size:12px;color:var(--sub);padding:6px 4px}
+@media (max-width:640px){section{padding:18px 16px 14px}.cover{padding:20px 16px 16px}}
+@media print{nav.toc{display:none}.wrap{display:block;padding:0}section,.cover{break-inside:avoid;border:0}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="目次">
+  <a class="home" href="../index.html">← ドキュメント一覧</a>
+  <b>目次</b>
+  <a href="#s1">1. 概要</a>
+  <a href="#s2">2. 検証結果</a>
+  <a href="#s3">3. 発見事項</a>
+  <a href="#s4">4. 残課題</a>
+  <a href="#s5">5. コスト・工数の実績</a>
+  <a href="#s6">6. 判定</a>
+  <a href="#s7">7. 条件と期限</a>
+  <a href="#s8">8. 承認</a>
+  <a href="#s9">9. 次フェーズへの引き継ぎ</a>
+</nav>
+<main>
+<div class="cover">
+  <div class="kind">PoC結果報告書・G1 Go/No-Go判定書</div>
+  <h1>SiteLive Twin（現場ライブツイン）<br>PoC結果報告書・G1判定書</h1>
+  <div class="meta">
+    <div><span>文書番号</span>SLT-DOC-31</div>
+    <div><span>版</span>v0.1</div>
+    <div><span>作成日</span>2026年10月21日</div>
+    <div><span>フェーズ</span>PoC → G1</div>
+    <div><span>状態</span><span class="st tpl">テンプレート</span></div>
+  </div>
+</div>
+
+<div class="callout">この文書はテンプレートです。PoC終了時（W8）に <span class="fill">（未定：…）</span> の欄を埋め、G1判定会議（予定：2026年12月25日）で使います。検証項目と基準は<a href="poc-plan.html">PoC計画書（SLT-DOC-30）</a>のとおりです。</div>
+
+<section id="s1">
+  <h2><span class="no">1</span>概要</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>項目</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td>検証期間</td><td>2026年11月2日〜12月25日（予定） <span class="fill">（未定：実績の期間）</span></td></tr>
+      <tr><td>検証した問い</td><td>技術的に成立するか？</td></tr>
+      <tr><td>結論（要約）</td><td><span class="fill">（未定：3行程度で結論を書く）</span></td></tr>
+      <tr><td>推奨する判定</td><td><span class="fill">（未定：Go／条件付きGo／No-Go）</span></td></tr>
+      <tr><td>使ったデータ</td><td><span class="fill">（未定：実データとダミーの内訳）</span></td></tr>
+      <tr><td>使った環境</td><td><span class="fill">（未定：開発環境・検証用stgの構成）</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s2">
+  <h2><span class="no">2</span>検証結果</h2>
+  <p class="note">判定：○＝成功基準を達成　△＝一部未達だが代替手段や期限付きの解決策がある　×＝未達</p>
+  <div class="tbl"><table>
+    <thead><tr><th>ID</th><th>検証内容</th><th>区分</th><th>成功基準</th><th>結果（計測値）</th><th>データ</th><th class="c">判定</th><th>備考</th></tr></thead>
+    <tbody>
+      <tr><td class="id">T1</td><td>重機テレマティクス・位置データの取り込み</td><td>Must</td><td>取り込みまで5分以内（95%）、欠測を区別して表示</td><td><span class="fill">（未定）</span></td><td><span class="fill">実／ダミー</span></td><td class="c"><span class="fill">○△×</span></td><td><span class="fill">（未定）</span></td></tr>
+      <tr><td class="id">T2</td><td>CEOSの工程・原価からEVMを算出</td><td>Must</td><td>CEOSの値との誤差0.5%以内、DB直結なし</td><td><span class="fill">（未定）</span></td><td><span class="fill">実／ダミー</span></td><td class="c"><span class="fill">○△×</span></td><td><span class="fill">（未定）</span></td></tr>
+      <tr><td class="id">T3</td><td>ArcSphereの3Dモデルの参照表示と工程の紐付け</td><td>Must</td><td>読み込み10秒以内、30fps以上</td><td><span class="fill">（未定）</span></td><td><span class="fill">実／ダミー</span></td><td class="c"><span class="fill">○△×</span></td><td><span class="fill">（未定）</span></td></tr>
+      <tr><td class="id">T4</td><td>リアルタイム配信</td><td>Must</td><td>画面反映まで3秒以内（95%）、同時20人</td><td><span class="fill">（未定）</span></td><td><span class="fill">実／ダミー</span></td><td class="c"><span class="fill">○△×</span></td><td><span class="fill">（未定）</span></td></tr>
+      <tr><td class="id">T5</td><td>対策シミュレーション</td><td>Must</td><td>16通りを3秒以内、決定性あり</td><td><span class="fill">（未定）</span></td><td><span class="fill">実／ダミー</span></td><td class="c"><span class="fill">○△×</span></td><td><span class="fill">（未定）</span></td></tr>
+      <tr><td class="id">T6</td><td>MCIPへの承認記録</td><td>Should</td><td>R3として記録、職務分掌、証跡照会</td><td><span class="fill">（未定）</span></td><td><span class="fill">実／ダミー</span></td><td class="c"><span class="fill">○△×</span></td><td><span class="fill">（未定：代替手段を使った場合はその内容）</span></td></tr>
+      <tr><td class="id">T7</td><td>認証とサーバー側の権限判定</td><td>Must</td><td>権限のない操作をAPIで100%拒否、監査ログに記録</td><td><span class="fill">（未定）</span></td><td><span class="fill">実／ダミー</span></td><td class="c"><span class="fill">○△×</span></td><td><span class="fill">（未定）</span></td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">計測の生データ（CSV）は <code>docs/10-poc/</code> 配下に置き、ファイル名を備考に書きます。</p>
+</section>
+
+<section id="s3">
+  <h2><span class="no">3</span>発見事項</h2>
+  <p>計画時に想定していなかったこと、設計に影響することを書きます。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>No.</th><th>発見事項</th><th>影響する文書・設計</th><th>対応</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><span class="fill">（未定）</span></td><td><span class="fill">（未定：例 SLT-DOC-21、ADR-0001）</span></td><td><span class="fill">（未定）</span></td></tr>
+      <tr><td>2</td><td><span class="fill">（未定）</span></td><td><span class="fill">（未定）</span></td><td><span class="fill">（未定）</span></td></tr>
+      <tr><td>3</td><td><span class="fill">（未定）</span></td><td><span class="fill">（未定）</span></td><td><span class="fill">（未定）</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s4">
+  <h2><span class="no">4</span>残課題</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>No.</th><th>課題</th><th>関連ID</th><th>解決するフェーズ</th><th>担当ロール</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><span class="fill">（未定）</span></td><td><span class="fill">T?</span></td><td><span class="fill">Prototype／MVP／Staging</span></td><td><span class="fill">（未定）</span></td></tr>
+      <tr><td>2</td><td><span class="fill">（未定）</span></td><td><span class="fill">T?</span></td><td><span class="fill">（未定）</span></td><td><span class="fill">（未定）</span></td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">残課題はリスク・課題管理台帳（<a href="../00-project/risk-register.html">SLT-DOC-04</a>）にも登録します。</p>
+</section>
+
+<section id="s5">
+  <h2><span class="no">5</span>コスト・工数の実績</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>項目</th><th class="num">計画</th><th class="num">実績</th><th>差異の理由</th></tr></thead>
+    <tbody>
+      <tr><td>工数（人日）</td><td class="num"><span class="fill">（未定）</span></td><td class="num"><span class="fill">（未定）</span></td><td><span class="fill">（未定）</span></td></tr>
+      <tr><td>クラウド・環境費</td><td class="num"><span class="fill">（未定）</span></td><td class="num"><span class="fill">（未定）</span></td><td><span class="fill">（未定）</span></td></tr>
+      <tr><td>データ提供・ライセンス費</td><td class="num"><span class="fill">（未定）</span></td><td class="num"><span class="fill">（未定）</span></td><td><span class="fill">（未定）</span></td></tr>
+      <tr><td>合計</td><td class="num"><span class="fill">（未定）</span></td><td class="num"><span class="fill">（未定）</span></td><td><span class="fill">（未定）</span></td></tr>
+    </tbody>
+  </table></div>
+  <h3>次フェーズの見積もり</h3>
+  <p><span class="fill">（未定：Prototype・MVPの期間、工数、費用の概算）</span></p>
+</section>
+
+<section id="s6">
+  <h2><span class="no">6</span>判定</h2>
+  <div class="tbl"><table>
+    <thead><tr><th class="c">選択</th><th>判定</th><th>基準（PoC計画書9章）</th></tr></thead>
+    <tbody>
+      <tr><td class="c">□</td><td class="y">Go</td><td>Must項目（T1〜T5・T7）をすべて達成し、T6も達成または代替手段で記録できている</td></tr>
+      <tr><td class="c">□</td><td class="r">条件付きGo</td><td>Must項目の未達が1件以内で、期限付きの解決策がある。T6が未達でもMVPまでの移行計画がある</td></tr>
+      <tr><td class="c">□</td><td style="color:var(--ng);font-weight:800">No-Go</td><td>Must項目の未達が2件以上、またはT7が未達、または連携先の正本を持たないと成り立たない</td></tr>
+    </tbody>
+  </table></div>
+  <h3>判定理由</h3>
+  <p><span class="fill">（未定：判定の理由を書く）</span></p>
+  <h3>Prototypeの実施要否</h3>
+  <p><span class="fill">（未定：実施する／省略してMVPへ。判断基準は<a href="../20-prototype/usability-test.html">SLT-DOC-40</a>の1章）</span></p>
+  <h3>ADR-0001（リポジトリと正本の範囲）の確定</h3>
+  <p><span class="fill">（未定：単独リポジトリとして確定／ArcSphereの一部にする、など）</span></p>
+</section>
+
+<section id="s7">
+  <h2><span class="no">7</span>条件と期限</h2>
+  <p>条件付きGoの場合に記入します。期限までに満たせない場合は再判定を行います。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>No.</th><th>条件</th><th>期限</th><th>確認するロール</th><th>確認結果</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><span class="fill">（未定）</span></td><td><span class="fill">（未定）</span></td><td><span class="fill">（未定）</span></td><td><span class="fill">（未定）</span></td></tr>
+      <tr><td>2</td><td><span class="fill">（未定）</span></td><td><span class="fill">（未定）</span></td><td><span class="fill">（未定）</span></td><td><span class="fill">（未定）</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s8">
+  <h2><span class="no">8</span>承認</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>役割</th><th>ロール</th><th>判断</th><th>日付</th><th>コメント</th></tr></thead>
+    <tbody>
+      <tr><td>承認</td><td>経営層</td><td><span class="fill">承認／差戻し</span></td><td><span class="fill">（未定）</span></td><td><span class="fill">（未定）</span></td></tr>
+      <tr><td>起案</td><td>プロダクトオーナー</td><td><span class="fill">起案</span></td><td><span class="fill">（未定）</span></td><td><span class="fill">（未定）</span></td></tr>
+      <tr><td>技術確認</td><td>アーキテクト</td><td><span class="fill">確認済み</span></td><td><span class="fill">（未定）</span></td><td><span class="fill">（未定）</span></td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">起案者と承認者は別の人にします（職務分掌）。判定の結果はMCIPの承認・証跡にも記録します。</p>
+</section>
+
+<section id="s9">
+  <h2><span class="no">9</span>次フェーズへの引き継ぎ</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>引き継ぐもの</th><th>引き継ぎ先</th><th>状態</th></tr></thead>
+    <tbody>
+      <tr><td>検証用のソースコードと計測スクリプト（使うもの／捨てるものの区別）</td><td>MVPの開発</td><td><span class="fill">（未定）</span></td></tr>
+      <tr><td>連携の契約定義（<code>contracts/</code>）</td><td>アーキテクチャ設計書（<a href="../02-design/architecture.html">SLT-DOC-21</a>）</td><td><span class="fill">（未定）</span></td></tr>
+      <tr><td>性能の実測値（非機能要件の根拠）</td><td>要件定義書（<a href="../01-requirements/requirements.html">SLT-DOC-10</a>）</td><td><span class="fill">（未定）</span></td></tr>
+      <tr><td>プロトタイプで確かめる操作上の疑問</td><td>プロトタイプ評価（<a href="../20-prototype/usability-test.html">SLT-DOC-40</a>）</td><td><span class="fill">（未定）</span></td></tr>
+      <tr><td>MVPの対象現場とデータ提供元の候補</td><td>MVP定義書（<a href="../30-mvp/mvp-definition.html">SLT-DOC-50</a>）</td><td><span class="fill">（未定）</span></td></tr>
+      <tr><td>残課題（4章）</td><td>リスク・課題管理台帳（<a href="../00-project/risk-register.html">SLT-DOC-04</a>）</td><td><span class="fill">（未定）</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<footer>SiteLive Twin（現場ライブツイン） ／ PoC結果報告書・G1判定書 v0.1（テンプレート） ／ 2026年10月21日</footer>
+</main>
+</div>
+</body>
+</html>

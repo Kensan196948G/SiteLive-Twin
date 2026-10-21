@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SiteLive Twin 運用設計書</title>
+<style>
+/* SiteLive Twin 文書テンプレート：左に目次、右に本文。表と図は横スクロール可能な枠に入れる */
+:root{
+  --bg:#f5f6f8; --paper:#ffffff; --ink:#1a2230; --sub:#5a6577; --rule:#d9dee6; --tint:#f0f3f7;
+  --navy:#1b3557; --accent:#c8740a; --accent-soft:#fdf1e1;
+  --ok:#1d8a4c; --warn:#a87800; --ng:#c43d3d; --info:#2a64a8;
+  --sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+  --mono:"BIZ UDGothic","Consolas","Menlo",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+    --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+    --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+  --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+  --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{display:grid;grid-template-columns:240px minmax(0,1fr);max-width:1280px;margin:0 auto;gap:28px;padding:28px 16px 60px}
+@media (max-width:900px){.wrap{grid-template-columns:1fr;gap:0}}
+nav.toc{position:sticky;top:20px;align-self:start;font-size:13px;max-height:calc(100vh - 40px);overflow:auto}
+@media (max-width:900px){nav.toc{position:static;max-height:none;margin-bottom:18px}}
+.toc b{display:block;font-size:11px;letter-spacing:.12em;color:var(--sub);margin-bottom:6px}
+.toc a{display:block;color:var(--ink);text-decoration:none;padding:3px 10px;border-left:2px solid var(--rule)}
+.toc a:hover,.toc a:focus-visible{border-left-color:var(--accent);color:var(--accent);outline:none}
+.toc .home{margin-bottom:12px;border-left:0;padding-left:0;color:var(--info)}
+main{min-width:0}
+.cover{background:var(--paper);border:1px solid var(--rule);border-top:5px solid var(--navy);border-radius:6px;padding:26px 28px 20px;margin-bottom:26px}
+.cover .kind{font-size:12px;letter-spacing:.14em;color:var(--sub);font-weight:700}
+.cover h1{margin:4px 0 14px;font-size:clamp(22px,3.4vw,30px);line-height:1.35;text-wrap:balance;color:var(--navy)}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));border-top:1px solid var(--rule);border-left:1px solid var(--rule);font-size:13px}
+.meta div{padding:7px 12px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.meta span{display:block;font-size:11px;color:var(--sub)}
+section{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:22px 26px 18px;margin-bottom:20px;min-width:0}
+h2{font-size:19px;margin:0 0 12px;color:var(--navy);text-wrap:balance;display:flex;gap:10px;align-items:baseline}
+h2 .no{font-family:var(--mono);font-size:14px;color:var(--accent)}
+h3{font-size:15px;margin:20px 0 8px}
+p{margin:0 0 10px;max-width:76ch}
+ul,ol{margin:0 0 10px;padding-left:22px}
+li{margin-bottom:3px}
+.tbl{overflow-x:auto;margin:6px 0 12px;border:1px solid var(--rule);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:640px}
+th,td{border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);padding:7px 9px;text-align:left;vertical-align:top}
+th:last-child,td:last-child{border-right:0}
+tr:last-child td{border-bottom:0}
+thead th{background:var(--tint);font-size:12px;color:var(--sub);white-space:nowrap}
+td.c,th.c{text-align:center}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+code,.id{font-family:var(--mono);font-size:12.5px}
+.id{color:var(--navy);font-weight:700;white-space:nowrap}
+.y{color:var(--ok);font-weight:800}.n{color:var(--sub)}.r{color:var(--warn);font-weight:700}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:0 7px;border-radius:3px;background:var(--tint);border:1px solid var(--rule);white-space:nowrap;margin:1px 2px 1px 0}
+.tag.a{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.st{display:inline-block;font-size:11px;font-weight:800;padding:0 8px;border-radius:999px;white-space:nowrap;border:1px solid currentColor}
+.st.done{color:var(--ok)}.st.wip{color:var(--accent)}.st.todo{color:var(--sub)}.st.tpl{color:var(--info)}
+.note{font-size:12.5px;color:var(--sub)}
+.callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 14px;border-radius:0 4px 4px 0;margin:8px 0 12px;font-size:13.5px}
+.fill{background:var(--tint);border:1px dashed var(--rule);border-radius:4px;padding:2px 8px;color:var(--sub);font-size:12.5px}
+.fig{overflow-x:auto;border:1px solid var(--rule);border-radius:4px;background:var(--tint);padding:10px;margin:8px 0 6px}
+.fig svg{display:block;min-width:760px;width:100%;height:auto}
+.fig text{font-family:var(--sans)}
+.cap{font-size:12px;color:var(--sub);margin:0 0 12px}
+.pri-h{color:var(--ng);font-weight:800}.pri-m{color:var(--warn);font-weight:800}.pri-l{color:var(--sub);font-weight:800}.pri-done{color:var(--ok);font-weight:800}
+a{color:var(--info)}
+footer{font-size:12px;color:var(--sub);padding:6px 4px}
+@media (max-width:640px){section{padding:18px 16px 14px}.cover{padding:20px 16px 16px}}
+@media print{nav.toc{display:none}.wrap{display:block;padding:0}section,.cover{break-inside:avoid;border:0}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="目次">
+  <a class="home" href="../index.html">← ドキュメント一覧</a>
+  <b>目次</b>
+  <a href="#s1">1. 目的と範囲</a>
+  <a href="#s2">2. 運用体制</a>
+  <a href="#s3">3. サービスレベル</a>
+  <a href="#s4">4. 環境</a>
+  <a href="#s5">5. 監視</a>
+  <a href="#s6">6. アラートと連絡</a>
+  <a href="#s7">7. バックアップと復旧</a>
+  <a href="#s8">8. 障害対応</a>
+  <a href="#s9">9. 定常作業</a>
+  <a href="#s10">10. リリース手順の概要</a>
+  <a href="#s11">11. 監査ログの運用</a>
+  <a href="#s12">12. 運用ドキュメント一覧</a>
+</nav>
+<main>
+<div class="cover">
+  <div class="kind">運用設計</div>
+  <h1>SiteLive Twin（現場ライブツイン）<br>運用設計書（監視・バックアップ・障害対応）</h1>
+  <div class="meta">
+    <div><span>文書番号</span>SLT-DOC-60</div>
+    <div><span>版</span>v0.1</div>
+    <div><span>作成日</span>2026年10月21日</div>
+    <div><span>フェーズ</span>Staging（2027年5〜6月 予定）</div>
+    <div><span>状態</span>初版（Staging で検証して確定）</div>
+  </div>
+</div>
+
+<section id="s1">
+  <h2><span class="no">1</span>目的と範囲</h2>
+  <p>Staging と本番で SiteLive Twin を安全・安定して運用するための体制、監視、バックアップ、障害対応、定常作業を定めます。Staging フェーズの問い「本番に近い条件で、安全・安定して運用できるか？」に答えるため、本書の内容を Staging で実際に運用し、結果を G4（リリース判定）の材料にします。</p>
+  <div class="callout">本書の数値（稼働率・RPO・RTO・しきい値）は v0.1 時点の案です。MVP の実績と Staging での検証を踏まえて確定します。</div>
+  <h3>対象</h3>
+  <ul>
+    <li>SiteLive Twin のアプリケーション（Web 画面、API、取り込み処理、配信処理）とデータベース（PostgreSQL 18）</li>
+    <li>Staging 環境と本番環境。PoC・MVP の環境は対象外（簡易な運用で可）</li>
+    <li>連携先（ArcSphere、CEOS、MCIP、CODIP、MCAH、認証基盤）は各リポジトリの運用に従い、本書では連携部分の監視だけを扱います</li>
+  </ul>
+</section>
+
+<section id="s2">
+  <h2><span class="no">2</span>運用体制</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>ロール</th><th>主な役割</th><th>Staging での関わり</th></tr></thead>
+    <tbody>
+      <tr><td>プロダクトオーナー</td><td>サービスレベルの決定、重大障害の対外連絡の判断、改善の優先順位付け</td><td>G4 の判定材料をまとめる</td></tr>
+      <tr><td>運用担当</td><td>監視、定常作業、一次対応、バックアップ・復旧訓練の実施</td><td>本書の手順を実際に回し、記録を残す</td></tr>
+      <tr><td>開発</td><td>二次対応（原因調査・修正）、リリース作業</td><td>障害訓練での復旧手順の確認</td></tr>
+      <tr><td>アーキテクト</td><td>構成変更の判断、連携先との調整</td><td>性能・可用性の検証結果の評価</td></tr>
+      <tr><td>情報セキュリティ担当</td><td>セキュリティ事故の対応、監査ログの確認、脆弱性情報の確認</td><td>セキュリティ診断の立ち会い</td></tr>
+      <tr><td>システム管理者（業務側）</td><td>アカウント・権限の管理、しきい値などの設定</td><td>設定変更の手順確認</td></tr>
+    </tbody>
+  </table></div>
+  <h3>問い合わせ窓口</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>区分</th><th>窓口</th><th>受付時間</th></tr></thead>
+    <tbody>
+      <tr><td>利用者からの問い合わせ（使い方・権限）</td><td>DX推進部 ヘルプデスク <span class="fill">（未定：受付手段・連絡先）</span></td><td>平日 8:00〜18:00</td></tr>
+      <tr><td>障害の連絡</td><td>運用担当 <span class="fill">（未定：連絡手段）</span></td><td>平日 7:00〜19:00（業務時間帯）。時間外は翌営業日対応。重大度1は時間外も連絡</td></tr>
+      <tr><td>セキュリティ事故の疑い</td><td>情報セキュリティ担当 <span class="fill">（未定：連絡先）</span></td><td>常時</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s3">
+  <h2><span class="no">3</span>サービスレベル（案）</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>項目</th><th>目標値（案）</th><th>補足</th></tr></thead>
+    <tbody>
+      <tr><td>稼働率</td><td>99.5%（業務時間帯：平日 7:00〜19:00）</td><td>計画停止は除く。月単位で計測</td></tr>
+      <tr><td>RPO（どの時点まで戻せるか）</td><td>24時間</td><td>日次のフルバックアップを基本とする。Staging で復旧訓練を行い、短縮が必要か判断する</td></tr>
+      <tr><td>RTO（どのくらいで戻せるか）</td><td>4時間</td><td>業務時間帯に発生した障害が対象</td></tr>
+      <tr><td>データ取り込みの遅れ</td><td>5分以内</td><td>PoC の T1 と同じ基準。重機テレマティクス・入退場データ</td></tr>
+      <tr><td>画面への配信の遅れ</td><td>3秒以内</td><td>PoC の T4 と同じ基準</td></tr>
+      <tr><td>計画停止</td><td>月1回まで、業務時間外に実施</td><td>3営業日前までに利用者へ通知</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s4">
+  <h2><span class="no">4</span>環境</h2>
+  <p>Staging は全社 ADR「MCDX-ADR-0010」の家族パターンに従い、本番と同じ構成で独立した環境として作ります。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>項目</th><th>Staging</th><th>本番</th></tr></thead>
+    <tbody>
+      <tr><td>URL</td><td><code>sitelive-stg.mirai-dx-platform.com</code></td><td><span class="fill">（未定：本番 URL）</span></td></tr>
+      <tr><td>入口</td><td>専用の Cloudflare Tunnel と Access</td><td>専用の Cloudflare Tunnel と Access</td></tr>
+      <tr><td>認証</td><td>Entra ID → Cloudflare Access（多要素認証）</td><td>同左</td></tr>
+      <tr><td>データベース</td><td>専用の PostgreSQL 18（本番とは共有しない）</td><td>専用の PostgreSQL 18</td></tr>
+      <tr><td>ポート</td><td>専用の loopback ポート</td><td>専用の loopback ポート</td></tr>
+      <tr><td>OS・実行環境</td><td>Ubuntu 26.04 LTS、Docker Compose</td><td>同左</td></tr>
+      <tr><td>構成の管理</td><td>OpenTofu。Mirai-Platform-Infra の <code>systems.yaml</code> と <code>envs/stg/releases.yaml</code> に登録</td><td><code>envs/prod/releases.yaml</code> に登録</td></tr>
+      <tr><td>データ</td><td>MVP 現場のデータを匿名化して使う <span class="fill">（未定：匿名化の範囲）</span></td><td>実データ</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">他リポジトリのデータベースには直接接続しません。ArcSphere・CEOS・MCIP・CODIP とは版付きの契約 API で連携し、AI は MCAH 経由でのみ呼びます。</p>
+</section>
+
+<section id="s5">
+  <h2><span class="no">5</span>監視</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>監視項目</th><th>内容</th><th>注意（警告）</th><th>危険（緊急）</th><th>間隔</th></tr></thead>
+    <tbody>
+      <tr><td>死活</td><td>Web 画面・API・取り込み処理・配信処理が応答するか</td><td>1回失敗</td><td>3回連続失敗</td><td>1分</td></tr>
+      <tr><td>API の応答時間</td><td>主要 API の応答時間（95パーセンタイル）</td><td>1秒超</td><td>3秒超が5分続く</td><td>1分</td></tr>
+      <tr><td>データ取り込みの遅れ</td><td>重機・入退場・センサーのデータが届くまでの時間</td><td>5分超</td><td>15分超</td><td>1分</td></tr>
+      <tr><td>配信の遅れ</td><td>状態の変化が画面に届くまでの時間</td><td>3秒超</td><td>10秒超が5分続く</td><td>1分</td></tr>
+      <tr><td>エラー率</td><td>API の 5xx 応答の割合</td><td>1%超</td><td>5%超</td><td>5分</td></tr>
+      <tr><td>連携先の状態</td><td>ArcSphere・CEOS・MCIP・CODIP の契約 API の応答</td><td>失敗が続く（5分）</td><td>失敗が続く（30分）</td><td>1分</td></tr>
+      <tr><td>DB 容量</td><td>データベースとバックアップ領域の使用率</td><td>70%超</td><td>85%超</td><td>1時間</td></tr>
+      <tr><td>証明書</td><td>証明書の有効期限</td><td>残り30日</td><td>残り7日</td><td>1日</td></tr>
+      <tr><td>定期ジョブ</td><td>バックアップ、集計、日報の自動作成などのジョブの成否</td><td>1回失敗</td><td>2回連続失敗</td><td>実行ごと</td></tr>
+      <tr><td>認証の異常</td><td>ログイン失敗、権限エラーの急増</td><td>通常の3倍</td><td>通常の10倍</td><td>5分</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">監視ツールは Mirai-Platform-Infra の標準に合わせます <span class="fill">（未定：監視ツール）</span>。</p>
+</section>
+
+<section id="s6">
+  <h2><span class="no">6</span>アラートと連絡経路</h2>
+  <div class="fig">
+    <svg viewBox="0 0 760 210" role="img" aria-label="アラートの連絡経路">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--navy)"/></marker></defs>
+      <g font-size="12" text-anchor="middle">
+        <rect x="10" y="80" width="120" height="48" rx="6" fill="var(--tint)" stroke="var(--rule)"/><text x="70" y="109" fill="var(--ink)">監視</text>
+        <rect x="190" y="80" width="130" height="48" rx="6" fill="var(--accent-soft)" stroke="var(--accent)"/><text x="255" y="100" fill="var(--ink)">運用担当</text><text x="255" y="117" fill="var(--sub)" font-size="11">一次対応</text>
+        <rect x="390" y="20" width="150" height="48" rx="6" fill="var(--paper)" stroke="var(--navy)"/><text x="465" y="40" fill="var(--ink)">開発</text><text x="465" y="57" fill="var(--sub)" font-size="11">二次対応</text>
+        <rect x="390" y="140" width="150" height="48" rx="6" fill="var(--paper)" stroke="var(--navy)"/><text x="465" y="160" fill="var(--ink)">情報セキュリティ担当</text><text x="465" y="177" fill="var(--sub)" font-size="11">セキュリティ事故</text>
+        <rect x="600" y="80" width="150" height="48" rx="6" fill="var(--paper)" stroke="var(--navy)"/><text x="675" y="100" fill="var(--ink)">プロダクトオーナー</text><text x="675" y="117" fill="var(--sub)" font-size="11">重大度1・2の判断</text>
+      </g>
+      <g fill="none" stroke="var(--navy)" stroke-width="1.6" marker-end="url(#ah)">
+        <path d="M130,104 L188,104"/>
+        <path d="M320,96 C350,96 350,44 388,44"/>
+        <path d="M320,112 C350,112 350,164 388,164"/>
+        <path d="M540,44 C570,44 570,96 598,96"/>
+        <path d="M540,164 C570,164 570,112 598,112"/>
+      </g>
+      <g font-size="11" fill="var(--sub)">
+        <text x="134" y="96">警告・緊急</text>
+      </g>
+    </svg>
+  </div>
+  <p class="cap">図1　アラートの連絡経路</p>
+  <ul>
+    <li><b>警告</b>：運用担当へ通知します。業務時間内に確認し、必要なら開発へ連絡します。</li>
+    <li><b>緊急</b>：運用担当と開発へ同時に通知します。重大度1の場合はプロダクトオーナーにも連絡します。</li>
+    <li>利用者への周知（障害のお知らせ・復旧のお知らせ）は、プロダクトオーナーの判断で運用担当が行います。</li>
+  </ul>
+</section>
+
+<section id="s7">
+  <h2><span class="no">7</span>バックアップと復旧</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>対象</th><th>方式</th><th>頻度</th><th>保持世代</th><th>保管先</th></tr></thead>
+    <tbody>
+      <tr><td>PostgreSQL（現場ライブ状態、対策シミュレーション案、日報、設定、監査ログ）</td><td>フルバックアップ＋WAL の継続保管</td><td>フル：日次（深夜）</td><td>日次7世代、週次4世代、月次12世代</td><td>別のサーバー・別の場所 <span class="fill">（未定：保管先）</span></td></tr>
+      <tr><td>設定ファイル・構成</td><td>リポジトリ（Git）と OpenTofu の状態</td><td>変更のたび</td><td>Git の履歴</td><td>GitHub</td></tr>
+      <tr><td>秘密情報（鍵・トークン）</td><td>秘密情報の管理基盤で保管</td><td>変更のたび</td><td>基盤の仕様に従う</td><td><span class="fill">（未定：管理基盤）</span></td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">3D モデル、工程・原価、案件・承認の証跡は、それぞれ正本を持つ ArcSphere・CEOS・MCIP 側でバックアップします。SiteLive Twin では保存しません。</p>
+  <h3>復旧訓練</h3>
+  <ul>
+    <li>Staging 期間中に1回以上、バックアップから別の環境へ復旧し、RTO 4時間以内に業務を再開できるかを確認します。</li>
+    <li>訓練の結果（かかった時間、手順の不足、データの欠け）を記録し、G4 の判定材料にします。</li>
+    <li>本番運用後は半年に1回、訓練を行います。</li>
+  </ul>
+</section>
+
+<section id="s8">
+  <h2><span class="no">8</span>障害対応</h2>
+  <h3>重大度の定義</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>重大度</th><th>状態</th><th>例</th><th>初動の目標</th><th>復旧の目標</th></tr></thead>
+    <tbody>
+      <tr><td class="pri-h">1（緊急）</td><td>全利用者が使えない。または情報漏えいの疑い</td><td>ログインできない、データベース停止、権限外のデータが見える</td><td>15分以内</td><td>4時間以内</td></tr>
+      <tr><td class="pri-m">2（高）</td><td>主要な機能が使えない、または誤った値が表示される</td><td>取り込みが止まり現場の状態が更新されない、承認ができない、EVM の値が誤っている</td><td>30分以内</td><td>1営業日以内</td></tr>
+      <tr><td class="pri-l">3（中）</td><td>一部の機能に不具合があるが、代わりの手段がある</td><td>CSV 出力ができない、一部の画面が遅い</td><td>当日中</td><td>次回のリリース</td></tr>
+      <tr><td class="pri-l">4（低）</td><td>表示の乱れなど、業務への影響が小さい</td><td>文言の誤り、レイアウトの崩れ</td><td>3営業日以内</td><td>計画的に修正</td></tr>
+    </tbody>
+  </table></div>
+  <h3>対応の流れ</h3>
+  <div class="fig">
+    <svg viewBox="0 0 760 110" role="img" aria-label="障害対応の流れ">
+      <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--navy)"/></marker></defs>
+      <g font-size="12" text-anchor="middle">
+        <rect x="6" y="30" width="104" height="48" rx="6" fill="var(--tint)" stroke="var(--rule)"/><text x="58" y="59" fill="var(--ink)">検知</text>
+        <rect x="132" y="30" width="104" height="48" rx="6" fill="var(--accent-soft)" stroke="var(--accent)"/><text x="184" y="59" fill="var(--ink)">初動</text>
+        <rect x="258" y="30" width="104" height="48" rx="6" fill="var(--paper)" stroke="var(--navy)"/><text x="310" y="59" fill="var(--ink)">影響判定</text>
+        <rect x="384" y="30" width="104" height="48" rx="6" fill="var(--paper)" stroke="var(--navy)"/><text x="436" y="59" fill="var(--ink)">復旧</text>
+        <rect x="510" y="30" width="104" height="48" rx="6" fill="var(--paper)" stroke="var(--navy)"/><text x="562" y="59" fill="var(--ink)">報告</text>
+        <rect x="636" y="30" width="118" height="48" rx="6" fill="var(--paper)" stroke="var(--ok)"/><text x="695" y="59" fill="var(--ink)">再発防止</text>
+      </g>
+      <g fill="none" stroke="var(--navy)" stroke-width="1.6" marker-end="url(#ah2)">
+        <path d="M110,54 L130,54"/><path d="M236,54 L256,54"/><path d="M362,54 L382,54"/><path d="M488,54 L508,54"/><path d="M614,54 L634,54"/>
+      </g>
+    </svg>
+  </div>
+  <p class="cap">図2　障害対応の流れ</p>
+  <div class="tbl"><table>
+    <thead><tr><th>段階</th><th>内容</th><th>担当ロール</th></tr></thead>
+    <tbody>
+      <tr><td>検知</td><td>監視のアラート、または利用者からの連絡で障害を把握する</td><td>運用担当</td></tr>
+      <tr><td>初動</td><td>障害の記録を作り、発生時刻・症状・影響範囲を確認する。セキュリティ事故の疑いがあれば情報セキュリティ担当へすぐ連絡</td><td>運用担当</td></tr>
+      <tr><td>影響判定</td><td>重大度を決め、連絡先と利用者への周知の要否を決める</td><td>運用担当、プロダクトオーナー（重大度1・2）</td></tr>
+      <tr><td>復旧</td><td>手順書に沿って復旧する。必要なら直前の版へ戻す（ロールバック）</td><td>運用担当、開発</td></tr>
+      <tr><td>報告</td><td>重大度1・2は、復旧後2営業日以内に障害報告書を作る（原因、影響、対応、再発防止策）</td><td>開発、運用担当</td></tr>
+      <tr><td>再発防止</td><td>対策をリスク・課題管理台帳と改善計画に登録し、次のリリースで対応する</td><td>プロダクトオーナー</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s9">
+  <h2><span class="no">9</span>定常作業</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>頻度</th><th>作業</th><th>担当ロール</th></tr></thead>
+    <tbody>
+      <tr><td>日次</td><td>監視画面の確認、夜間ジョブ（バックアップ・集計・日報の自動作成）の成否確認、アラートの振り返り</td><td>運用担当</td></tr>
+      <tr><td>週次</td><td>取り込み遅れ・配信遅れ・エラー率の傾向確認、問い合わせ内容の整理、リスク・課題管理台帳の更新</td><td>運用担当、プロダクトオーナー</td></tr>
+      <tr><td>月次</td><td>稼働率の集計、DB 容量とクラウド費用の確認、アカウントと権限の棚卸し、依存ライブラリの脆弱性情報の確認、バックアップからの復元確認（抜き取り）</td><td>運用担当、システム管理者、情報セキュリティ担当</td></tr>
+      <tr><td>四半期</td><td>KPI と運用実績の報告（G5 改善レビュー）、監査ログの確認</td><td>プロダクトオーナー、情報セキュリティ担当</td></tr>
+      <tr><td>半年</td><td>復旧訓練</td><td>運用担当、開発</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s10">
+  <h2><span class="no">10</span>リリース手順の概要</h2>
+  <p>ポートフォリオ共通の統制に従います。詳しい手順は Release フェーズのリリース計画書で定めます。</p>
+  <ol>
+    <li>変更はブランチで行い、PR を作る（main へ直接 push しない）</li>
+    <li>CI で自動テスト、依存関係の検査、コンテナイメージの作成を行う</li>
+    <li>人のレビューで承認する（通常の変更は2名、重要な変更は3名）</li>
+    <li>リリース成果物に SBOM・署名・Attestation を付け、イメージは digest で固定する（<code>latest</code> タグは使わない）</li>
+    <li>Mirai-Platform-Infra の <code>envs/stg/releases.yaml</code> を更新して Staging に配置し、確認する</li>
+    <li>確認後に <code>envs/prod/releases.yaml</code> を更新して本番に配置する。問題があれば直前の digest へ戻す</li>
+  </ol>
+</section>
+
+<section id="s11">
+  <h2><span class="no">11</span>監査ログの運用</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>項目</th><th>方針</th></tr></thead>
+    <tbody>
+      <tr><td>記録する操作</td><td>ログイン・ログアウト、起案・承認・差戻し、日報の提出、設定の変更、シナリオの変更・リセット（Staging のみ）、CSV 出力・印刷、権限の変更</td></tr>
+      <tr><td>保管方法</td><td>サーバー側で追記だけができる形で保管し、改ざんできないようにする。承認の証跡は MCIP にも記録する</td></tr>
+      <tr><td>保存期間</td><td><span class="fill">（未定：社内規程に合わせて決定）</span></td></tr>
+      <tr><td>閲覧できる人</td><td>システム管理者、経営層、情報セキュリティ担当</td></tr>
+      <tr><td>定期確認</td><td>四半期ごとに、権限外の操作や大量の出力がないかを確認する</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s12">
+  <h2><span class="no">12</span>運用ドキュメント一覧</h2>
+  <p>Staging 期間中に次の手順書（runbook）を作り、訓練で使って内容を確かめます。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>手順書</th><th>内容</th><th>状態</th></tr></thead>
+    <tbody>
+      <tr><td>監視とアラート対応</td><td>アラートごとの確認手順と対処</td><td><span class="st todo">未着手</span></td></tr>
+      <tr><td>バックアップと復旧</td><td>バックアップの確認、復旧の手順、訓練の記録様式</td><td><span class="st todo">未着手</span></td></tr>
+      <tr><td>障害対応</td><td>重大度の判断、連絡、ロールバック、障害報告書の様式</td><td><span class="st todo">未着手</span></td></tr>
+      <tr><td>リリース</td><td>Staging・本番への配置、確認、ロールバック</td><td><span class="st todo">未着手</span></td></tr>
+      <tr><td>アカウントと権限の管理</td><td>利用者の追加・削除、ロールの変更、棚卸し</td><td><span class="st todo">未着手</span></td></tr>
+      <tr><td>連携先の障害時の対応</td><td>ArcSphere・CEOS・MCIP・CODIP が止まったときの表示と再取り込み</td><td><span class="st todo">未着手</span></td></tr>
+    </tbody>
+  </table></div>
+  <h3>関連文書</h3>
+  <ul>
+    <li><a href="release-readiness.html">セキュリティ・品質チェックリスト／リリース判定書（G4）</a></li>
+    <li><a href="../02-design/architecture.html">アーキテクチャ設計書</a></li>
+    <li><a href="../00-project/phase-gates.html">フェーズゲート定義書</a></li>
+    <li><a href="../00-project/risk-register.html">リスク・課題管理台帳</a></li>
+    <li><a href="../50-release/release-plan.html">リリース計画書</a></li>
+    <li><a href="../60-operations/improvement-plan.html">運用・改善計画書</a></li>
+  </ul>
+</section>
+
+<footer>SiteLive Twin（現場ライブツイン） ／ 運用設計書 v0.1 ／ 2026年10月21日</footer>
+</main>
+</div>
+</body>
+</html>

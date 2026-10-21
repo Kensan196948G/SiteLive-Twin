@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ADR-0001 リポジトリ分離と正本範囲</title>
+<style>
+/* SiteLive Twin 文書テンプレート：左に目次、右に本文。表と図は横スクロール可能な枠に入れる */
+:root{
+  --bg:#f5f6f8; --paper:#ffffff; --ink:#1a2230; --sub:#5a6577; --rule:#d9dee6; --tint:#f0f3f7;
+  --navy:#1b3557; --accent:#c8740a; --accent-soft:#fdf1e1;
+  --ok:#1d8a4c; --warn:#a87800; --ng:#c43d3d; --info:#2a64a8;
+  --sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+  --mono:"BIZ UDGothic","Consolas","Menlo",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+    --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+    --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+  --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+  --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{display:grid;grid-template-columns:240px minmax(0,1fr);max-width:1280px;margin:0 auto;gap:28px;padding:28px 16px 60px}
+@media (max-width:900px){.wrap{grid-template-columns:1fr;gap:0}}
+nav.toc{position:sticky;top:20px;align-self:start;font-size:13px;max-height:calc(100vh - 40px);overflow:auto}
+@media (max-width:900px){nav.toc{position:static;max-height:none;margin-bottom:18px}}
+.toc b{display:block;font-size:11px;letter-spacing:.12em;color:var(--sub);margin-bottom:6px}
+.toc a{display:block;color:var(--ink);text-decoration:none;padding:3px 10px;border-left:2px solid var(--rule)}
+.toc a:hover,.toc a:focus-visible{border-left-color:var(--accent);color:var(--accent);outline:none}
+.toc .home{margin-bottom:12px;border-left:0;padding-left:0;color:var(--info)}
+main{min-width:0}
+.cover{background:var(--paper);border:1px solid var(--rule);border-top:5px solid var(--navy);border-radius:6px;padding:26px 28px 20px;margin-bottom:26px}
+.cover .kind{font-size:12px;letter-spacing:.14em;color:var(--sub);font-weight:700}
+.cover h1{margin:4px 0 14px;font-size:clamp(22px,3.4vw,30px);line-height:1.35;text-wrap:balance;color:var(--navy)}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));border-top:1px solid var(--rule);border-left:1px solid var(--rule);font-size:13px}
+.meta div{padding:7px 12px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.meta span{display:block;font-size:11px;color:var(--sub)}
+section{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:22px 26px 18px;margin-bottom:20px;min-width:0}
+h2{font-size:19px;margin:0 0 12px;color:var(--navy);text-wrap:balance;display:flex;gap:10px;align-items:baseline}
+h2 .no{font-family:var(--mono);font-size:14px;color:var(--accent)}
+h3{font-size:15px;margin:20px 0 8px}
+p{margin:0 0 10px;max-width:76ch}
+ul,ol{margin:0 0 10px;padding-left:22px}
+li{margin-bottom:3px}
+.tbl{overflow-x:auto;margin:6px 0 12px;border:1px solid var(--rule);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:640px}
+th,td{border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);padding:7px 9px;text-align:left;vertical-align:top}
+th:last-child,td:last-child{border-right:0}
+tr:last-child td{border-bottom:0}
+thead th{background:var(--tint);font-size:12px;color:var(--sub);white-space:nowrap}
+td.c,th.c{text-align:center}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+code,.id{font-family:var(--mono);font-size:12.5px}
+.id{color:var(--navy);font-weight:700;white-space:nowrap}
+.y{color:var(--ok);font-weight:800}.n{color:var(--sub)}.r{color:var(--warn);font-weight:700}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:0 7px;border-radius:3px;background:var(--tint);border:1px solid var(--rule);white-space:nowrap;margin:1px 2px 1px 0}
+.tag.a{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.st{display:inline-block;font-size:11px;font-weight:800;padding:0 8px;border-radius:999px;white-space:nowrap;border:1px solid currentColor}
+.st.done{color:var(--ok)}.st.wip{color:var(--accent)}.st.todo{color:var(--sub)}.st.tpl{color:var(--info)}
+.note{font-size:12.5px;color:var(--sub)}
+.callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 14px;border-radius:0 4px 4px 0;margin:8px 0 12px;font-size:13.5px}
+.fill{background:var(--tint);border:1px dashed var(--rule);border-radius:4px;padding:2px 8px;color:var(--sub);font-size:12.5px}
+.fig{overflow-x:auto;border:1px solid var(--rule);border-radius:4px;background:var(--tint);padding:10px;margin:8px 0 6px}
+.fig svg{display:block;min-width:760px;width:100%;height:auto}
+.fig text{font-family:var(--sans)}
+.cap{font-size:12px;color:var(--sub);margin:0 0 12px}
+.pri-h{color:var(--ng);font-weight:800}.pri-m{color:var(--warn);font-weight:800}.pri-l{color:var(--sub);font-weight:800}.pri-done{color:var(--ok);font-weight:800}
+a{color:var(--info)}
+footer{font-size:12px;color:var(--sub);padding:6px 4px}
+@media (max-width:640px){section{padding:18px 16px 14px}.cover{padding:20px 16px 16px}}
+@media print{nav.toc{display:none}.wrap{display:block;padding:0}section,.cover{break-inside:avoid;border:0}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="目次">
+  <a class="home" href="../index.html">← ドキュメント一覧</a>
+  <b>目次</b>
+<a href="#s1">1. 背景</a>
+  <a href="#s2">2. 選択肢</a>
+  <a href="#s3">3. 決定（案）</a>
+  <a href="#s4">4. 結果と影響</a>
+  <a href="#s5">5. 再評価の条件</a>
+  <a href="#s6">6. 未決事項</a>
+</nav>
+<main>
+<div class="cover">
+  <div class="kind">ADR（アーキテクチャ決定記録）</div>
+  <h1>ADR-0001<br>リポジトリ分離と正本範囲</h1>
+  <div class="meta">
+    <div><span>状態</span>提案</div>
+    <div><span>日付</span>2026年10月21日</div>
+    <div><span>決定者</span><span class="fill">（未定：プロダクトオーナー、アーキテクト）</span></div>
+    <div><span>上位規範（Conforms-to）</span>リポジトリ構成ベストプラクティス V3.6 §4・§13、全体構成 V3.6</div>
+    <div><span>関連文書</span><a href="../02-design/architecture.html">SLT-DOC-21</a>、<a href="../02-design/data-integration.html">SLT-DOC-22</a></div>
+  </div>
+</div>
+
+<section id="s1">
+  <h2><span class="no">1</span>背景</h2>
+  <p>現場ライブツイン（SiteLive Twin）は、3Dモデル・工程・原価・設備データを重ねて現場の状態を示し、対策の試算と承認までを支援する製品です。全体構成 V3.6 の12リポジトリには含まれていません。</p>
+  <p>V3.6 では Digital Twin を「ArcSphere＋CEOS＋MCIP」の組み合わせで実現する方針が示されています。リポジトリ構成ベストプラクティス §4 はリポジトリの増殖を抑える方針で、§13 は「正本を1文で説明できること」「リポジトリを分ける理由を ADR で説明できること」を求めています。</p>
+  <p>一方で、現場のリアルタイムの状態の集約と、対策シミュレーション・承認の業務は、既存のどのリポジトリの正本にも当てはまりません。</p>
+</section>
+
+<section id="s2">
+  <h2><span class="no">2</span>選択肢</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>選択肢</th><th>内容</th><th>良い点</th><th>懸念</th></tr></thead>
+    <tbody>
+      <tr><td><b>(a) 独立リポジトリ</b><br><code>SiteLive-Twin</code></td><td>Domain Product として新しいリポジトリを作る</td><td>PoC を速く回せる。正本の範囲を明確にできる。既存製品の本番に影響しない</td><td>リポジトリが増える。連携の契約を新たに用意する必要がある</td></tr>
+      <tr><td><b>(b) ArcSphere の現場運用モジュール</b></td><td>ArcSphere-Civil-Twin の中に機能として作る</td><td>3D表示の基盤を共有できる。V3.6 の Digital Twin の考え方に近い</td><td>ArcSphere の正本（空間モデル）と性格が違う。ArcSphere のリリース統制に縛られ、PoC が遅くなる</td></tr>
+      <tr><td><b>(c) CEOS の機能</b></td><td>Construction-Enterprise-OS の中に作る</td><td>工程・原価の正本と近い</td><td>CEOS は ADR-0001 で正本を工程・原価・契約に限定している。3D・設備データの扱いが範囲外</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s3">
+  <h2><span class="no">3</span>決定（案）</h2>
+  <div class="callout">PoC から MVP までは <b>(a) 独立リポジトリ <code>SiteLive-Twin</code></b> とする。正本は次の2つに限定し、それ以外はすべて参照とする。MVP 終了時（G3）に再評価する。</div>
+  <p><b>正本を1文で</b>：SiteLive Twin は「現場ライブ状態の集約ビュー・イベント」と「対策シミュレーション案（申請）」の正本である。</p>
+  <ul>
+    <li>3Dモデルは ArcSphere、工程・原価・契約は CEOS、案件ID・承認・証跡は MCIP、気象は CODIP、確定版文書は CDE を正本とし、参照のみとする。</li>
+    <li>他リポジトリのDBへは直接接続しない。版付き契約・API・MCAH 経由のイベントで連携する。</li>
+    <li>対策の承認は R3（二者承認）として MCIP に証跡を記録する。日報の AI 下書きは R1 とし、MCAH 経由でのみ AI を使う。</li>
+  </ul>
+</section>
+
+<section id="s4">
+  <h2><span class="no">4</span>結果と影響</h2>
+  <ul>
+    <li><b>良い影響</b>：既存製品の本番に影響を与えずに技術検証できます。正本の範囲が狭いため、将来 ArcSphere などへ統合する場合も移行対象が少なく済みます。</li>
+    <li><b>必要になる作業</b>：CEOS・ArcSphere・MCIP との契約（API・イベント）の取り決め、<code>systems.yaml</code> への登録、リポジトリ構成ベストプラクティスに沿った骨格（README・SECURITY・CODEOWNERS・CLAUDE.md・AGENTS.md など）の整備。</li>
+    <li><b>注意点</b>：Civil-4D-AI-Planner（安全計画）と表示内容が一部重なるため、安全計画そのものは持たず、安全イベントの表示にとどめます。</li>
+  </ul>
+</section>
+
+<section id="s5">
+  <h2><span class="no">5</span>再評価の条件（G3）</h2>
+  <p>次のいずれかに当てはまる場合は、(b) ArcSphere への統合を検討します。</p>
+  <ul>
+    <li>3D表示の実装の大半が ArcSphere と重複している</li>
+    <li>正本として持つデータが2つの範囲を超えて増えている</li>
+    <li>連携の契約の維持コストが、統合した場合のコストを上回る</li>
+  </ul>
+  <p>判断は <a href="../00-project/phase-gates.html">フェーズゲート定義書（SLT-DOC-03）</a>の G3 で行い、この ADR を更新します。</p>
+</section>
+
+<section id="s6">
+  <h2><span class="no">6</span>未決事項</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>項目</th><th>内容</th><th>期限</th></tr></thead>
+    <tbody>
+      <tr><td>GitHub Org</td><td><code>mirai-construction-dx</code> を推奨（ArcSphere・Mirai-Platform-Infra・CODIP と同じ新系統）</td><td>リポジトリ公開前</td></tr>
+      <tr><td>system_id</td><td>Mirai-Platform-Infra の <code>systems.yaml</code> に <code>sitelive-twin</code> を登録する</td><td>PoC 環境の構築前</td></tr>
+      <tr><td>ポートフォリオ上の段階</td><td>V3.6 の第3段階（Digital Twin／4D／IoT）の Domain Product として位置付けるか</td><td>G1</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<footer>SiteLive Twin（現場ライブツイン） ／ ADR-0001 リポジトリ分離と正本範囲 ／ 2026年10月21日</footer>
+</main>
+</div>
+</body>
+</html>

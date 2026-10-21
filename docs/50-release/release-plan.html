@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SiteLive Twin リリース計画書</title>
+<style>
+/* SiteLive Twin 文書テンプレート：左に目次、右に本文。表と図は横スクロール可能な枠に入れる */
+:root{
+  --bg:#f5f6f8; --paper:#ffffff; --ink:#1a2230; --sub:#5a6577; --rule:#d9dee6; --tint:#f0f3f7;
+  --navy:#1b3557; --accent:#c8740a; --accent-soft:#fdf1e1;
+  --ok:#1d8a4c; --warn:#a87800; --ng:#c43d3d; --info:#2a64a8;
+  --sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+  --mono:"BIZ UDGothic","Consolas","Menlo",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+    --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+    --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+  --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+  --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{display:grid;grid-template-columns:240px minmax(0,1fr);max-width:1280px;margin:0 auto;gap:28px;padding:28px 16px 60px}
+@media (max-width:900px){.wrap{grid-template-columns:1fr;gap:0}}
+nav.toc{position:sticky;top:20px;align-self:start;font-size:13px;max-height:calc(100vh - 40px);overflow:auto}
+@media (max-width:900px){nav.toc{position:static;max-height:none;margin-bottom:18px}}
+.toc b{display:block;font-size:11px;letter-spacing:.12em;color:var(--sub);margin-bottom:6px}
+.toc a{display:block;color:var(--ink);text-decoration:none;padding:3px 10px;border-left:2px solid var(--rule)}
+.toc a:hover,.toc a:focus-visible{border-left-color:var(--accent);color:var(--accent);outline:none}
+.toc .home{margin-bottom:12px;border-left:0;padding-left:0;color:var(--info)}
+main{min-width:0}
+.cover{background:var(--paper);border:1px solid var(--rule);border-top:5px solid var(--navy);border-radius:6px;padding:26px 28px 20px;margin-bottom:26px}
+.cover .kind{font-size:12px;letter-spacing:.14em;color:var(--sub);font-weight:700}
+.cover h1{margin:4px 0 14px;font-size:clamp(22px,3.4vw,30px);line-height:1.35;text-wrap:balance;color:var(--navy)}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));border-top:1px solid var(--rule);border-left:1px solid var(--rule);font-size:13px}
+.meta div{padding:7px 12px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.meta span{display:block;font-size:11px;color:var(--sub)}
+section{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:22px 26px 18px;margin-bottom:20px;min-width:0}
+h2{font-size:19px;margin:0 0 12px;color:var(--navy);text-wrap:balance;display:flex;gap:10px;align-items:baseline}
+h2 .no{font-family:var(--mono);font-size:14px;color:var(--accent)}
+h3{font-size:15px;margin:20px 0 8px}
+p{margin:0 0 10px;max-width:76ch}
+ul,ol{margin:0 0 10px;padding-left:22px}
+li{margin-bottom:3px}
+.tbl{overflow-x:auto;margin:6px 0 12px;border:1px solid var(--rule);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:640px}
+th,td{border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);padding:7px 9px;text-align:left;vertical-align:top}
+th:last-child,td:last-child{border-right:0}
+tr:last-child td{border-bottom:0}
+thead th{background:var(--tint);font-size:12px;color:var(--sub);white-space:nowrap}
+td.c,th.c{text-align:center}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+code,.id{font-family:var(--mono);font-size:12.5px}
+.id{color:var(--navy);font-weight:700;white-space:nowrap}
+.y{color:var(--ok);font-weight:800}.n{color:var(--sub)}.r{color:var(--warn);font-weight:700}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:0 7px;border-radius:3px;background:var(--tint);border:1px solid var(--rule);white-space:nowrap;margin:1px 2px 1px 0}
+.tag.a{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.st{display:inline-block;font-size:11px;font-weight:800;padding:0 8px;border-radius:999px;white-space:nowrap;border:1px solid currentColor}
+.st.done{color:var(--ok)}.st.wip{color:var(--accent)}.st.todo{color:var(--sub)}.st.tpl{color:var(--info)}
+.note{font-size:12.5px;color:var(--sub)}
+.callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 14px;border-radius:0 4px 4px 0;margin:8px 0 12px;font-size:13.5px}
+.fill{background:var(--tint);border:1px dashed var(--rule);border-radius:4px;padding:2px 8px;color:var(--sub);font-size:12.5px}
+.fig{overflow-x:auto;border:1px solid var(--rule);border-radius:4px;background:var(--tint);padding:10px;margin:8px 0 6px}
+.fig svg{display:block;min-width:760px;width:100%;height:auto}
+.fig text{font-family:var(--sans)}
+.cap{font-size:12px;color:var(--sub);margin:0 0 12px}
+.pri-h{color:var(--ng);font-weight:800}.pri-m{color:var(--warn);font-weight:800}.pri-l{color:var(--sub);font-weight:800}.pri-done{color:var(--ok);font-weight:800}
+a{color:var(--info)}
+footer{font-size:12px;color:var(--sub);padding:6px 4px}
+@media (max-width:640px){section{padding:18px 16px 14px}.cover{padding:20px 16px 16px}}
+@media print{nav.toc{display:none}.wrap{display:block;padding:0}section,.cover{break-inside:avoid;border:0}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="目次">
+  <a class="home" href="../index.html">← ドキュメント一覧</a>
+  <b>目次</b>
+  <a href="#s1">1. 目的と範囲</a>
+  <a href="#s2">2. 対象ユーザーと展開順</a>
+  <a href="#s3">3. リリース手順</a>
+  <a href="#s4">4. データ移行</a>
+  <a href="#s5">5. 切り戻し計画</a>
+  <a href="#s6">6. 利用者教育</a>
+  <a href="#s7">7. 問い合わせとサポート</a>
+  <a href="#s8">8. 告知とコミュニケーション</a>
+  <a href="#s9">9. リリース後の初期監視</a>
+  <a href="#s10">10. スケジュール</a>
+  <a href="#s11">11. 関連文書</a>
+</nav>
+<main>
+<div class="cover">
+  <div class="kind">リリース計画書</div>
+  <h1>SiteLive Twin（現場ライブツイン）<br>リリース計画書（移行・展開・教育）</h1>
+  <div class="meta">
+    <div><span>文書番号</span>SLT-DOC-70</div>
+    <div><span>版</span>v0.1</div>
+    <div><span>作成日</span>2026年10月21日</div>
+    <div><span>フェーズ</span>Release</div>
+    <div><span>状態</span>初版（G4 前に確定）</div>
+  </div>
+</div>
+
+<section id="s1">
+  <h2><span class="no">1</span>目的と範囲</h2>
+  <p>Release フェーズの問いは「<b>本番環境で、対象ユーザーへ正式提供する</b>」です。本書は、G4（リリース判定）を通過したあと、本番環境に安全に切り替え、対象ユーザーが使い始められるようにするための計画を定めます。</p>
+  <h3>範囲に含めるもの</h3>
+  <ul>
+    <li>本番環境へのデプロイと、Mirai-Platform-Infra の <code>envs/prod/releases.yaml</code> への登録</li>
+    <li>MVP 現場のデータ・設定・申請履歴の本番への移行</li>
+    <li>対象現場への段階的な展開（ウェーブ）</li>
+    <li>ロール別の利用者教育と、問い合わせ窓口の立ち上げ</li>
+    <li>リリース後2週間のハイパーケア（重点監視）</li>
+  </ul>
+  <h3>範囲に含めないもの</h3>
+  <ul>
+    <li>MVP で対象外とした機能（多段承認、他支店向けの設定など）。<a href="../60-operations/improvement-plan.html">運用・改善計画</a>のバックログで扱います。</li>
+    <li>3D モデル（ArcSphere）、工程・原価（CEOS）、承認・証跡（MCIP）のデータ本体。SiteLive Twin は参照のみです。</li>
+  </ul>
+  <div class="callout">前提：<a href="../40-staging/release-readiness.html">リリース判定書（G4）</a>で「Go」と判定され、<a href="../40-staging/operations-design.html">運用設計書</a>の運用体制が整っていること。</div>
+</section>
+
+<section id="s2">
+  <h2><span class="no">2</span>対象ユーザーと展開順</h2>
+  <p>一度に全現場へ広げず、条件を満たしたら次のウェーブへ進みます。</p>
+  <div class="fig">
+    <svg viewBox="0 0 860 170" role="img" aria-label="展開のウェーブ図">
+      <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--navy)"/></marker></defs>
+      <g font-size="13" text-anchor="middle">
+        <rect x="20" y="40" width="230" height="80" rx="8" fill="var(--accent-soft)" stroke="var(--accent)"/>
+        <text x="135" y="68" font-weight="700" fill="var(--accent)">ウェーブ1：パイロット現場</text>
+        <text x="135" y="90" font-size="12" fill="var(--ink)">MVP 実施現場（A現場）</text>
+        <text x="135" y="108" font-size="12" fill="var(--sub)">2027年7月 第1週〜</text>
+        <rect x="315" y="40" width="230" height="80" rx="8" fill="var(--paper)" stroke="var(--navy)"/>
+        <text x="430" y="68" font-weight="700" fill="var(--navy)">ウェーブ2：支店内の対象現場</text>
+        <text x="430" y="90" font-size="12" fill="var(--ink)">○○支店の対象現場（3〜5現場）</text>
+        <text x="430" y="108" font-size="12" fill="var(--sub)">2027年7月 第3週〜</text>
+        <rect x="610" y="40" width="230" height="80" rx="8" fill="var(--paper)" stroke="var(--rule)" stroke-dasharray="5 4"/>
+        <text x="725" y="68" font-weight="700" fill="var(--sub)">ウェーブ3：他支店</text>
+        <text x="725" y="90" font-size="12" fill="var(--ink)">展開先は G5 で判断</text>
+        <text x="725" y="108" font-size="12" fill="var(--sub)">2027年10月以降</text>
+      </g>
+      <g stroke="var(--navy)" stroke-width="1.6" marker-end="url(#ar)"><path d="M252,80 L312,80"/><path d="M547,80 L607,80"/></g>
+      <g font-size="11" fill="var(--sub)" text-anchor="middle"><text x="282" y="140">条件を満たしたら</text><text x="577" y="140">条件を満たしたら</text></g>
+    </svg>
+  </div>
+  <p class="cap">図1　展開のウェーブ</p>
+  <div class="tbl"><table>
+    <thead><tr><th>ウェーブ</th><th>対象</th><th>対象ユーザー</th><th>開始時期</th><th>次へ進む条件</th></tr></thead>
+    <tbody>
+      <tr><td class="id">W1</td><td>パイロット現場（MVP 実施現場）</td><td>現場所長、工務、支店の経営層（支店長・工事部長）</td><td>2027年7月 第1週</td><td>重大障害（重要度1・2）が5営業日発生しない。利用率が MVP 時の水準を下回らない</td></tr>
+      <tr><td class="id">W2</td><td>○○支店の対象現場 <span class="fill">（未定：対象現場の選定）</span></td><td>各現場の所長・工務、支店の経営層</td><td>2027年7月 第3週</td><td>ハイパーケア終了時点で KPI（遅延検知 1営業日以内、利用率 80%）を満たす。問い合わせが週10件以下に落ち着く</td></tr>
+      <tr><td class="id">W3</td><td>他支店 <span class="fill">（未定：展開先）</span></td><td>他支店の経営層・現場</td><td>2027年10月以降</td><td>G5 改善レビューで展開を承認。支店ごとのデータ連携（CEOS・重機）の準備ができている</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s3">
+  <h2><span class="no">3</span>リリース手順</h2>
+  <p>ポートフォリオ共通のリリース統制に従います。main への直接の push は行いません。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>手順</th><th>作業</th><th>担当</th><th>確認すること</th></tr></thead>
+    <tbody>
+      <tr><td class="c">1</td><td>ブランチで変更し、プルリクエスト（PR）を作成</td><td>開発</td><td>PR 本文に変更内容・テスト結果・影響範囲・残課題を書く</td></tr>
+      <tr><td class="c">2</td><td>CI（自動テスト、静的解析、依存関係の脆弱性検査）</td><td>CI</td><td>すべての必須チェックが成功している</td></tr>
+      <tr><td class="c">3</td><td>Human Review（通常変更は2名、重要変更は3名の承認）</td><td>アーキテクト、情報セキュリティ担当</td><td>承認者に起案者本人を含めない</td></tr>
+      <tr><td class="c">4</td><td>main へマージし、リリースタグ（例：<code>v1.0.0</code>）を付ける</td><td>開発</td><td>CHANGELOG を更新している</td></tr>
+      <tr><td class="c">5</td><td>コンテナイメージのビルド、SBOM の生成、署名、Attestation の付与</td><td>CI</td><td>署名と Attestation を検証できる</td></tr>
+      <tr><td class="c">6</td><td>イメージを <b>digest で固定</b>して本番へデプロイ</td><td>運用担当</td><td><code>latest</code> タグは使わない</td></tr>
+      <tr><td class="c">7</td><td>Mirai-Platform-Infra の <code>envs/prod/releases.yaml</code> を更新（PR 経由）</td><td>運用担当</td><td>登録した digest と稼働中のイメージが一致する</td></tr>
+      <tr><td class="c">8</td><td>本番での確認（ログイン、主要画面、CEOS・ArcSphere・MCIP との連携、承認の記録）</td><td>運用担当、プロダクトオーナー</td><td>本番確認チェックリストがすべて合格</td></tr>
+    </tbody>
+  </table></div>
+  <ul>
+    <li>本番 URL：<span class="fill">（未定：本番 URL）</span>。検証環境は <code>sitelive-stg.mirai-dx-platform.com</code>（案）です。</li>
+    <li>認証は Entra ID と Cloudflare Access を通します。リリース前に対象ユーザーのアクセス権を付与しておきます。</li>
+    <li>リリース作業は、現場の作業がない時間帯（平日 18時以降）に行います。</li>
+  </ul>
+</section>
+
+<section id="s4">
+  <h2><span class="no">4</span>データ移行</h2>
+  <p>MVP 現場で作られたデータのうち、SiteLive Twin が正本を持つものだけを移行します。参照データ（3D・工程・原価・承認記録）は各正本システムから取り直します。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>データ</th><th>扱い</th><th>方法</th><th>確認</th></tr></thead>
+    <tbody>
+      <tr><td>現場ライブ状態のスナップショット・イベント</td><td>移行する</td><td>MVP 環境のデータベースから抽出し、本番へ取り込む</td><td>件数と期間が一致すること</td></tr>
+      <tr><td>対策シミュレーション案（申請）と履歴</td><td>移行する</td><td>申請番号を引き継ぐ。承認・差戻しの記録は MCIP の記録と照合する</td><td>申請番号・状態・履歴の件数が一致すること</td></tr>
+      <tr><td>日報</td><td>移行する</td><td>提出済みの日報を移行する。下書きは移行しない</td><td>日付ごとの件数が一致すること</td></tr>
+      <tr><td>設定（しきい値・通知）</td><td>移行する</td><td>MVP で調整した値を本番の初期値にする</td><td>設定画面で値を目視確認</td></tr>
+      <tr><td>監査ログ</td><td>保管する</td><td>MVP 期間分はアーカイブとして保管し、本番では新しく記録を始める</td><td>アーカイブを読み出せること</td></tr>
+      <tr><td>3D モデル・工程・原価・承認記録</td><td>移行しない</td><td>ArcSphere・CEOS・MCIP を参照する</td><td>本番で参照できること</td></tr>
+      <tr><td>テスト用のデータ・アカウント</td><td>移行しない</td><td>本番には持ち込まない</td><td>本番にテスト用アカウントがないこと</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">移行のリハーサルは Staging 環境で1回以上行い、所要時間を測っておきます。</p>
+</section>
+
+<section id="s5">
+  <h2><span class="no">5</span>切り戻し計画</h2>
+  <h3>切り戻しを判断する基準</h3>
+  <ul>
+    <li>ログインできない、または主要画面（全社ダッシュボード・現場概要・承認ワークフロー）が使えない状態が30分以上続く</li>
+    <li>承認の記録が MCIP に残らない、または権限の判定が誤っている（他人の申請を承認できるなど）</li>
+    <li>移行したデータの件数・内容に不一致があり、当日中に直せない</li>
+    <li>情報セキュリティ担当がセキュリティ上の問題と判断した</li>
+  </ul>
+  <p>判断はプロダクトオーナーが行い、運用担当が実施します。判断がつかないときは切り戻しを優先します。</p>
+  <h3>手順</h3>
+  <ol>
+    <li><code>envs/prod/releases.yaml</code> を直前のリリースの digest に戻す PR を作成し、承認を得て反映する</li>
+    <li>データベースはリリース直前に取得したバックアップから復元する（リリース後に作られたデータは控えを取ってから戻す）</li>
+    <li>主要画面と連携の動作を確認する</li>
+    <li>利用者へ切り戻しを告知し、原因と再リリースの予定を共有する</li>
+  </ol>
+  <p class="note">切り戻しの目標時間：判断から60分以内。Staging で一度リハーサルを行います。</p>
+</section>
+
+<section id="s6">
+  <h2><span class="no">6</span>利用者教育</h2>
+  <p>教材は<a href="user-manual.html">利用者マニュアル（ロール別）</a>を使います。研修はロールごとに60分程度で行い、実際の現場データで操作します。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>対象</th><th>時間</th><th>内容</th><th>実施時期</th></tr></thead>
+    <tbody>
+      <tr><td>経営層（支店長・工事部長）</td><td>60分</td><td>全社ダッシュボードの見方、アラートから現場概要への移動、承認ワークフロー（承認・差戻し、自分の起案は承認できないこと）</td><td>各ウェーブの開始前</td></tr>
+      <tr><td>現場所長・工務</td><td>60分</td><td>現場概要・ライブツイン・4D工程で原因を探す流れ、対策シミュレーションと起案、日報の作成、通知と検索</td><td>各ウェーブの開始前</td></tr>
+      <tr><td>システム管理者</td><td>60分</td><td>設定（しきい値・通知）、監査ログの確認、利用者の追加とアクセス権、障害時の連絡</td><td>W1 の開始前</td></tr>
+      <tr><td>全員（工程会議）</td><td>30分</td><td>工程会議でこの画面を使う進め方（全社ダッシュボード → 現場概要 → 4D工程 → 対策シミュレーション）</td><td>各現場の最初の工程会議</td></tr>
+    </tbody>
+  </table></div>
+  <ul>
+    <li>研修後に簡単な理解度チェック（5問）を行い、つまずいた操作をマニュアルの改訂に反映します。</li>
+    <li>研修の録画と資料は社内の文書管理（CDE）に置きます。</li>
+  </ul>
+</section>
+
+<section id="s7">
+  <h2><span class="no">7</span>問い合わせとサポート</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>区分</th><th>窓口</th><th>受付時間</th><th>回答の目安</th></tr></thead>
+    <tbody>
+      <tr><td>操作方法の質問</td><td>社内チャットの問い合わせチャンネル <span class="fill">（未定：チャンネル名）</span></td><td>平日 8:00〜18:00</td><td>当日中</td></tr>
+      <tr><td>障害・データの誤り</td><td>運用担当（障害連絡先）</td><td>平日 8:00〜18:00（ハイパーケア中は 7:00〜20:00）</td><td>30分以内に一次回答</td></tr>
+      <tr><td>アクセス権の申請</td><td>システム管理者</td><td>平日</td><td>2営業日以内</td></tr>
+      <tr><td>改善要望</td><td>プロダクトオーナー（要望フォーム）</td><td>随時</td><td>月次で回答</td></tr>
+    </tbody>
+  </table></div>
+  <p>問い合わせは記録し、よくある質問は利用者マニュアルの「よくある質問」に追加します。件数は<a href="../60-operations/improvement-plan.html">運用・改善計画</a>の指標として計測します。</p>
+</section>
+
+<section id="s8">
+  <h2><span class="no">8</span>告知とコミュニケーション</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>時期</th><th>対象</th><th>内容</th><th>方法</th></tr></thead>
+    <tbody>
+      <tr><td>リリースの2週間前</td><td>対象ユーザー全員</td><td>リリースの目的、開始日、研修の日程</td><td>支店からの通知、社内チャット</td></tr>
+      <tr><td>リリースの1週間前</td><td>対象現場の所長</td><td>現場での準備（アカウント、端末、工程会議での使い方）</td><td>個別連絡</td></tr>
+      <tr><td>リリース当日</td><td>対象ユーザー全員</td><td>利用開始の案内、URL、問い合わせ窓口</td><td>社内チャット</td></tr>
+      <tr><td>ハイパーケア中（毎日）</td><td>プロジェクト関係者</td><td>障害・問い合わせ・利用状況の日報</td><td>社内チャット</td></tr>
+      <tr><td>ハイパーケア終了時</td><td>経営層・対象ユーザー</td><td>初期の利用状況、KPI、今後の改善予定</td><td>報告会</td></tr>
+      <tr><td>切り戻し・障害時</td><td>対象ユーザー全員</td><td>影響範囲、回避方法、復旧の見込み</td><td>社内チャット</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s9">
+  <h2><span class="no">9</span>リリース後の初期監視（ハイパーケア）</h2>
+  <p>各ウェーブの開始から2週間をハイパーケア期間とし、通常より手厚く監視・支援します。</p>
+  <ul>
+    <li>運用担当と開発が毎朝15分の確認会を行い、障害・問い合わせ・利用状況を確認します。</li>
+    <li>監視する項目：応答時間、エラー率、連携（CEOS・ArcSphere・MCIP・重機データ）の遅れ、ログイン失敗、データ更新の遅れ（5分以内）</li>
+    <li>利用状況：日ごとのログイン人数、起案数、承認までの時間、日報の提出数</li>
+    <li>重要度1・2の障害は、修正を緊急リリースとして扱います（手順は3章と同じ。承認は重要変更として3名）。</li>
+    <li>ハイパーケア終了時に、<a href="../60-operations/improvement-plan.html">運用・改善計画</a>の通常の運用へ引き継ぎます。</li>
+  </ul>
+</section>
+
+<section id="s10">
+  <h2><span class="no">10</span>スケジュール（案）</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>時期</th><th>作業</th></tr></thead>
+    <tbody>
+      <tr><td>2027年6月末</td><td>G4 リリース判定</td></tr>
+      <tr><td>2027年6月 第4週</td><td>告知（2週間前）、研修の日程調整、アクセス権の付与</td></tr>
+      <tr><td>2027年7月 第1週</td><td>本番リリース、データ移行、W1（パイロット現場）開始、ハイパーケア開始</td></tr>
+      <tr><td>2027年7月 第2週</td><td>W2 の研修、W1 のハイパーケア継続</td></tr>
+      <tr><td>2027年7月 第3週</td><td>W1 のハイパーケア終了報告、W2（支店内の対象現場）開始</td></tr>
+      <tr><td>2027年7月末</td><td>W2 のハイパーケア終了報告、運用・改善へ移行</td></tr>
+      <tr><td>2027年10月以降</td><td>G5 改善レビューで W3（他支店）の展開を判断</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s11">
+  <h2><span class="no">11</span>関連文書</h2>
+  <ul>
+    <li><a href="../00-project/phase-gates.html">フェーズゲート定義書</a>（G4 の判定基準）</li>
+    <li><a href="../40-staging/release-readiness.html">リリース判定書（G4）</a></li>
+    <li><a href="../40-staging/operations-design.html">運用設計書</a>（監視・バックアップ・障害対応）</li>
+    <li><a href="user-manual.html">利用者マニュアル（ロール別）</a></li>
+    <li><a href="../60-operations/improvement-plan.html">運用・改善計画</a></li>
+    <li><a href="../00-project/risk-register.html">リスク・課題管理台帳</a></li>
+  </ul>
+</section>
+
+<footer>SiteLive Twin（現場ライブツイン） ／ リリース計画書 v0.1 ／ 2026年10月21日</footer>
+</main>
+</div>
+</body>
+</html>

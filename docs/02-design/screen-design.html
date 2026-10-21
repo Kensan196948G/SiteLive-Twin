@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SiteLive Twin 画面設計書</title>
+<style>
+/* レイアウト：左に目次（固定）、右に本文。表と図は横スクロール可能な枠に入れる */
+:root{
+  --bg:#f5f6f8; --paper:#ffffff; --ink:#1a2230; --sub:#5a6577; --rule:#d9dee6; --tint:#f0f3f7;
+  --navy:#1b3557; --accent:#c8740a; --accent-soft:#fdf1e1;
+  --ok:#1d8a4c; --warn:#a87800; --ng:#c43d3d; --info:#2a64a8;
+  --sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+  --mono:"BIZ UDGothic","Consolas","Menlo",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+    --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+    --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+  --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+  --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{display:grid;grid-template-columns:240px minmax(0,1fr);max-width:1280px;margin:0 auto;gap:28px;padding:28px max(16px,env(safe-area-inset-right,0px)) 60px max(16px,env(safe-area-inset-left,0px))}
+@media (max-width:900px){.wrap{grid-template-columns:1fr;gap:0}}
+nav.toc{position:sticky;top:20px;align-self:start;font-size:13px;max-height:calc(100vh - 40px);overflow:auto}
+@media (max-width:900px){nav.toc{position:static;max-height:none;margin-bottom:18px}}
+.toc b{display:block;font-size:11px;letter-spacing:.12em;color:var(--sub);margin-bottom:6px}
+.toc a{display:block;color:var(--ink);text-decoration:none;padding:3px 10px;border-left:2px solid var(--rule)}
+.toc a:hover,.toc a:focus-visible{border-left-color:var(--accent);color:var(--accent);outline:none}
+main{min-width:0}
+.cover{background:var(--paper);border:1px solid var(--rule);border-top:5px solid var(--navy);border-radius:6px;padding:26px 28px 20px;margin-bottom:26px}
+.cover .kind{font-size:12px;letter-spacing:.14em;color:var(--sub);font-weight:700}
+.cover h1{margin:4px 0 14px;font-size:clamp(22px,3.4vw,30px);line-height:1.35;text-wrap:balance;color:var(--navy)}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:0;border-top:1px solid var(--rule);border-left:1px solid var(--rule);font-size:13px}
+.meta div{padding:7px 12px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.meta span{display:block;font-size:11px;color:var(--sub)}
+section{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:22px 26px 18px;margin-bottom:20px;min-width:0}
+h2{font-size:19px;margin:0 0 12px;color:var(--navy);text-wrap:balance;display:flex;gap:10px;align-items:baseline}
+h2 .no{font-family:var(--mono);font-size:14px;color:var(--accent)}
+h3{font-size:15px;margin:20px 0 8px}
+p{margin:0 0 10px;max-width:72ch}
+ul,ol{margin:0 0 10px;padding-left:22px}
+li{margin-bottom:3px}
+.tbl{overflow-x:auto;margin:6px 0 12px;border:1px solid var(--rule);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:640px}
+th,td{border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);padding:7px 9px;text-align:left;vertical-align:top}
+th:last-child,td:last-child{border-right:0}
+tr:last-child td{border-bottom:0}
+thead th{background:var(--tint);font-size:12px;color:var(--sub);white-space:nowrap;position:sticky;top:0}
+td.c,th.c{text-align:center}
+code,.id{font-family:var(--mono);font-size:12.5px}
+.id{color:var(--navy);font-weight:700;white-space:nowrap}
+.y{color:var(--ok);font-weight:800}
+.n{color:var(--sub)}
+.r{color:var(--warn);font-weight:700}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:0 7px;border-radius:3px;background:var(--tint);border:1px solid var(--rule);white-space:nowrap;margin:1px 2px 1px 0}
+.tag.a{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.note{font-size:12.5px;color:var(--sub)}
+.callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 14px;border-radius:0 4px 4px 0;margin:8px 0 12px;font-size:13.5px}
+.fig{overflow-x:auto;border:1px solid var(--rule);border-radius:4px;background:var(--tint);padding:10px;margin:8px 0 6px}
+.fig svg{display:block;min-width:820px;width:100%;height:auto}
+.fig text{font-family:var(--sans)}
+.layout-fig svg{min-width:560px}
+.cap{font-size:12px;color:var(--sub);margin:0 0 12px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--sub);margin:4px 0 12px}
+.legend i{display:inline-block;width:22px;height:0;border-top:2px solid var(--navy);vertical-align:middle;margin-right:6px}
+.legend i.d{border-top-style:dashed}
+.issue td:first-child{white-space:nowrap}
+.pri-done{color:var(--ok);font-weight:800}.pri-h{color:var(--ng);font-weight:800}.pri-m{color:var(--warn);font-weight:800}.pri-l{color:var(--sub);font-weight:800}
+a{color:var(--info)}
+footer{font-size:12px;color:var(--sub);padding:6px 4px}
+@media (max-width:640px){section{padding:18px 16px 14px}.cover{padding:20px 16px 16px}}
+@media print{nav.toc{display:none}.wrap{display:block;padding:0}section,.cover{break-inside:avoid;border:0}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav class="toc" aria-label="目次">
+  <a href="../index.html" style="border-left:0;padding-left:0;margin-bottom:12px;color:var(--info)">← ドキュメント一覧</a>
+  <b>目次</b>
+  <a href="#s1">1. 概要</a>
+  <a href="#s2">2. 画面の基本構成</a>
+  <a href="#s3">3. 画面一覧</a>
+  <a href="#s4">4. 共通部品</a>
+  <a href="#s5">5. 画面遷移</a>
+  <a href="#s6">6. 権限表</a>
+  <a href="#s7">7. 承認ワークフロー</a>
+  <a href="#s8">8. 入力チェック</a>
+  <a href="#s9">9. 監査ログと通知</a>
+  <a href="#s10">10. データの保存</a>
+  <a href="#s11">11. 課題と本番に向けた検討</a>
+</nav>
+
+<main>
+
+<div class="cover">
+  <div class="kind">画面設計書</div>
+  <h1>SiteLive Twin（現場ライブツイン） システムWebUI<br>画面一覧・画面遷移・権限</h1>
+  <div class="meta">
+    <div><span>文書番号</span>SLT-DOC-20</div>
+    <div><span>対象</span>prototypes/system-webui/sitelive-system-webui.html</div>
+    <div><span>版</span>v0.2（職務分掌・リセット制限を反映）</div>
+    <div><span>作成日</span>2026年10月21日</div>
+    <div><span>段階</span>完全オフラインサンプル → オンライン版の設計入力</div>
+  </div>
+</div>
+
+<!-- 1 -->
+<section id="s1">
+  <h2><span class="no">1</span>概要</h2>
+  <p>建設現場（A現場：県道○○線 道路改良工事）の状況を、経営層・現場所長・工務担当・システム管理者が同じ画面で共有し、遅れへの対策を起案・承認するための業務システムの画面設計です。現行のサンプルは完全オフラインで動き、現場データはブラウザ内のシミュレーションで生成しています。</p>
+  <h3>この文書の範囲</h3>
+  <ul>
+    <li>画面一覧（15画面＋ログイン）と、各画面の目的・主な機能・操作</li>
+    <li>画面遷移（メニュー以外で移動するきっかけ）</li>
+    <li>ロールと権限（誰がどの操作をできるか）</li>
+    <li>承認ワークフローの状態、入力チェック、監査ログと通知、データ保存の方法</li>
+  </ul>
+  <div class="callout">本書はサンプル実装の挙動をそのまま記述しています。本番に向けて見直すべき点は「11. 課題と本番に向けた検討」にまとめました。</div>
+  <h3>用語</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>用語</th><th>意味</th></tr></thead>
+    <tbody>
+      <tr><td>SPI</td><td>工程効率。出来高（EV）÷計画出来高（PV）。1未満は遅れ</td></tr>
+      <tr><td>CPI</td><td>原価効率。出来高（EV）÷実際原価（AC）。1未満は原価の超過</td></tr>
+      <tr><td>EAC</td><td>最終原価見込み。現場管理費・遅延損害金を含む</td></tr>
+      <tr><td>起案</td><td>対策シミュレーションの結果を添えて、対策の承認を依頼すること</td></tr>
+      <tr><td>稼働日</td><td>土日祝を除く作業日。「土曜稼働」の対策を承認すると土曜も含む</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 2 -->
+<section id="s2">
+  <h2><span class="no">2</span>画面の基本構成</h2>
+  <p>ログイン後の全画面は、左のサイドメニュー、上のトップバー、本文の3つで構成します。</p>
+  <div class="fig layout-fig">
+    <svg viewBox="0 0 640 300" role="img" aria-label="画面の基本構成図">
+      <rect x="1" y="1" width="638" height="298" rx="6" fill="var(--paper)" stroke="var(--rule)"/>
+      <rect x="1" y="1" width="150" height="298" rx="6" fill="var(--navy)" opacity=".9"/>
+      <text x="16" y="30" font-size="13" font-weight="700" fill="var(--paper)">サイドメニュー</text>
+      <text x="16" y="56" font-size="11" fill="var(--paper)">全社（4画面）</text>
+      <text x="16" y="78" font-size="11" fill="var(--paper)">A現場（8画面）</text>
+      <text x="16" y="100" font-size="11" fill="var(--paper)">管理（3画面）</text>
+      <text x="16" y="270" font-size="11" fill="var(--paper)">折りたたみボタン</text>
+      <rect x="151" y="1" width="488" height="46" fill="var(--tint)" stroke="var(--rule)"/>
+      <text x="166" y="29" font-size="12" font-weight="700" fill="var(--ink)">パンくず</text>
+      <rect x="290" y="13" width="130" height="22" rx="4" fill="var(--paper)" stroke="var(--rule)"/><text x="300" y="29" font-size="11" fill="var(--sub)">横断検索</text>
+      <rect x="428" y="13" width="92" height="22" rx="4" fill="var(--paper)" stroke="var(--rule)"/><text x="436" y="29" font-size="11" fill="var(--sub)">データ連携</text>
+      <rect x="528" y="13" width="30" height="22" rx="4" fill="var(--paper)" stroke="var(--rule)"/><text x="535" y="29" font-size="11" fill="var(--sub)">通知</text>
+      <circle cx="590" cy="24" r="12" fill="var(--info)"/><text x="606" y="29" font-size="11" fill="var(--sub)">利用者</text>
+      <text x="170" y="80" font-size="15" font-weight="700" fill="var(--ink)">画面タイトル</text>
+      <text x="170" y="98" font-size="11" fill="var(--sub)">画面の説明</text>
+      <rect x="520" y="70" width="104" height="24" rx="4" fill="var(--accent-soft)" stroke="var(--accent)"/><text x="532" y="86" font-size="11" fill="var(--accent)">画面の操作ボタン</text>
+      <g fill="var(--tint)" stroke="var(--rule)">
+        <rect x="170" y="112" width="104" height="44" rx="4"/><rect x="282" y="112" width="104" height="44" rx="4"/><rect x="394" y="112" width="104" height="44" rx="4"/><rect x="506" y="112" width="118" height="44" rx="4"/>
+        <rect x="170" y="166" width="270" height="118" rx="4"/><rect x="450" y="166" width="174" height="118" rx="4"/>
+      </g>
+      <text x="180" y="138" font-size="11" fill="var(--sub)">指標カード（KPI）</text>
+      <text x="180" y="190" font-size="11" fill="var(--sub)">表・グラフ・3D</text>
+      <text x="460" y="190" font-size="11" fill="var(--sub)">補助情報</text>
+    </svg>
+  </div>
+  <p class="cap">図1　画面の基本構成（幅900px未満ではサイドメニューを左から出し入れする方式に切り替え）</p>
+  <ul>
+    <li><b>サイドメニュー</b>：「全社」「A現場 県道○○線 道路改良」「管理」の3区分。承認待ちがあると「承認ワークフロー」に件数バッジを表示します。</li>
+    <li><b>トップバー</b>：パンくず、横断検索、データ連携（シミュレーター）、通知、利用者メニュー。</li>
+    <li><b>本文</b>：画面タイトルと説明、右上に画面の操作ボタン、その下に指標カードと表・グラフを配置します。</li>
+    <li><b>URL</b>：各画面は <code>#/画面ID</code> と同期し、ブラウザの戻る・進むで移動できます。</li>
+    <li><b>表示テーマ</b>：ライト・ダークの切り替えに対応します（利用者メニュー）。</li>
+  </ul>
+</section>
+
+<!-- 3 -->
+<section id="s3">
+  <h2><span class="no">3</span>画面一覧</h2>
+  <p>ログイン画面と、ログイン後の15画面です。すべての画面はどのロールでも閲覧でき、操作の可否はロールで変わります（6章）。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>画面ID</th><th>画面名</th><th>区分</th><th>URL</th><th>目的</th><th>主な表示・機能</th><th>主な操作</th></tr></thead>
+    <tbody>
+      <tr><td class="id">SCR-00</td><td>ログイン</td><td>—</td><td><code>—</code></td><td>利用者を選んで利用を開始する</td><td>アカウント一覧（名前・所属・ロール・できること）</td><td>アカウント選択、ログイン</td></tr>
+      <tr><td class="id">SCR-01</td><td>全社ダッシュボード</td><td>全社</td><td><code>#/dash</code></td><td>全現場の状況をひと目で把握する</td><td>指標カード6種、現場マップ、現場ステータス表、A現場SPI推移、最新アラート、承認待ち</td><td>マップ・表から現場概要へ、現場一覧・承認ワークフローへ</td></tr>
+      <tr><td class="id">SCR-02</td><td>現場一覧</td><td>全社</td><td><code>#/sites</code></td><td>担当現場の工程・原価を比べる</td><td>工事名・発注者・工種・所長・着工・完成予定・出来高・SPI・CPI・状態</td><td>絞り込み（文字・状態・工種）、並べ替え、CSV出力、行クリック</td></tr>
+      <tr><td class="id">SCR-03</td><td>承認ワークフロー</td><td>全社</td><td><code>#/approvals</code></td><td>起案された対策を確認し、承認・差戻しする</td><td>状態タブ（承認待ち・承認済み・差戻し・すべて）、申請一覧、効果の検証</td><td>行クリックで申請詳細（ドロワー）、承認、差戻し</td></tr>
+      <tr><td class="id">SCR-04</td><td>レポート</td><td>全社</td><td><code>#/reports</code></td><td>週報を自動作成して共有する</td><td>週の指標、工種別進捗、主な出来事、承認された対策、来週の予定、日別実績</td><td>週の選択、CSV出力、印刷・PDF</td></tr>
+      <tr><td class="id">SCR-05</td><td>現場概要</td><td>A現場</td><td><code>#/overview</code></td><td>現場の状態と工事情報をまとめて見る</td><td>指標カード6種、工種別進捗（計画・実績）、工事情報、アラート、本日の現場</td><td>ライブツイン・4D工程・対策シミュレーションへ</td></tr>
+      <tr><td class="id">SCR-06</td><td>ライブツイン</td><td>A現場</td><td><code>#/twin</code></td><td>3Dで重機・作業員・進捗を見る</td><td>3D現場モデル、現場の状況、選択中の重機、警告、重機一覧</td><td>視点切替（全体・擁壁・土工）、拡大縮小、計画比較の色分け、重機の選択</td></tr>
+      <tr><td class="id">SCR-07</td><td>4D工程</td><td>A現場</td><td><code>#/schedule</code></td><td>計画と実績（予測）のずれを特定する</td><td>ガントチャート、計画と実績の3D比較、工種別の比較表</td><td>日付スライダー、再生、今日へ、図クリックで日付指定、工程CSV出力</td></tr>
+      <tr><td class="id">SCR-08</td><td>対策シミュレーション</td><td>A現場</td><td><code>#/sim</code></td><td>対策の効果を試算し、承認を依頼する</td><td>現状、対策の選択（4種）、試算結果、完成時期の比較、全組み合わせのランキング</td><td>対策の選択、組み合わせ選択、起案</td></tr>
+      <tr><td class="id">SCR-09</td><td>重機・稼働</td><td>A現場</td><td><code>#/machines</code></td><td>重機の状態と稼働率を管理する</td><td>台数・稼働・待機・故障・稼働率、重機一覧（直近7日の稼働率）、平均稼働率グラフ</td><td>状態で絞り込み、行クリックでライブツインへ、CSV出力</td></tr>
+      <tr><td class="id">SCR-10</td><td>日報</td><td>A現場</td><td><code>#/daily</code></td><td>日々の実績を記録・提出する</td><td>日報一覧（自動作成・提出済）</td><td>本日の日報を作成（モーダル）、日報の詳細表示、CSV出力</td></tr>
+      <tr><td class="id">SCR-11</td><td>安全・環境</td><td>A現場</td><td><code>#/safety</code></td><td>センサーと安全イベントを監視する</td><td>無災害日数、センサー4種（暑さ指数・風速・騒音・振動）、本日の推移、安全イベント</td><td>閲覧のみ</td></tr>
+      <tr><td class="id">SCR-12</td><td>原価管理（EVM）</td><td>A現場</td><td><code>#/cost</code></td><td>工程と原価を一体で管理する</td><td>実行予算・PV・EV・AC・SPI/CPI・EAC・VAC、Sカーブ、工種別の原価</td><td>CSV出力</td></tr>
+      <tr><td class="id">SCR-13</td><td>設定</td><td>管理</td><td><code>#/settings</code></td><td>判定しきい値・通知・データ連携を設定する</td><td>SPI注意・危険しきい値、稼働率しきい値、通知の種類、データ連携、シナリオ</td><td>設定を保存、サンプルデータを初期化</td></tr>
+      <tr><td class="id">SCR-14</td><td>監査ログ</td><td>管理</td><td><code>#/audit</code></td><td>操作の記録を確認する</td><td>日時・シミュレーション日時・ユーザー・操作・対象・詳細</td><td>ユーザー・操作で絞り込み、CSV出力</td></tr>
+      <tr><td class="id">SCR-15</td><td>ユーザー・権限</td><td>管理</td><td><code>#/users</code></td><td>ロールと権限を確認する</td><td>ユーザー一覧と権限の対応表</td><td>閲覧のみ</td></tr>
+    </tbody>
+  </table></div>
+  <h3>重ねて表示する画面（ドロワー・モーダル）</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>ID</th><th>名称</th><th>形式</th><th>呼び出し元</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td class="id">DLG-01</td><td>申請詳細</td><td>右ドロワー</td><td>SCR-03、横断検索（申請番号）</td><td>対策内容、起案者のコメント、判断の根拠、試算、効果の検証、履歴。承認者には承認・差戻しのボタンを表示</td></tr>
+      <tr><td class="id">DLG-02</td><td>日報の作成</td><td>モーダル</td><td>SCR-10</td><td>天候、作業員数、作業内容（自動入力）、特記事項、KY活動の実施</td></tr>
+      <tr><td class="id">DLG-03</td><td>日報の詳細</td><td>モーダル</td><td>SCR-10</td><td>提出済み・自動作成の日報の内容</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 4 -->
+<section id="s4">
+  <h2><span class="no">4</span>共通部品</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>部品</th><th>場所</th><th>機能</th><th>補足</th></tr></thead>
+    <tbody>
+      <tr><td>サイドメニュー</td><td>左</td><td>15画面への移動、承認待ち件数バッジ、折りたたみ</td><td>折りたたみ状態は保存。幅900px未満はメニューボタンで開閉</td></tr>
+      <tr><td>パンくず</td><td>トップバー左</td><td>「区分 › 画面名」を表示</td><td>—</td></tr>
+      <tr><td>横断検索</td><td>トップバー</td><td>画面・現場・重機・工種・申請番号を部分一致で検索し、候補から移動</td><td>上下キーで候補選択、Enterで移動。最大10件</td></tr>
+      <tr><td>データ連携</td><td>トップバー</td><td>現在のシミュレーション日時と状態を表示。押すと再生・一時停止、速度（×60〜×7200）、翌稼働日へ、シナリオ、リセット（シナリオとリセットは管理者のみ）</td><td>本番ではAPI連携の状態表示に置き換える想定</td></tr>
+      <tr><td>通知</td><td>トップバー</td><td>未読件数バッジ、通知一覧（最新20件）、既読化、該当画面へ移動</td><td>種類は設定画面でオン・オフ</td></tr>
+      <tr><td>利用者メニュー</td><td>トップバー右</td><td>名前・所属・ロール・できることの表示、表示テーマ切替、ログアウト</td><td>—</td></tr>
+      <tr><td>トースト</td><td>画面下</td><td>操作結果を短く表示（例：「日報を提出しました」）</td><td>約2.6秒で消える</td></tr>
+      <tr><td>権限なし表示</td><td>画面タイトル右など</td><td>鍵アイコンと「○○の権限がありません」</td><td>対象のボタン・入力欄は無効化</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 5 -->
+<section id="s5">
+  <h2><span class="no">5</span>画面遷移</h2>
+  <p>サイドメニュー・横断検索・通知からは、どの画面へも移動できます。下の図は、それ以外の画面内の操作で起きる遷移を示します。</p>
+  <div class="legend"><span><i></i>画面内の操作による遷移</span><span><i class="d"></i>重ねて表示する画面（ドロワー・モーダル）</span></div>
+  <div class="fig">
+    <svg viewBox="0 0 960 520" role="img" aria-label="画面遷移図">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--navy)"/></marker></defs>
+      <!-- グループ枠 -->
+      <g fill="none" stroke="var(--rule)" stroke-width="1.5">
+        <rect x="190" y="30" width="200" height="226" rx="8"/>
+        <rect x="470" y="30" width="200" height="430" rx="8"/>
+        <rect x="750" y="30" width="200" height="180" rx="8"/>
+      </g>
+      <g font-size="12" font-weight="700" fill="var(--sub)">
+        <text x="200" y="22">全社</text><text x="480" y="22">A現場</text><text x="760" y="22">管理</text>
+      </g>
+      <!-- ログイン -->
+      <rect x="20" y="250" width="130" height="48" rx="6" fill="var(--navy)"/>
+      <text x="85" y="272" font-size="13" font-weight="700" fill="var(--paper)" text-anchor="middle">SCR-00</text>
+      <text x="85" y="289" font-size="12" fill="var(--paper)" text-anchor="middle">ログイン</text>
+      <!-- 画面ボックス -->
+      <g font-size="12" fill="var(--ink)">
+        <g><rect x="200" y="62" width="180" height="36" rx="5" fill="var(--paper)" stroke="var(--navy)"/><text x="210" y="85">SCR-01 全社ダッシュボード</text></g>
+        <g><rect x="200" y="112" width="180" height="36" rx="5" fill="var(--paper)" stroke="var(--navy)"/><text x="210" y="135">SCR-02 現場一覧</text></g>
+        <g><rect x="200" y="162" width="180" height="36" rx="5" fill="var(--paper)" stroke="var(--navy)"/><text x="210" y="185">SCR-04 レポート</text></g>
+        <g><rect x="200" y="212" width="180" height="36" rx="5" fill="var(--paper)" stroke="var(--navy)"/><text x="210" y="235">SCR-03 承認ワークフロー</text></g>
+        <g><rect x="200" y="300" width="180" height="40" rx="5" fill="var(--accent-soft)" stroke="var(--accent)" stroke-dasharray="5 4"/><text x="210" y="325">DLG-01 申請詳細</text></g>
+
+        <g><rect x="480" y="62" width="180" height="36" rx="5" fill="var(--paper)" stroke="var(--navy)"/><text x="490" y="85">SCR-05 現場概要</text></g>
+        <g><rect x="480" y="112" width="180" height="36" rx="5" fill="var(--paper)" stroke="var(--navy)"/><text x="490" y="135">SCR-06 ライブツイン</text></g>
+        <g><rect x="480" y="162" width="180" height="36" rx="5" fill="var(--paper)" stroke="var(--navy)"/><text x="490" y="185">SCR-07 4D工程</text></g>
+        <g><rect x="480" y="212" width="180" height="36" rx="5" fill="var(--paper)" stroke="var(--navy)"/><text x="490" y="235">SCR-08 対策シミュレーション</text></g>
+        <g><rect x="480" y="262" width="180" height="36" rx="5" fill="var(--paper)" stroke="var(--navy)"/><text x="490" y="285">SCR-09 重機・稼働</text></g>
+        <g><rect x="480" y="312" width="180" height="36" rx="5" fill="var(--paper)" stroke="var(--navy)"/><text x="490" y="335">SCR-10 日報</text></g>
+        <g><rect x="480" y="362" width="180" height="36" rx="5" fill="var(--paper)" stroke="var(--navy)"/><text x="490" y="385">SCR-11 安全・環境</text></g>
+        <g><rect x="480" y="412" width="180" height="36" rx="5" fill="var(--paper)" stroke="var(--navy)"/><text x="490" y="435">SCR-12 原価管理（EVM）</text></g>
+
+        <g><rect x="760" y="62" width="180" height="36" rx="5" fill="var(--paper)" stroke="var(--navy)"/><text x="770" y="85">SCR-13 設定</text></g>
+        <g><rect x="760" y="112" width="180" height="36" rx="5" fill="var(--paper)" stroke="var(--navy)"/><text x="770" y="135">SCR-14 監査ログ</text></g>
+        <g><rect x="760" y="162" width="180" height="36" rx="5" fill="var(--paper)" stroke="var(--navy)"/><text x="770" y="185">SCR-15 ユーザー・権限</text></g>
+        <g><rect x="760" y="310" width="180" height="40" rx="5" fill="var(--accent-soft)" stroke="var(--accent)" stroke-dasharray="5 4"/><text x="770" y="326">DLG-02 日報の作成</text><text x="770" y="344" font-size="11" fill="var(--sub)">DLG-03 日報の詳細</text></g>
+      </g>
+      <!-- 遷移の矢印 -->
+      <g fill="none" stroke="var(--navy)" stroke-width="1.6" marker-end="url(#ah)">
+        <path d="M150,268 C176,268 176,80 198,80"/>
+        <path d="M290,98 L290,110"/>
+        <path d="M380,80 L478,80"/>
+        <path d="M380,130 C428,130 428,90 478,90"/>
+        <path d="M200,90 C172,90 172,230 198,230"/>
+        <path d="M290,248 L290,298"/>
+        <path d="M480,230 L382,230"/>
+        <path d="M660,76 C690,76 690,134 662,134"/>
+        <path d="M660,84 C704,84 704,182 662,182"/>
+        <path d="M660,92 C718,92 718,230 662,230"/>
+        <path d="M660,280 C738,280 738,124 662,124"/>
+        <path d="M660,330 L758,330"/>
+      </g>
+      <g font-size="11" fill="var(--sub)">
+        <text x="40" y="318">ログイン</text>
+        <text x="398" y="72">A現場を選択</text>
+        <text x="122" y="160">承認待ち</text>
+        <text x="296" y="280">行を選択</text>
+        <text x="404" y="222">起案</text>
+        <text x="744" y="246">重機を選択</text>
+        <text x="676" y="322">作成・選択</text>
+      </g>
+      <text x="20" y="400" font-size="11" fill="var(--sub)">ログイン後の初期画面</text>
+      <text x="20" y="418" font-size="11" fill="var(--ink)">経営層 → SCR-01</text>
+      <text x="20" y="436" font-size="11" fill="var(--ink)">所長・工務 → SCR-05</text>
+      <text x="20" y="454" font-size="11" fill="var(--ink)">管理者 → SCR-13</text>
+      <text x="20" y="490" font-size="11" fill="var(--sub)">ログアウト → SCR-00（利用者メニューから）</text>
+    </svg>
+  </div>
+  <p class="cap">図2　画面遷移図（サイドメニュー・検索・通知による移動は省略）</p>
+
+  <h3>遷移一覧</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>遷移元</th><th>きっかけ</th><th>遷移先</th><th>条件・補足</th></tr></thead>
+    <tbody>
+      <tr><td>SCR-00 ログイン</td><td>「ログイン」</td><td>ロール別の初期画面</td><td>経営層→SCR-01、所長・工務→SCR-05、管理者→SCR-13。URLに画面指定があればその画面</td></tr>
+      <tr><td>SCR-01 全社ダッシュボード</td><td>マップのピン、現場ステータス表の行</td><td>SCR-05 現場概要</td><td>A現場のみ。他の現場は「データ連携していない」旨を表示して留まる</td></tr>
+      <tr><td>SCR-01</td><td>「現場一覧へ」「すべて表示」</td><td>SCR-02 現場一覧</td><td>—</td></tr>
+      <tr><td>SCR-01</td><td>「承認ワークフロー」、承認待ちの件名</td><td>SCR-03 承認ワークフロー</td><td>—</td></tr>
+      <tr><td>SCR-01</td><td>アラート欄の「A現場へ」</td><td>SCR-05 現場概要</td><td>—</td></tr>
+      <tr><td>SCR-02 現場一覧</td><td>行クリック</td><td>SCR-05 現場概要</td><td>A現場のみ</td></tr>
+      <tr><td>SCR-03 承認ワークフロー</td><td>行クリック</td><td>DLG-01 申請詳細</td><td>承認・差戻しのボタンは、経営層・承認待ち・起案者本人ではない、のすべてを満たすときだけ表示</td></tr>
+      <tr><td>DLG-01 申請詳細</td><td>「承認する」「差戻す」「閉じる」、Esc、背景クリック</td><td>SCR-03（一覧を更新）</td><td>承認すると翌稼働日から現場に反映</td></tr>
+      <tr><td>SCR-05 現場概要</td><td>「ライブツイン」「4D工程」「対策シミュレーション」</td><td>SCR-06 ／ SCR-07 ／ SCR-08</td><td>—</td></tr>
+      <tr><td>SCR-08 対策シミュレーション</td><td>「起案して承認を依頼する」</td><td>SCR-03（承認待ちタブ）</td><td>入力チェックに通った場合のみ（8章）</td></tr>
+      <tr><td>SCR-09 重機・稼働</td><td>行クリック</td><td>SCR-06 ライブツイン</td><td>選択した重機を強調表示</td></tr>
+      <tr><td>SCR-10 日報</td><td>「本日の日報を作成」</td><td>DLG-02 日報の作成</td><td>所長・工務のみ</td></tr>
+      <tr><td>SCR-10</td><td>行クリック</td><td>DLG-03 日報の詳細</td><td>—</td></tr>
+      <tr><td>通知一覧</td><td>通知をクリック</td><td>通知に対応する画面</td><td>遅れ・稼働率→SCR-05、安全→SCR-11、申請→SCR-03、日報→SCR-10。既読にする</td></tr>
+      <tr><td>横断検索</td><td>候補をクリック、Enter</td><td>候補に対応する画面</td><td>画面名→その画面、重機→SCR-06、工種→SCR-07、申請番号→SCR-03＋DLG-01</td></tr>
+      <tr><td>利用者メニュー</td><td>「ログアウト」</td><td>SCR-00 ログイン</td><td>—</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 6 -->
+<section id="s6">
+  <h2><span class="no">6</span>権限表</h2>
+  <h3>6.1 ロールの定義</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>ロール</th><th>サンプルのアカウント</th><th>所属</th><th>役割</th></tr></thead>
+    <tbody>
+      <tr><td rowspan="2"><span class="tag a">経営層</span></td><td>支店長</td><td>○○支店</td><td rowspan="2">全現場の状況把握、対策の承認・差戻し（自分が起案した申請は除く）。承認者を2人置き、互いの起案を承認できるようにしている</td></tr>
+      <tr><td>工事部長</td><td>○○支店 工事部</td></tr>
+      <tr><td><span class="tag a">現場所長</span></td><td>現場所長</td><td>A現場</td><td>現場の管理、対策の起案、日報の提出</td></tr>
+      <tr><td><span class="tag a">工務</span></td><td>工務担当</td><td>A現場</td><td>工程・原価の管理、対策の起案、日報の提出</td></tr>
+      <tr><td><span class="tag a">システム管理者</span></td><td>システム管理者</td><td>DX推進部</td><td>しきい値・通知・データ連携の設定、データの初期化</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>6.2 権限とロールの対応</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>権限</th><th>内容</th><th class="c">経営層</th><th class="c">現場所長</th><th class="c">工務</th><th class="c">システム管理者</th></tr></thead>
+    <tbody>
+      <tr><td>閲覧</td><td>全画面の表示、CSV出力、週報の印刷</td><td class="c y">○</td><td class="c y">○</td><td class="c y">○</td><td class="c y">○</td></tr>
+      <tr><td>対策の起案</td><td>対策シミュレーションから承認を依頼する</td><td class="c y">○</td><td class="c y">○</td><td class="c y">○</td><td class="c n">—</td></tr>
+      <tr><td>承認・差戻し</td><td>承認待ちの申請を承認または差し戻す</td><td class="c y">○</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td></tr>
+      <tr><td>日報の作成</td><td>本日の日報を作成・提出する</td><td class="c n">—</td><td class="c y">○</td><td class="c y">○</td><td class="c n">—</td></tr>
+      <tr><td>設定の変更・リセット</td><td>しきい値・通知・シナリオの変更、シミュレーションのリセット、サンプルデータの初期化</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td><td class="c y">○</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>6.3 画面ごとの操作とロール</h3>
+  <p class="note">○＝操作できる　閲＝閲覧のみ（ボタン・入力欄は無効）　—＝表示されない</p>
+  <div class="tbl"><table>
+    <thead><tr><th>画面</th><th>操作</th><th class="c">経営層</th><th class="c">現場所長</th><th class="c">工務</th><th class="c">システム管理者</th></tr></thead>
+    <tbody>
+      <tr><td>全画面共通</td><td>閲覧、検索、通知、表示テーマ切替、ログアウト</td><td class="c y">○</td><td class="c y">○</td><td class="c y">○</td><td class="c y">○</td></tr>
+      <tr><td>全画面共通</td><td>シミュレーターの再生・速度・翌稼働日へ</td><td class="c y">○</td><td class="c y">○</td><td class="c y">○</td><td class="c y">○</td></tr>
+      <tr><td>全画面共通</td><td>シミュレーターのシナリオ変更・リセット</td><td class="c r">閲</td><td class="c r">閲</td><td class="c r">閲</td><td class="c y">○</td></tr>
+      <tr><td>SCR-02 現場一覧／SCR-04 レポート／SCR-07 4D工程／SCR-09 重機・稼働／SCR-12 原価管理</td><td>CSV出力（レポートは印刷・PDFも）</td><td class="c y">○</td><td class="c y">○</td><td class="c y">○</td><td class="c y">○</td></tr>
+      <tr><td>SCR-03 承認ワークフロー</td><td>申請詳細の表示</td><td class="c y">○</td><td class="c y">○</td><td class="c y">○</td><td class="c y">○</td></tr>
+      <tr><td>SCR-03 承認ワークフロー</td><td>承認・差戻し（自分が起案した申請は不可）</td><td class="c y">○</td><td class="c n">—</td><td class="c n">—</td><td class="c n">—</td></tr>
+      <tr><td>SCR-08 対策シミュレーション</td><td>対策の選択と試算</td><td class="c y">○</td><td class="c y">○</td><td class="c y">○</td><td class="c y">○</td></tr>
+      <tr><td>SCR-08 対策シミュレーション</td><td>起案（件名・コメント入力を含む）</td><td class="c y">○</td><td class="c y">○</td><td class="c y">○</td><td class="c r">閲</td></tr>
+      <tr><td>SCR-10 日報</td><td>本日の日報を作成</td><td class="c n">—</td><td class="c y">○</td><td class="c y">○</td><td class="c n">—</td></tr>
+      <tr><td>SCR-10 日報</td><td>日報の詳細表示、CSV出力</td><td class="c y">○</td><td class="c y">○</td><td class="c y">○</td><td class="c y">○</td></tr>
+      <tr><td>SCR-13 設定</td><td>設定を保存、サンプルデータを初期化</td><td class="c r">閲</td><td class="c r">閲</td><td class="c r">閲</td><td class="c y">○</td></tr>
+      <tr><td>SCR-14 監査ログ</td><td>閲覧、絞り込み、CSV出力</td><td class="c y">○</td><td class="c y">○</td><td class="c y">○</td><td class="c y">○</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout">権限の判定は、現在は画面側だけで行っています。本番ではサーバー側でも同じ判定を必ず行います（11章）。</div>
+</section>
+
+<!-- 7 -->
+<section id="s7">
+  <h2><span class="no">7</span>承認ワークフロー</h2>
+  <div class="fig">
+    <svg viewBox="0 0 860 200" role="img" aria-label="申請の状態遷移図">
+      <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--navy)"/></marker></defs>
+      <g font-size="13" font-weight="700" text-anchor="middle">
+        <rect x="20" y="78" width="130" height="44" rx="22" fill="var(--tint)" stroke="var(--rule)"/><text x="85" y="105" fill="var(--ink)">起案</text>
+        <rect x="250" y="78" width="150" height="44" rx="6" fill="var(--accent-soft)" stroke="var(--accent)"/><text x="325" y="105" fill="var(--accent)">承認待ち</text>
+        <rect x="510" y="18" width="150" height="44" rx="6" fill="var(--paper)" stroke="var(--ok)" stroke-width="1.5"/><text x="585" y="45" fill="var(--ok)">承認済み</text>
+        <rect x="510" y="78" width="150" height="44" rx="6" fill="var(--paper)" stroke="var(--ng)" stroke-width="1.5"/><text x="585" y="105" fill="var(--ng)">差戻し</text>
+        <rect x="510" y="138" width="150" height="44" rx="6" fill="var(--paper)" stroke="var(--rule)" stroke-width="1.5"/><text x="585" y="165" fill="var(--sub)">取下げ</text>
+        <rect x="720" y="18" width="120" height="44" rx="6" fill="var(--tint)" stroke="var(--rule)"/><text x="780" y="38" fill="var(--ink)" font-size="12">翌稼働日から</text><text x="780" y="54" fill="var(--ink)" font-size="12">現場に反映</text>
+      </g>
+      <g fill="none" stroke="var(--navy)" stroke-width="1.6" marker-end="url(#ah2)">
+        <path d="M150,100 L248,100"/>
+        <path d="M400,92 C450,92 450,40 508,40"/>
+        <path d="M400,100 L508,100"/>
+        <path d="M400,108 C450,108 450,160 508,160"/>
+        <path d="M660,40 L718,40"/>
+      </g>
+      <g font-size="11" fill="var(--sub)">
+        <text x="156" y="70">所長・工務・経営層</text>
+        <text x="372" y="14">起案者以外の経営層が承認</text>
+        <text x="420" y="94">経営層が差戻し</text>
+        <text x="330" y="196">管理者がシミュレーションをリセット</text>
+      </g>
+    </svg>
+  </div>
+  <p class="cap">図3　申請の状態遷移</p>
+  <ul>
+    <li><b>起案</b>：対策を1つ以上選び、件名を入れて起案します。申請番号は <code>REQ-0001</code> から連番です。起案時点の判断材料（SPI・CPI・擁壁工の遅れ・重機稼働率）と試算結果（完成予測・最終原価見込み・対策費）を申請に残します。</li>
+    <li><b>承認</b>：経営層だけができます。ただし、自分が起案した申請は承認・差戻しできません（職務分掌）。申請詳細には「自分が起案した申請は承認・差戻しできません」と表示し、一覧には「自分の起案」と表示します。承認すると、承認日の翌稼働日から対策をシミュレーションに反映し、承認時点の判断材料と試算を記録し直します。</li>
+    <li><b>差戻し</b>：理由の入力が必須です。差し戻した申請は再申請できないため、再度起案します。</li>
+    <li><b>取下げ</b>：システム管理者がシミュレーションをリセットしたとき、承認待ちの申請は自動で取下げになります。</li>
+    <li><b>効果の検証</b>：反映日以降は、一覧と申請詳細に「承認時のSPI → 現在のSPI」を表示します。</li>
+    <li>起案・承認・差戻しのたびに、通知と監査ログに記録します。</li>
+  </ul>
+</section>
+
+<!-- 8 -->
+<section id="s8">
+  <h2><span class="no">8</span>入力チェック</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>画面</th><th>項目</th><th>ルール</th><th>エラー表示</th></tr></thead>
+    <tbody>
+      <tr><td>SCR-08 対策シミュレーション</td><td>対策</td><td>1つ以上選択</td><td>対策を1つ以上選んでください</td></tr>
+      <tr><td>SCR-08 対策シミュレーション</td><td>件名</td><td>必須、60文字以内</td><td>件名を入力してください</td></tr>
+      <tr><td>DLG-01 申請詳細</td><td>コメント</td><td>差戻しの場合は必須</td><td>差戻しの理由を入力してください</td></tr>
+      <tr><td>DLG-02 日報の作成</td><td>作業員数</td><td>1〜200の数値</td><td>作業員数は1〜200で入力してください</td></tr>
+      <tr><td>DLG-02 日報の作成</td><td>作業内容</td><td>必須</td><td>作業内容を入力してください</td></tr>
+      <tr><td>SCR-13 設定</td><td>SPIしきい値</td><td>危険のしきい値 &lt; 注意のしきい値</td><td>危険のしきい値は注意のしきい値より小さくしてください</td></tr>
+      <tr><td>SCR-13 設定</td><td>稼働率しきい値</td><td>10〜100（%）</td><td>入力欄の範囲で制限</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 9 -->
+<section id="s9">
+  <h2><span class="no">9</span>監査ログと通知</h2>
+  <h3>9.1 監査ログに記録する操作</h3>
+  <p>記録項目は、日時（実時間）、シミュレーション日時、ユーザー、ロール、操作、対象、詳細です。最新600件を保持します。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>操作</th><th>発生する場所</th><th>対象・詳細の例</th></tr></thead>
+    <tbody>
+      <tr><td>ログイン／ログアウト</td><td>SCR-00、利用者メニュー</td><td>ユーザー名</td></tr>
+      <tr><td>起案</td><td>SCR-08</td><td>REQ-0001／件名／ダンプ+2台＋擁壁班+1</td></tr>
+      <tr><td>承認／差戻し</td><td>DLG-01</td><td>REQ-0001／件名／コメント</td></tr>
+      <tr><td>日報提出</td><td>DLG-02</td><td>日付／作業内容の先頭40文字</td></tr>
+      <tr><td>設定変更</td><td>SCR-13</td><td>SPI注意・危険、稼働率注意のしきい値</td></tr>
+      <tr><td>シナリオ変更</td><td>SCR-13、データ連携</td><td>シナリオ名</td></tr>
+      <tr><td>シミュレーションのリセット</td><td>データ連携</td><td>10/21 8:00</td></tr>
+      <tr><td>CSV出力／印刷</td><td>各画面</td><td>出力した帳票名</td></tr>
+    </tbody>
+  </table></div>
+  <h3>9.2 通知の種類</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>種類</th><th>発生する条件</th><th>設定項目</th><th>押したときの移動先</th></tr></thead>
+    <tbody>
+      <tr><td>工程の遅れ</td><td>擁壁工の遅れが1日単位で拡大・縮小、SPIが注意・危険・回復の境目をまたぐ</td><td>工程の遅れ・SPIの変化</td><td>SCR-05</td></tr>
+      <tr><td>稼働率</td><td>BH-01の稼働率が注意しきい値を下回る・回復する</td><td>重機の稼働率低下</td><td>SCR-05</td></tr>
+      <tr><td>承認ワークフロー・日報</td><td>起案、承認、差戻し、日報の提出</td><td>承認ワークフロー・日報</td><td>SCR-03 ／ SCR-10</td></tr>
+      <tr><td>安全</td><td>強風によるクレーン作業の中止、重機接近警報</td><td>安全イベント</td><td>SCR-11</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 10 -->
+<section id="s10">
+  <h2><span class="no">10</span>データの保存</h2>
+  <p>サンプルでは、すべてのデータをブラウザのlocalStorageに保存します。外部への送信はありません。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>保存キー</th><th>項目</th><th>内容</th><th>上限</th></tr></thead>
+    <tbody>
+      <tr><td rowspan="12"><code>slt-system-webui-v1</code></td><td><code>user</code></td><td>ログイン中のユーザーID</td><td>—</td></tr>
+      <tr><td><code>scn</code> ／ <code>t</code> ／ <code>speed</code></td><td>シナリオ、シミュレーション日時、時間の速さ</td><td>—</td></tr>
+      <tr><td><code>requests</code></td><td>申請（番号、件名、対策、状態、起案者、判断材料、試算、履歴）</td><td>—</td></tr>
+      <tr><td><code>decisions</code></td><td>承認済みの対策（反映日、承認者、判断材料、試算、申請番号）</td><td>—</td></tr>
+      <tr><td><code>dailies</code></td><td>提出された日報</td><td>—</td></tr>
+      <tr><td><code>audit</code></td><td>監査ログ</td><td>600件</td></tr>
+      <tr><td><code>notifs</code></td><td>ワークフロー・日報の通知</td><td>150件</td></tr>
+      <tr><td><code>notifRead</code></td><td>既読にした通知のID</td><td>400件</td></tr>
+      <tr><td><code>cfg</code></td><td>判定しきい値、通知のオン・オフ</td><td>—</td></tr>
+      <tr><td><code>collapsed</code></td><td>サイドメニューの折りたたみ状態</td><td>—</td></tr>
+      <tr><td colspan="3" class="note">工程・原価・重機・センサーの値は保存せず、シナリオと承認済みの対策から毎回計算します。</td></tr>
+      <tr><td colspan="3" class="note">「サンプルデータを初期化」はこのキーを削除して再読み込みします。</td></tr>
+      <tr><td><code>slt-theme</code></td><td>—</td><td>表示テーマ（ライト・ダーク）</td><td>—</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- 11 -->
+<section id="s11">
+  <h2><span class="no">11</span>課題と本番に向けた検討</h2>
+  <p>サンプル実装を確認して見つかった点と、オンライン版・本番で対応すべき点です。</p>
+  <div class="tbl"><table class="issue">
+    <thead><tr><th>優先</th><th>項目</th><th>現状</th><th>対応方針</th></tr></thead>
+    <tbody>
+      <tr><td class="pri-h">高</td><td>権限の判定</td><td>画面側のボタン無効化だけで制御している</td><td>APIで同じ権限判定を必ず行う。画面側は表示の切り替えに限定する</td></tr>
+      <tr><td class="pri-done">済</td><td>起案者と承認者の分離</td><td>v0.2で対応。起案者本人は承認・差戻しできない。承認者として工事部長を追加</td><td>本番ではサーバー側でも同じ判定を行う。承認者が1人しかいない組織では代理承認者を決める</td></tr>
+      <tr><td class="pri-h">高</td><td>認証</td><td>アカウントを選ぶだけでログインできる</td><td>シングルサインオン（例：Microsoft Entra ID）と多要素認証に置き換える</td></tr>
+      <tr><td class="pri-done">済</td><td>シミュレーションのリセット</td><td>v0.2で対応。リセットとシナリオ変更はシステム管理者のみ。他のロールにはボタンを無効にして鍵マークを表示</td><td>本番ではシミュレーター自体を外し、API連携の状態表示にする</td></tr>
+      <tr><td class="pri-m">中</td><td>監査ログの閲覧範囲</td><td>全ロールが閲覧・CSV出力できる</td><td>閲覧を管理者・経営層に限定する</td></tr>
+      <tr><td class="pri-m">中</td><td>監査ログの保管</td><td>ブラウザ内に最新600件だけ保持</td><td>サーバー側で改ざんできない形で長期保管する（保存期間を決める）</td></tr>
+      <tr><td class="pri-m">中</td><td>承認ルート</td><td>承認は1段（経営層）だけ</td><td>金額や工期への影響に応じた多段承認（所長→工事部長→支店長など）を検討する</td></tr>
+      <tr><td class="pri-l">低</td><td>連携する現場</td><td>A現場のみデータ連携。B〜E現場は固定値</td><td>現場マスタと各現場のデータ取り込みをAPIで行う</td></tr>
+      <tr><td class="pri-l">低</td><td>差戻し後の再申請</td><td>差し戻した申請は編集できず、新しく起案し直す</td><td>差戻しの申請を複製して再起案できるようにする</td></tr>
+      <tr><td class="pri-l">低</td><td>同時利用</td><td>データはブラウザごとに別々</td><td>オンライン版でサーバーに保存し、複数人で同じ状態を共有する</td></tr>
+    </tbody>
+  </table></div>
+  <h3>オンライン版（PoC）への引き継ぎ</h3>
+  <ul>
+    <li>画面ID・URL（<code>#/画面ID</code>）・権限名は本書のまま使い、APIの権限チェックと揃える</li>
+    <li>保存データ（申請・承認済みの対策・日報・監査ログ・設定）を、そのままサーバー側のデータ設計の候補にする</li>
+    <li>シミュレーターは、重機テレマティクス・入退場・IoTセンサー・原価システムからの取り込みに順次置き換える</li>
+  </ul>
+</section>
+
+<footer>現場ライブツイン システムWebUI 画面設計書 v0.2 ／ 2026年10月21日 ／ 金額・現場名・数値はすべてサンプルです。</footer>
+
+</main>
+</div>
+</body>
+</html>

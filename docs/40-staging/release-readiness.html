@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SiteLive Twin リリース判定書</title>
+<style>
+/* SiteLive Twin 文書テンプレート：左に目次、右に本文。表と図は横スクロール可能な枠に入れる */
+:root{
+  --bg:#f5f6f8; --paper:#ffffff; --ink:#1a2230; --sub:#5a6577; --rule:#d9dee6; --tint:#f0f3f7;
+  --navy:#1b3557; --accent:#c8740a; --accent-soft:#fdf1e1;
+  --ok:#1d8a4c; --warn:#a87800; --ng:#c43d3d; --info:#2a64a8;
+  --sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+  --mono:"BIZ UDGothic","Consolas","Menlo",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+    --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+    --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+  --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+  --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{display:grid;grid-template-columns:240px minmax(0,1fr);max-width:1280px;margin:0 auto;gap:28px;padding:28px 16px 60px}
+@media (max-width:900px){.wrap{grid-template-columns:1fr;gap:0}}
+nav.toc{position:sticky;top:20px;align-self:start;font-size:13px;max-height:calc(100vh - 40px);overflow:auto}
+@media (max-width:900px){nav.toc{position:static;max-height:none;margin-bottom:18px}}
+.toc b{display:block;font-size:11px;letter-spacing:.12em;color:var(--sub);margin-bottom:6px}
+.toc a{display:block;color:var(--ink);text-decoration:none;padding:3px 10px;border-left:2px solid var(--rule)}
+.toc a:hover,.toc a:focus-visible{border-left-color:var(--accent);color:var(--accent);outline:none}
+.toc .home{margin-bottom:12px;border-left:0;padding-left:0;color:var(--info)}
+main{min-width:0}
+.cover{background:var(--paper);border:1px solid var(--rule);border-top:5px solid var(--navy);border-radius:6px;padding:26px 28px 20px;margin-bottom:26px}
+.cover .kind{font-size:12px;letter-spacing:.14em;color:var(--sub);font-weight:700}
+.cover h1{margin:4px 0 14px;font-size:clamp(22px,3.4vw,30px);line-height:1.35;text-wrap:balance;color:var(--navy)}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));border-top:1px solid var(--rule);border-left:1px solid var(--rule);font-size:13px}
+.meta div{padding:7px 12px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.meta span{display:block;font-size:11px;color:var(--sub)}
+section{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:22px 26px 18px;margin-bottom:20px;min-width:0}
+h2{font-size:19px;margin:0 0 12px;color:var(--navy);text-wrap:balance;display:flex;gap:10px;align-items:baseline}
+h2 .no{font-family:var(--mono);font-size:14px;color:var(--accent)}
+h3{font-size:15px;margin:20px 0 8px}
+p{margin:0 0 10px;max-width:76ch}
+ul,ol{margin:0 0 10px;padding-left:22px}
+li{margin-bottom:3px}
+.tbl{overflow-x:auto;margin:6px 0 12px;border:1px solid var(--rule);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:640px}
+th,td{border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);padding:7px 9px;text-align:left;vertical-align:top}
+th:last-child,td:last-child{border-right:0}
+tr:last-child td{border-bottom:0}
+thead th{background:var(--tint);font-size:12px;color:var(--sub);white-space:nowrap}
+td.c,th.c{text-align:center}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+code,.id{font-family:var(--mono);font-size:12.5px}
+.id{color:var(--navy);font-weight:700;white-space:nowrap}
+.y{color:var(--ok);font-weight:800}.n{color:var(--sub)}.r{color:var(--warn);font-weight:700}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:0 7px;border-radius:3px;background:var(--tint);border:1px solid var(--rule);white-space:nowrap;margin:1px 2px 1px 0}
+.tag.a{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.st{display:inline-block;font-size:11px;font-weight:800;padding:0 8px;border-radius:999px;white-space:nowrap;border:1px solid currentColor}
+.st.done{color:var(--ok)}.st.wip{color:var(--accent)}.st.todo{color:var(--sub)}.st.tpl{color:var(--info)}
+.note{font-size:12.5px;color:var(--sub)}
+.callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 14px;border-radius:0 4px 4px 0;margin:8px 0 12px;font-size:13.5px}
+.fill{background:var(--tint);border:1px dashed var(--rule);border-radius:4px;padding:2px 8px;color:var(--sub);font-size:12.5px}
+.fig{overflow-x:auto;border:1px solid var(--rule);border-radius:4px;background:var(--tint);padding:10px;margin:8px 0 6px}
+.fig svg{display:block;min-width:760px;width:100%;height:auto}
+.fig text{font-family:var(--sans)}
+.cap{font-size:12px;color:var(--sub);margin:0 0 12px}
+.pri-h{color:var(--ng);font-weight:800}.pri-m{color:var(--warn);font-weight:800}.pri-l{color:var(--sub);font-weight:800}.pri-done{color:var(--ok);font-weight:800}
+a{color:var(--info)}
+footer{font-size:12px;color:var(--sub);padding:6px 4px}
+@media (max-width:640px){section{padding:18px 16px 14px}.cover{padding:20px 16px 16px}}
+@media print{nav.toc{display:none}.wrap{display:block;padding:0}section,.cover{break-inside:avoid;border:0}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="目次">
+  <a class="home" href="../index.html">← ドキュメント一覧</a>
+  <b>目次</b>
+  <a href="#s1">1. 目的と使い方</a>
+  <a href="#s2">2. 判定の前提</a>
+  <a href="#s3">3. チェックリスト</a>
+  <a href="#s4">4. 残っているリスク・課題</a>
+  <a href="#s5">5. G4 判定</a>
+  <a href="#s6">6. 承認</a>
+  <a href="#s7">7. 例外の扱い</a>
+  <a href="#s8">8. 関連文書</a>
+</nav>
+<main>
+<div class="cover">
+  <div class="kind">ゲート判定（G4）</div>
+  <h1>SiteLive Twin（現場ライブツイン）<br>セキュリティ・品質チェックリスト／リリース判定書</h1>
+  <div class="meta">
+    <div><span>文書番号</span>SLT-DOC-61</div>
+    <div><span>版</span>v0.1</div>
+    <div><span>作成日</span>2026年10月21日</div>
+    <div><span>フェーズ</span>Staging → Release（G4：2027年6月末 予定）</div>
+    <div><span>状態</span>様式（判定時に記入）</div>
+  </div>
+</div>
+
+<section id="s1">
+  <h2><span class="no">1</span>目的と使い方</h2>
+  <p>Staging フェーズの問い「本番に近い条件で、安全・安定して運用できるか？」に答え、本番環境で対象ユーザーへ正式提供してよいかを判断するための判定書です。G4（リリース判定）で使います。</p>
+  <ol>
+    <li>Staging 期間中に、3章の各項目を確認方法に沿って確かめ、証跡（報告書・ログ・画面の記録など）のある場所を記入します。</li>
+    <li>結果欄に「適合」「一部適合」「不適合」「対象外」のいずれかを記入します。</li>
+    <li>必須項目がすべて適合で、残っているリスク・課題が許容できれば Go、条件付きで許容できるなら条件付き Go とします。</li>
+    <li>6章の承認者が署名し、判定を確定します。</li>
+  </ol>
+  <p class="note">判定欄：<span class="st done">必須</span>＝不適合のままではリリースできない項目　<span class="st tpl">推奨</span>＝不適合でも条件付き Go で進められる項目</p>
+</section>
+
+<section id="s2">
+  <h2><span class="no">2</span>判定の前提</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>項目</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td>対象のリリース</td><td>SiteLive Twin <span class="fill">（未定：版番号・コンテナイメージの digest）</span></td></tr>
+      <tr><td>対象の利用者・現場</td><td><span class="fill">（未定：Release で提供する部署・現場）</span></td></tr>
+      <tr><td>Staging の期間</td><td>2027年5月〜6月（予定）</td></tr>
+      <tr><td>前のゲート</td><td>G3（MVP → Staging）の判定結果と、そのときの条件の対応状況 <span class="fill">（未定：G3 判定書へのリンク）</span></td></tr>
+      <tr><td>判定会議</td><td><span class="fill">（未定：日時・出席者のロール）</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s3">
+  <h2><span class="no">3</span>チェックリスト</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>No</th><th>区分</th><th>確認項目</th><th>確認方法</th><th>証跡</th><th>結果</th><th>判定</th></tr></thead>
+    <tbody>
+      <tr><td class="id">F-01</td><td rowspan="3">機能</td><td>MVP 定義書の機能と、G3 で追加を決めた機能がすべて動く</td><td>テスト計画書の受け入れテストを Staging で実施</td><td>テスト結果報告</td><td><span class="fill">（記入）</span></td><td><span class="st done">必須</span></td></tr>
+      <tr><td class="id">F-02</td><td>重大度1・2の未解決の不具合がない</td><td>不具合一覧の確認</td><td>不具合一覧</td><td><span class="fill">（記入）</span></td><td><span class="st done">必須</span></td></tr>
+      <tr><td class="id">F-03</td><td>連携先（ArcSphere・CEOS・MCIP・CODIP）が止まっても画面が壊れず、復帰後に再取り込みできる</td><td>連携先を止めた状態で確認</td><td>試験記録</td><td><span class="fill">（記入）</span></td><td><span class="st done">必須</span></td></tr>
+
+      <tr><td class="id">P-01</td><td rowspan="4">性能</td><td>データ取り込みの遅れが5分以内（PoC T1 の基準）</td><td>1週間の計測値を確認</td><td>監視の記録</td><td><span class="fill">（記入）</span></td><td><span class="st done">必須</span></td></tr>
+      <tr><td class="id">P-02</td><td>画面への配信が3秒以内（同時に利用する人数：想定の2倍で確認）</td><td>負荷試験</td><td>負荷試験報告</td><td><span class="fill">（記入）</span></td><td><span class="st done">必須</span></td></tr>
+      <tr><td class="id">P-03</td><td>3D 表示が現場で使う端末で10秒以内に表示され、30fps 以上で動く</td><td>対象端末での計測</td><td>計測記録</td><td><span class="fill">（記入）</span></td><td><span class="st tpl">推奨</span></td></tr>
+      <tr><td class="id">P-04</td><td>対策シミュレーションの試算（16通り）が3秒以内</td><td>本番相当のデータで計測</td><td>計測記録</td><td><span class="fill">（記入）</span></td><td><span class="st tpl">推奨</span></td></tr>
+
+      <tr><td class="id">S-01</td><td rowspan="8">セキュリティ</td><td>第三者または社内のセキュリティ診断を受け、高リスクの指摘がすべて対応済み</td><td>診断報告と対応記録の確認</td><td>診断報告書</td><td><span class="fill">（記入）</span></td><td><span class="st done">必須</span></td></tr>
+      <tr><td class="id">S-02</td><td>既知の脆弱性（重大・高）がない</td><td>依存関係とコンテナイメージの脆弱性検査</td><td>検査結果</td><td><span class="fill">（記入）</span></td><td><span class="st done">必須</span></td></tr>
+      <tr><td class="id">S-03</td><td>認証が Entra ID → Cloudflare Access（多要素認証）になっている</td><td>ログインの確認と設定の確認</td><td>設定の記録</td><td><span class="fill">（記入）</span></td><td><span class="st done">必須</span></td></tr>
+      <tr><td class="id">S-04</td><td>権限判定がサーバー側で行われ、画面を操作しても権限外の処理ができない</td><td>ロールごとに API を直接呼んで確認</td><td>試験記録</td><td><span class="fill">（記入）</span></td><td><span class="st done">必須</span></td></tr>
+      <tr><td class="id">S-05</td><td>起案者本人が承認できない（職務分掌）。承認の証跡が MCIP に記録される</td><td>起案・承認・差戻しを実施して確認</td><td>試験記録、MCIP の記録</td><td><span class="fill">（記入）</span></td><td><span class="st done">必須</span></td></tr>
+      <tr><td class="id">S-06</td><td>監査ログが追記だけの形で保管され、閲覧できるロールが限定されている</td><td>ログの改変を試みる、ロールごとの閲覧確認</td><td>試験記録</td><td><span class="fill">（記入）</span></td><td><span class="st done">必須</span></td></tr>
+      <tr><td class="id">S-07</td><td>秘密情報（鍵・トークン・パスワード）がリポジトリやイメージに含まれていない</td><td>秘密情報の検査ツールと目視確認</td><td>検査結果</td><td><span class="fill">（記入）</span></td><td><span class="st done">必須</span></td></tr>
+      <tr><td class="id">S-08</td><td>リリース成果物に SBOM・署名・Attestation があり、イメージが digest で固定されている（<code>latest</code> を使っていない）</td><td>リリース成果物の確認</td><td>SBOM、署名の検証結果</td><td><span class="fill">（記入）</span></td><td><span class="st done">必須</span></td></tr>
+
+      <tr><td class="id">O-01</td><td rowspan="4">運用</td><td>運用設計書の監視項目がすべて設定され、アラートが届く</td><td>アラートを発生させて確認</td><td>試験記録</td><td><span class="fill">（記入）</span></td><td><span class="st done">必須</span></td></tr>
+      <tr><td class="id">O-02</td><td>日次バックアップが取れている</td><td>直近2週間のジョブの成否を確認</td><td>ジョブの記録</td><td><span class="fill">（記入）</span></td><td><span class="st done">必須</span></td></tr>
+      <tr><td class="id">O-03</td><td>復旧訓練を1回以上行い、RTO 4時間以内に復旧できた</td><td>復旧訓練</td><td>訓練記録</td><td><span class="fill">（記入）</span></td><td><span class="st done">必須</span></td></tr>
+      <tr><td class="id">O-04</td><td>運用手順書（runbook）がそろい、運用担当が手順どおりに作業できる</td><td>手順書の確認と、訓練での使用</td><td>手順書一式</td><td><span class="fill">（記入）</span></td><td><span class="st tpl">推奨</span></td></tr>
+
+      <tr><td class="id">D-01</td><td rowspan="3">データ</td><td>MVP 期間のデータを本番へ移す手順が確認できている（移す場合）</td><td>Staging で移行のリハーサル</td><td>リハーサル記録</td><td><span class="fill">（記入）</span></td><td><span class="st done">必須</span></td></tr>
+      <tr><td class="id">D-02</td><td>データの保存期間と削除の方法が決まっている</td><td>規程との照合</td><td>保存期間の定め</td><td><span class="fill">（記入）</span></td><td><span class="st done">必須</span></td></tr>
+      <tr><td class="id">D-03</td><td>SiteLive Twin が持つデータが正本の範囲（現場ライブ状態、対策シミュレーション案）に限られ、他リポジトリの DB に直接接続していない</td><td>構成と接続先の確認</td><td>構成図、接続設定</td><td><span class="fill">（記入）</span></td><td><span class="st done">必須</span></td></tr>
+
+      <tr><td class="id">U-01</td><td rowspan="3">利用者</td><td>利用者マニュアルが最新の画面に合っている</td><td>マニュアルに沿って操作して確認</td><td>利用者マニュアル</td><td><span class="fill">（記入）</span></td><td><span class="st done">必須</span></td></tr>
+      <tr><td class="id">U-02</td><td>対象ユーザーへの説明会・教育の日程が決まっている</td><td>リリース計画書の確認</td><td>リリース計画書</td><td><span class="fill">（記入）</span></td><td><span class="st tpl">推奨</span></td></tr>
+      <tr><td class="id">U-03</td><td>問い合わせ窓口と受付時間が利用者に案内できる</td><td>案内文の確認</td><td>案内文</td><td><span class="fill">（記入）</span></td><td><span class="st done">必須</span></td></tr>
+
+      <tr><td class="id">L-01</td><td rowspan="3">法務</td><td>利用規約・社内の利用ルールが用意されている</td><td>法務・関係部署の確認</td><td>利用ルール</td><td><span class="fill">（記入）</span></td><td><span class="st done">必須</span></td></tr>
+      <tr><td class="id">L-02</td><td>名称「SiteLive Twin」「現場ライブツイン」の商標調査（J-PlatPat）が済んでいる</td><td>調査結果の確認</td><td>調査記録</td><td><span class="fill">（記入）</span></td><td><span class="st tpl">推奨</span></td></tr>
+      <tr><td class="id">L-03</td><td>利用している外部ライブラリのライセンスに問題がない</td><td>ライセンス一覧（THIRD_PARTY_LICENSES）の確認</td><td>ライセンス一覧</td><td><span class="fill">（記入）</span></td><td><span class="st done">必須</span></td></tr>
+
+      <tr><td class="id">G-01</td><td rowspan="4">ポートフォリオ</td><td>Mirai-Platform-Infra の <code>systems.yaml</code> に <code>sitelive-twin</code> が登録されている</td><td>登録内容の確認</td><td>PR へのリンク</td><td><span class="fill">（記入）</span></td><td><span class="st done">必須</span></td></tr>
+      <tr><td class="id">G-02</td><td><code>envs/stg/releases.yaml</code> と <code>envs/prod/releases.yaml</code> に、同じ digest が登録される準備ができている</td><td>PR の確認</td><td>PR へのリンク</td><td><span class="fill">（記入）</span></td><td><span class="st done">必須</span></td></tr>
+      <tr><td class="id">G-03</td><td>ADR-0001（リポジトリと正本の範囲）など、必要な ADR が承認済み</td><td>ADR の状態の確認</td><td>ADR</td><td><span class="fill">（記入）</span></td><td><span class="st done">必須</span></td></tr>
+      <tr><td class="id">G-04</td><td>AI を使う機能は MCAH 経由で呼んでおり、Provider を直接呼んでいない</td><td>コードと通信先の確認</td><td>確認記録</td><td><span class="fill">（記入）</span></td><td><span class="st done">必須</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s4">
+  <h2><span class="no">4</span>残っているリスク・課題</h2>
+  <p><a href="../00-project/risk-register.html">リスク・課題管理台帳</a>から、判定時点でスコア「高」のリスクと未完了の課題を転記し、リリース後の扱いを決めます。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>ID</th><th>内容</th><th>現状</th><th>リリース後の扱い</th><th>期限</th></tr></thead>
+    <tbody>
+      <tr><td><span class="fill">（記入）</span></td><td><span class="fill">（記入）</span></td><td><span class="fill">（記入）</span></td><td><span class="fill">（記入：許容／条件として対応／リリース前に対応）</span></td><td><span class="fill">（記入）</span></td></tr>
+      <tr><td><span class="fill">（記入）</span></td><td><span class="fill">（記入）</span></td><td><span class="fill">（記入）</span></td><td><span class="fill">（記入）</span></td><td><span class="fill">（記入）</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s5">
+  <h2><span class="no">5</span>G4 判定</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>判定</th><th>条件</th><th>選択</th></tr></thead>
+    <tbody>
+      <tr><td class="y">Go</td><td>必須項目がすべて適合し、推奨項目の不適合も許容できる。残っているリスクが許容範囲</td><td class="c">□</td></tr>
+      <tr><td class="r">条件付き Go</td><td>必須項目はすべて適合しているが、推奨項目に不適合がある。条件と期限を決めてリリースする</td><td class="c">□</td></tr>
+      <tr><td style="color:var(--ng);font-weight:800">No-Go</td><td>必須項目に不適合がある、または許容できないリスクがある。対応後に再判定する</td><td class="c">□</td></tr>
+    </tbody>
+  </table></div>
+  <h3>判定の理由・条件</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>項目</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td>判定の理由</td><td><span class="fill">（記入）</span></td></tr>
+      <tr><td>条件（条件付き Go の場合）</td><td><span class="fill">（記入：条件・担当ロール・期限）</span></td></tr>
+      <tr><td>再判定の予定（No-Go の場合）</td><td><span class="fill">（記入）</span></td></tr>
+      <tr><td>リリース予定日</td><td><span class="fill">（記入：2027年7月 予定）</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s6">
+  <h2><span class="no">6</span>承認</h2>
+  <p>ポートフォリオ共通のレビュー規則（通常の変更は2名、重要な変更は3名）に合わせ、本番への初回リリースは「重要な変更」として3名で承認します。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>承認者のロール</th><th>確認する観点</th><th>判定</th><th>日付</th><th>署名</th></tr></thead>
+    <tbody>
+      <tr><td>プロダクトオーナー</td><td>機能・利用者・業務の準備、残っているリスクの許容</td><td><span class="fill">（記入）</span></td><td><span class="fill">（記入）</span></td><td><span class="fill">（記入）</span></td></tr>
+      <tr><td>アーキテクト</td><td>性能・構成・連携・ポートフォリオ整合</td><td><span class="fill">（記入）</span></td><td><span class="fill">（記入）</span></td><td><span class="fill">（記入）</span></td></tr>
+      <tr><td>情報セキュリティ担当</td><td>セキュリティ・監査・秘密情報</td><td><span class="fill">（記入）</span></td><td><span class="fill">（記入）</span></td><td><span class="fill">（記入）</span></td></tr>
+      <tr><td>運用担当（確認者）</td><td>監視・バックアップ・復旧・手順書</td><td><span class="fill">（記入）</span></td><td><span class="fill">（記入）</span></td><td><span class="fill">（記入）</span></td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">運用担当は承認人数に含めない確認者として記入します。リリース後の通常の変更は2名の承認で配置します。</p>
+</section>
+
+<section id="s7">
+  <h2><span class="no">7</span>例外の扱い</h2>
+  <ul>
+    <li>必須項目を満たさないままリリースすることは原則として認めません。</li>
+    <li>業務上どうしても必要な場合は、例外の内容・理由・影響・代わりの対策・期限を記録し、6章の承認者全員の合意に加えて、経営層の承認を得ます。</li>
+    <li>例外は<a href="../00-project/risk-register.html">リスク・課題管理台帳</a>に登録し、期限までに解消します。期限を過ぎた場合はプロダクトオーナーが経営層へ報告します。</li>
+    <li>セキュリティ（S-01〜S-08）の不適合は例外の対象にしません。</li>
+  </ul>
+</section>
+
+<section id="s8">
+  <h2><span class="no">8</span>関連文書</h2>
+  <ul>
+    <li><a href="../00-project/phase-gates.html">フェーズゲート定義書</a></li>
+    <li><a href="operations-design.html">運用設計書（監視・バックアップ・障害対応）</a></li>
+    <li><a href="../30-mvp/test-plan.html">テスト計画書</a></li>
+    <li><a href="../30-mvp/mvp-definition.html">MVP 定義書</a></li>
+    <li><a href="../50-release/release-plan.html">リリース計画書</a></li>
+    <li><a href="../50-release/user-manual.html">利用者マニュアル</a></li>
+    <li><a href="../adr/0001-repository-and-sor-scope.html">ADR-0001 リポジトリと正本の範囲</a></li>
+  </ul>
+</section>
+
+<footer>SiteLive Twin（現場ライブツイン） ／ セキュリティ・品質チェックリスト／リリース判定書 v0.1 ／ 2026年10月21日</footer>
+</main>
+</div>
+</body>
+</html>

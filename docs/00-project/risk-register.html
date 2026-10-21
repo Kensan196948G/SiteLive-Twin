@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SiteLive Twin リスク・課題管理台帳</title>
+<style>
+/* SiteLive Twin 文書テンプレート：左に目次、右に本文。表と図は横スクロール可能な枠に入れる */
+:root{
+  --bg:#f5f6f8; --paper:#ffffff; --ink:#1a2230; --sub:#5a6577; --rule:#d9dee6; --tint:#f0f3f7;
+  --navy:#1b3557; --accent:#c8740a; --accent-soft:#fdf1e1;
+  --ok:#1d8a4c; --warn:#a87800; --ng:#c43d3d; --info:#2a64a8;
+  --sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+  --mono:"BIZ UDGothic","Consolas","Menlo",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+    --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+    --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+  --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+  --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{display:grid;grid-template-columns:240px minmax(0,1fr);max-width:1280px;margin:0 auto;gap:28px;padding:28px 16px 60px}
+@media (max-width:900px){.wrap{grid-template-columns:1fr;gap:0}}
+nav.toc{position:sticky;top:20px;align-self:start;font-size:13px;max-height:calc(100vh - 40px);overflow:auto}
+@media (max-width:900px){nav.toc{position:static;max-height:none;margin-bottom:18px}}
+.toc b{display:block;font-size:11px;letter-spacing:.12em;color:var(--sub);margin-bottom:6px}
+.toc a{display:block;color:var(--ink);text-decoration:none;padding:3px 10px;border-left:2px solid var(--rule)}
+.toc a:hover,.toc a:focus-visible{border-left-color:var(--accent);color:var(--accent);outline:none}
+.toc .home{margin-bottom:12px;border-left:0;padding-left:0;color:var(--info)}
+main{min-width:0}
+.cover{background:var(--paper);border:1px solid var(--rule);border-top:5px solid var(--navy);border-radius:6px;padding:26px 28px 20px;margin-bottom:26px}
+.cover .kind{font-size:12px;letter-spacing:.14em;color:var(--sub);font-weight:700}
+.cover h1{margin:4px 0 14px;font-size:clamp(22px,3.4vw,30px);line-height:1.35;text-wrap:balance;color:var(--navy)}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));border-top:1px solid var(--rule);border-left:1px solid var(--rule);font-size:13px}
+.meta div{padding:7px 12px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.meta span{display:block;font-size:11px;color:var(--sub)}
+section{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:22px 26px 18px;margin-bottom:20px;min-width:0}
+h2{font-size:19px;margin:0 0 12px;color:var(--navy);text-wrap:balance;display:flex;gap:10px;align-items:baseline}
+h2 .no{font-family:var(--mono);font-size:14px;color:var(--accent)}
+h3{font-size:15px;margin:20px 0 8px}
+p{margin:0 0 10px;max-width:76ch}
+ul,ol{margin:0 0 10px;padding-left:22px}
+li{margin-bottom:3px}
+.tbl{overflow-x:auto;margin:6px 0 12px;border:1px solid var(--rule);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:640px}
+th,td{border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);padding:7px 9px;text-align:left;vertical-align:top}
+th:last-child,td:last-child{border-right:0}
+tr:last-child td{border-bottom:0}
+thead th{background:var(--tint);font-size:12px;color:var(--sub);white-space:nowrap}
+td.c,th.c{text-align:center}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+code,.id{font-family:var(--mono);font-size:12.5px}
+.id{color:var(--navy);font-weight:700;white-space:nowrap}
+.y{color:var(--ok);font-weight:800}.n{color:var(--sub)}.r{color:var(--warn);font-weight:700}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:0 7px;border-radius:3px;background:var(--tint);border:1px solid var(--rule);white-space:nowrap;margin:1px 2px 1px 0}
+.tag.a{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.st{display:inline-block;font-size:11px;font-weight:800;padding:0 8px;border-radius:999px;white-space:nowrap;border:1px solid currentColor}
+.st.done{color:var(--ok)}.st.wip{color:var(--accent)}.st.todo{color:var(--sub)}.st.tpl{color:var(--info)}
+.note{font-size:12.5px;color:var(--sub)}
+.callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 14px;border-radius:0 4px 4px 0;margin:8px 0 12px;font-size:13.5px}
+.fill{background:var(--tint);border:1px dashed var(--rule);border-radius:4px;padding:2px 8px;color:var(--sub);font-size:12.5px}
+.fig{overflow-x:auto;border:1px solid var(--rule);border-radius:4px;background:var(--tint);padding:10px;margin:8px 0 6px}
+.fig svg{display:block;min-width:760px;width:100%;height:auto}
+.fig text{font-family:var(--sans)}
+.cap{font-size:12px;color:var(--sub);margin:0 0 12px}
+.pri-h{color:var(--ng);font-weight:800}.pri-m{color:var(--warn);font-weight:800}.pri-l{color:var(--sub);font-weight:800}.pri-done{color:var(--ok);font-weight:800}
+a{color:var(--info)}
+footer{font-size:12px;color:var(--sub);padding:6px 4px}
+@media (max-width:640px){section{padding:18px 16px 14px}.cover{padding:20px 16px 16px}}
+@media print{nav.toc{display:none}.wrap{display:block;padding:0}section,.cover{break-inside:avoid;border:0}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="目次">
+  <a class="home" href="../index.html">← ドキュメント一覧</a>
+  <b>目次</b>
+  <a href="#s1">1. 目的と範囲</a>
+  <a href="#s2">2. 評価方法</a>
+  <a href="#s3">3. リスク一覧</a>
+  <a href="#s4">4. リスクマップ</a>
+  <a href="#s5">5. 課題一覧</a>
+  <a href="#s6">6. 更新ルール</a>
+  <a href="#s7">7. 関連文書</a>
+</nav>
+<main>
+<div class="cover">
+  <div class="kind">プロジェクト管理</div>
+  <h1>SiteLive Twin（現場ライブツイン）<br>リスク・課題管理台帳</h1>
+  <div class="meta">
+    <div><span>文書番号</span>SLT-DOC-04</div>
+    <div><span>版</span>v0.1</div>
+    <div><span>作成日</span>2026年10月21日</div>
+    <div><span>フェーズ</span>共通（全フェーズ）</div>
+    <div><span>状態</span>初版</div>
+  </div>
+</div>
+
+<section id="s1">
+  <h2><span class="no">1</span>目的と範囲</h2>
+  <p>SiteLive Twin を PoC から運用・改善まで進めるうえで、計画どおりに進まなくなる要因（リスク）と、すでに分かっている対応すべき事項（課題）を一つの台帳で管理します。</p>
+  <ul>
+    <li><b>リスク</b>：まだ起きていないが、起きると目的・日程・費用・品質に影響するもの。R-番号で管理します。</li>
+    <li><b>課題</b>：すでに分かっていて、対応が必要なもの。I-番号で管理します。主に画面設計書 11章「課題と本番に向けた検討」から引き継ぎます。</li>
+  </ul>
+  <p>各フェーズゲート（G1〜G4、運用後は四半期ごとの G5）では、本台帳の高スコアのリスクと未完了の課題を判定材料にします。</p>
+</section>
+
+<section id="s2">
+  <h2><span class="no">2</span>評価方法</h2>
+  <p>影響度と発生可能性をそれぞれ3段階で評価し、掛け合わせた値をスコアとします。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>段階</th><th>影響度（目的・日程・費用・品質への影響）</th><th>発生可能性</th></tr></thead>
+    <tbody>
+      <tr><td class="c">3（高）</td><td>ゲート判定が No-Go になる、またはフェーズが1か月以上遅れる。機密情報の漏えい</td><td>対策しなければ高い確率で起きる</td></tr>
+      <tr><td class="c">2（中）</td><td>2〜4週間の遅れ、または範囲の縮小が必要になる</td><td>起きる可能性がある</td></tr>
+      <tr><td class="c">1（低）</td><td>フェーズ内で吸収できる</td><td>起きる可能性は低い</td></tr>
+    </tbody>
+  </table></div>
+  <div class="tbl"><table>
+    <thead><tr><th>スコア</th><th>区分</th><th>対応方針</th></tr></thead>
+    <tbody>
+      <tr><td class="c">6〜9</td><td class="pri-h">高</td><td>対策を計画に組み込み、週次で状況を確認する。ゲート判定で必ず報告する</td></tr>
+      <tr><td class="c">3〜4</td><td class="pri-m">中</td><td>対策と担当を決め、ゲート前に見直す</td></tr>
+      <tr><td class="c">1〜2</td><td class="pri-l">低</td><td>記録して監視する</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">状態：<span class="st todo">未着手</span> <span class="st wip">対応中</span> <span class="st done">完了</span>（リスクは「監視」も使う）</p>
+</section>
+
+<section id="s3">
+  <h2><span class="no">3</span>リスク一覧</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>ID</th><th>リスク</th><th>発生フェーズ</th><th class="c">影響</th><th class="c">可能性</th><th class="c">スコア</th><th>対策</th><th>担当ロール</th><th>状態</th></tr></thead>
+    <tbody>
+      <tr><td class="id">R-01</td><td><b>データが取れない</b><br>重機テレマティクスや入退場データの提供に、メーカー・提供元との契約が必要。現場ごとに機器も違う</td><td>PoC〜MVP</td><td class="c">3</td><td class="c">3</td><td class="c pri-h">9</td><td>PoC で T1 の取り込み方式（API／CSV）を2系統以上確認する。取れないデータはダミーと手入力で始め、取れるものから順に自動化する。提供元との契約条件を G1 までに整理</td><td>プロダクトオーナー、アーキテクト</td><td><span class="st wip">対応中</span></td></tr>
+      <tr><td class="id">R-02</td><td><b>現場の入力負担が増える</b><br>入力が増えると使われなくなる</td><td>Prototype〜MVP</td><td class="c">3</td><td class="c">2</td><td class="c pri-h">6</td><td>日報は重機・入退場データから自動作成し、確認と追記だけにする。Prototype の利用者評価で入力時間を測り、基準を超える項目は削る</td><td>プロダクトオーナー、現場協力者</td><td><span class="st todo">未着手</span></td></tr>
+      <tr><td class="id">R-03</td><td><b>定着しない</b><br>見るだけの画面で終わり、判断に使われない</td><td>MVP〜運用</td><td class="c">3</td><td class="c">2</td><td class="c pri-h">6</td><td>MVP 現場の工程会議でこの画面を使うことを運用ルールにする。週次利用率と対策の起案件数を KPI として計測し、G3 の判定に使う</td><td>プロダクトオーナー、現場所長</td><td><span class="st todo">未着手</span></td></tr>
+      <tr><td class="id">R-04</td><td><b>機密情報の漏えい</b><br>原価・工事情報は機密性が高い</td><td>MVP〜運用</td><td class="c">3</td><td class="c">2</td><td class="c pri-h">6</td><td>認証は Entra ID＋Cloudflare Access。権限判定はサーバー側で必ず行う。監査ログを改ざんできない形で保管。Staging でセキュリティ診断を受ける</td><td>情報セキュリティ担当、アーキテクト</td><td><span class="st todo">未着手</span></td></tr>
+      <tr><td class="id">R-05</td><td><b>作り込みすぎ</b><br>機能を広げすぎて完成しない</td><td>全フェーズ</td><td class="c">2</td><td class="c">3</td><td class="c pri-h">6</td><td>MVP の範囲は MVP定義書で固定し、追加要望はバックログに入れて G3 以降に判断する。デモの5ステップに必要な機能を優先する</td><td>プロダクトオーナー</td><td><span class="st wip">対応中</span></td></tr>
+      <tr><td class="id">R-06</td><td><b>ポートフォリオ内の機能重複</b><br>ArcSphere（3D・4D・IoT）、CEOS（工程・原価）、Civil-4D-AI-Planner（4D安全計画）と範囲が重なる</td><td>PoC〜MVP</td><td class="c">3</td><td class="c">2</td><td class="c pri-h">6</td><td>正本を「現場ライブ状態の集約ビュー・イベント」と「対策シミュレーション案」に限定し、3D・工程・原価・承認は参照する。ADR-0001 で境界を明文化し、関係リポジトリの担当者と G1 前に合意する</td><td>アーキテクト</td><td><span class="st wip">対応中</span></td></tr>
+      <tr><td class="id">R-07</td><td><b>リポジトリ分離が V3.6 BP §4 と衝突する</b><br>BP はリポジトリの増殖を抑える方針。ArcSphere の現場運用モジュールにすべきとの判断もありうる</td><td>PoC</td><td class="c">2</td><td class="c">2</td><td class="c pri-m">4</td><td>ADR-0001 で分離の理由（利用者・更新頻度・リリース単位の違い）と、モジュール化した場合との比較を示す。G1 で分離かモジュール化かを決める</td><td>アーキテクト、プロダクトオーナー</td><td><span class="st wip">対応中</span></td></tr>
+      <tr><td class="id">R-08</td><td><b>GitHub Org が決まっていない</b><br>mirai-construction-dx／Kensan196948G／mirai-construction が混在</td><td>PoC</td><td class="c">1</td><td class="c">3</td><td class="c pri-m">3</td><td>PoC 着手前に作成先 Org を決め、ruleset（PR 必須・承認人数）を設定する。決まるまではローカルリポジトリで作業する</td><td>プロダクトオーナー</td><td><span class="st todo">未着手</span></td></tr>
+      <tr><td class="id">R-09</td><td><b>CEOS の契約 API が間に合わない</b><br>工程・原価の参照 API（版付き契約）が用意されていない</td><td>PoC〜MVP</td><td class="c">3</td><td class="c">2</td><td class="c pri-h">6</td><td>PoC では契約案（contracts/）とスタブで T2 を検証する。CEOS 側の対応時期を G1 前に確認し、遅れる場合は MVP で CSV 取り込みを暫定手段にする</td><td>アーキテクト、開発</td><td><span class="st todo">未着手</span></td></tr>
+      <tr><td class="id">R-10</td><td><b>3D表示の性能が足りない</b><br>現場の PC・タブレットで重くなる</td><td>PoC〜Prototype</td><td class="c">2</td><td class="c">2</td><td class="c pri-m">4</td><td>T3（10秒以内に表示、30fps以上）を現場で使う端末で測る。足りない場合は詳細度の切り替え（LOD）や 3D Tiles の分割読み込みを使う</td><td>開発</td><td><span class="st todo">未着手</span></td></tr>
+      <tr><td class="id">R-11</td><td><b>リアルタイム基盤の費用が膨らむ</b><br>配信・保存のクラウド費用が想定を超える</td><td>MVP〜運用</td><td class="c">2</td><td class="c">2</td><td class="c pri-m">4</td><td>T4 の検証時に1現場あたりの費用を試算する。保存するデータの粒度と保存期間を決め、MVP 中に毎月実績を確認する</td><td>アーキテクト、運用担当</td><td><span class="st todo">未着手</span></td></tr>
+      <tr><td class="id">R-12</td><td><b>名称が商標に抵触する</b><br>類似の名称（例：Gammon 社の「GTwin」）がある</td><td>Release 前</td><td class="c">2</td><td class="c">1</td><td class="c pri-l">2</td><td>J-PlatPat で「SiteLive Twin」「現場ライブツイン」を調べ、結果を記録する。社外に出す前に法務の確認を受ける</td><td>プロダクトオーナー</td><td><span class="st todo">未着手</span></td></tr>
+      <tr><td class="id">R-13</td><td><b>AI 利用の統制違反</b><br>日報下書きなどで AI を使う際、Provider を直接呼んでしまう</td><td>MVP〜運用</td><td class="c">2</td><td class="c">1</td><td class="c pri-l">2</td><td>AI は MCAH 経由のみで呼ぶ。日報の AI 下書きは R1（人が確認して確定）として扱い、評価用データを ai/evals/ に置く</td><td>アーキテクト</td><td><span class="st todo">未着手</span></td></tr>
+      <tr><td class="id">R-14</td><td><b>要員が足りない</b><br>開発・運用・現場協力者の時間が確保できない</td><td>全フェーズ</td><td class="c">3</td><td class="c">2</td><td class="c pri-h">6</td><td>各フェーズの体制と必要工数をプロジェクト憲章で明示し、G0・G1 で確保を承認してもらう。MVP 現場の協力者は着手前に指名する</td><td>プロダクトオーナー</td><td><span class="st todo">未着手</span></td></tr>
+      <tr><td class="id">R-15</td><td><b>特定ベンダーへの依存</b><br>クラウドや外部サービスに依存し、移行が難しくなる</td><td>MVP〜運用</td><td class="c">2</td><td class="c">1</td><td class="c pri-l">2</td><td>V3.5 の標準構成（PostgreSQL、FastAPI、Docker Compose、OpenTofu）を使い、オンプレミスとクラウドの両方に配置できる形にする</td><td>アーキテクト</td><td><span class="st todo">監視</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s4">
+  <h2><span class="no">4</span>リスクマップ</h2>
+  <div class="fig">
+    <svg viewBox="0 0 760 330" role="img" aria-label="影響度と発生可能性によるリスクの配置図">
+      <g font-size="12" fill="var(--sub)">
+        <text x="20" y="20">影響度</text>
+        <text x="600" y="318">発生可能性 →</text>
+        <text x="40" y="84">3</text><text x="40" y="174">2</text><text x="40" y="264">1</text>
+        <text x="150" y="304">1</text><text x="350" y="304">2</text><text x="550" y="304">3</text>
+      </g>
+      <g stroke="var(--rule)">
+        <rect x="60" y="30" width="200" height="90" fill="var(--tint)"/>
+        <rect x="260" y="30" width="200" height="90" fill="var(--accent-soft)"/>
+        <rect x="460" y="30" width="200" height="90" fill="var(--accent-soft)"/>
+        <rect x="60" y="120" width="200" height="90" fill="var(--paper)"/>
+        <rect x="260" y="120" width="200" height="90" fill="var(--tint)"/>
+        <rect x="460" y="120" width="200" height="90" fill="var(--accent-soft)"/>
+        <rect x="60" y="210" width="200" height="80" fill="var(--paper)"/>
+        <rect x="260" y="210" width="200" height="80" fill="var(--paper)"/>
+        <rect x="460" y="210" width="200" height="80" fill="var(--tint)"/>
+      </g>
+      <g font-size="12" font-weight="700" fill="var(--ink)">
+        <text x="270" y="60">R-02 R-03 R-04</text>
+        <text x="270" y="80">R-06 R-09 R-14</text>
+        <text x="470" y="60">R-01</text>
+        <text x="70" y="150">R-12 R-13 R-15</text>
+        <text x="270" y="150">R-07 R-10 R-11</text>
+        <text x="470" y="150">R-05</text>
+        <text x="470" y="240">R-08</text>
+      </g>
+      <g font-size="11" fill="var(--sub)">
+        <text x="680" y="70">高（6〜9）</text>
+        <text x="680" y="165">中（3〜4）</text>
+        <text x="680" y="255">低（1〜2）</text>
+      </g>
+    </svg>
+  </div>
+  <p class="cap">図1　リスクマップ（濃い色ほどスコアが高い。v0.1 時点）</p>
+</section>
+
+<section id="s5">
+  <h2><span class="no">5</span>課題一覧</h2>
+  <p>画面設計書（<a href="../02-design/screen-design.html">SLT-DOC-11</a>）11章で挙げた事項を引き継ぎます。v0.2 で対応したものは完了として残します。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>ID</th><th>課題</th><th>現状</th><th>対応方針</th><th>対応フェーズ</th><th>担当ロール</th><th>状態</th></tr></thead>
+    <tbody>
+      <tr><td class="id">I-01</td><td>権限判定をサーバー側でも行う</td><td>画面側のボタン無効化だけで制御している</td><td>API で同じ権限判定を必ず行う。画面側は表示の切り替えに限定する。PoC の T7 で方式を確認</td><td>PoC〜MVP</td><td>アーキテクト、開発</td><td><span class="st todo">未着手</span></td></tr>
+      <tr><td class="id">I-02</td><td>認証をシングルサインオンにする</td><td>アカウントを選ぶだけでログインできる</td><td>Entra ID と Cloudflare Access に置き換え、多要素認証を必須にする</td><td>PoC〜MVP</td><td>情報セキュリティ担当、開発</td><td><span class="st todo">未着手</span></td></tr>
+      <tr><td class="id">I-03</td><td>監査ログの閲覧範囲を限定する</td><td>全ロールが閲覧・CSV 出力できる</td><td>閲覧をシステム管理者・経営層に限定する</td><td>MVP</td><td>開発</td><td><span class="st todo">未着手</span></td></tr>
+      <tr><td class="id">I-04</td><td>監査ログを改ざんできない形で保管する</td><td>ブラウザ内に最新600件だけ保持</td><td>サーバー側で追記専用に保管し、承認の証跡は MCIP に記録する。保存期間を決める</td><td>MVP〜Staging</td><td>アーキテクト、運用担当</td><td><span class="st todo">未着手</span></td></tr>
+      <tr><td class="id">I-05</td><td>多段承認に対応する</td><td>承認は1段（経営層）だけ</td><td>金額や工期への影響に応じた多段承認（所長→工事部長→支店長など）を検討し、MCIP の R3（二者承認）と整合させる</td><td>MVP〜Release</td><td>プロダクトオーナー</td><td><span class="st todo">未着手</span></td></tr>
+      <tr><td class="id">I-06</td><td>現場マスタと連携する</td><td>A現場のみデータ連携。他の現場は固定値</td><td>案件 ID は MCIP、工程・原価は CEOS の契約 API から取り込む</td><td>MVP〜Release</td><td>開発</td><td><span class="st todo">未着手</span></td></tr>
+      <tr><td class="id">I-07</td><td>差戻し後に再申請できるようにする</td><td>差し戻した申請は編集できず、新しく起案し直す</td><td>差戻しの申請を複製して再起案できるようにする</td><td>MVP</td><td>開発</td><td><span class="st todo">未着手</span></td></tr>
+      <tr><td class="id">I-08</td><td>複数人で同じ状態を共有する</td><td>データはブラウザごとに別々</td><td>サーバーに保存し、変更を配信する（PoC の T4 で方式を確認）</td><td>PoC〜MVP</td><td>アーキテクト、開発</td><td><span class="st todo">未着手</span></td></tr>
+      <tr><td class="id">I-09</td><td>起案者と承認者を分ける（職務分掌）</td><td>—</td><td>起案者本人は承認・差戻しできないようにした。承認者として工事部長を追加</td><td>Prototype（v0.2）</td><td>開発</td><td><span class="st done">完了</span></td></tr>
+      <tr><td class="id">I-10</td><td>リセットを管理者だけにする</td><td>—</td><td>シミュレーションのリセットとシナリオ変更をシステム管理者だけにした</td><td>Prototype（v0.2）</td><td>開発</td><td><span class="st done">完了</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s6">
+  <h2><span class="no">6</span>更新ルール</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>タイミング</th><th>内容</th><th>担当ロール</th></tr></thead>
+    <tbody>
+      <tr><td>週次</td><td>スコア「高」のリスクと、対応中の課題の状況を更新する。新しく見つかったリスク・課題を追加する</td><td>プロダクトオーナー</td></tr>
+      <tr><td>ゲート前（G1〜G4）</td><td>全項目の評価を見直し、ゲート判定書に高スコアのリスクと未完了の課題を記載する</td><td>プロダクトオーナー、アーキテクト</td></tr>
+      <tr><td>運用後（四半期ごと、G5）</td><td>運用中に見つかったリスク・課題を追加し、改善計画に反映する</td><td>運用担当、プロダクトオーナー</td></tr>
+    </tbody>
+  </table></div>
+  <ul>
+    <li>完了したリスク・課題は削除せず、状態を「完了」にして残します。</li>
+    <li>スコアを変えたときは、変更理由を対策欄に追記します。</li>
+    <li>この台帳の変更も、他の文書と同じく PR とレビューを通します。</li>
+  </ul>
+</section>
+
+<section id="s7">
+  <h2><span class="no">7</span>関連文書</h2>
+  <ul>
+    <li><a href="charter.html">プロジェクト憲章</a></li>
+    <li><a href="phase-gates.html">フェーズゲート定義書</a></li>
+    <li><a href="../02-design/screen-design.html">システムWebUI 画面設計書</a></li>
+    <li><a href="../02-design/architecture.html">アーキテクチャ設計書</a></li>
+    <li><a href="../adr/0001-repository-and-sor-scope.html">ADR-0001 リポジトリと正本の範囲</a></li>
+    <li><a href="../10-poc/poc-plan.html">PoC 計画書</a></li>
+    <li><a href="../40-staging/release-readiness.html">セキュリティ・品質チェックリスト／リリース判定書</a></li>
+  </ul>
+</section>
+
+<footer>SiteLive Twin（現場ライブツイン） ／ リスク・課題管理台帳 v0.1 ／ 2026年10月21日</footer>
+</main>
+</div>
+</body>
+</html>

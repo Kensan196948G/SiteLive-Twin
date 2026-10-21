@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SiteLive Twin データ設計・連携仕様書</title>
+<style>
+/* SiteLive Twin 文書テンプレート：左に目次、右に本文。表と図は横スクロール可能な枠に入れる */
+:root{
+  --bg:#f5f6f8; --paper:#ffffff; --ink:#1a2230; --sub:#5a6577; --rule:#d9dee6; --tint:#f0f3f7;
+  --navy:#1b3557; --accent:#c8740a; --accent-soft:#fdf1e1;
+  --ok:#1d8a4c; --warn:#a87800; --ng:#c43d3d; --info:#2a64a8;
+  --sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+  --mono:"BIZ UDGothic","Consolas","Menlo",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+    --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+    --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+  --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+  --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{display:grid;grid-template-columns:240px minmax(0,1fr);max-width:1280px;margin:0 auto;gap:28px;padding:28px 16px 60px}
+@media (max-width:900px){.wrap{grid-template-columns:1fr;gap:0}}
+nav.toc{position:sticky;top:20px;align-self:start;font-size:13px;max-height:calc(100vh - 40px);overflow:auto}
+@media (max-width:900px){nav.toc{position:static;max-height:none;margin-bottom:18px}}
+.toc b{display:block;font-size:11px;letter-spacing:.12em;color:var(--sub);margin-bottom:6px}
+.toc a{display:block;color:var(--ink);text-decoration:none;padding:3px 10px;border-left:2px solid var(--rule)}
+.toc a:hover,.toc a:focus-visible{border-left-color:var(--accent);color:var(--accent);outline:none}
+.toc .home{margin-bottom:12px;border-left:0;padding-left:0;color:var(--info)}
+main{min-width:0}
+.cover{background:var(--paper);border:1px solid var(--rule);border-top:5px solid var(--navy);border-radius:6px;padding:26px 28px 20px;margin-bottom:26px}
+.cover .kind{font-size:12px;letter-spacing:.14em;color:var(--sub);font-weight:700}
+.cover h1{margin:4px 0 14px;font-size:clamp(22px,3.4vw,30px);line-height:1.35;text-wrap:balance;color:var(--navy)}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));border-top:1px solid var(--rule);border-left:1px solid var(--rule);font-size:13px}
+.meta div{padding:7px 12px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.meta span{display:block;font-size:11px;color:var(--sub)}
+section{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:22px 26px 18px;margin-bottom:20px;min-width:0}
+h2{font-size:19px;margin:0 0 12px;color:var(--navy);text-wrap:balance;display:flex;gap:10px;align-items:baseline}
+h2 .no{font-family:var(--mono);font-size:14px;color:var(--accent)}
+h3{font-size:15px;margin:20px 0 8px}
+p{margin:0 0 10px;max-width:76ch}
+ul,ol{margin:0 0 10px;padding-left:22px}
+li{margin-bottom:3px}
+.tbl{overflow-x:auto;margin:6px 0 12px;border:1px solid var(--rule);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:640px}
+th,td{border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);padding:7px 9px;text-align:left;vertical-align:top}
+th:last-child,td:last-child{border-right:0}
+tr:last-child td{border-bottom:0}
+thead th{background:var(--tint);font-size:12px;color:var(--sub);white-space:nowrap}
+td.c,th.c{text-align:center}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+code,.id{font-family:var(--mono);font-size:12.5px}
+.id{color:var(--navy);font-weight:700;white-space:nowrap}
+.y{color:var(--ok);font-weight:800}.n{color:var(--sub)}.r{color:var(--warn);font-weight:700}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:0 7px;border-radius:3px;background:var(--tint);border:1px solid var(--rule);white-space:nowrap;margin:1px 2px 1px 0}
+.tag.a{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.st{display:inline-block;font-size:11px;font-weight:800;padding:0 8px;border-radius:999px;white-space:nowrap;border:1px solid currentColor}
+.st.done{color:var(--ok)}.st.wip{color:var(--accent)}.st.todo{color:var(--sub)}.st.tpl{color:var(--info)}
+.note{font-size:12.5px;color:var(--sub)}
+.callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 14px;border-radius:0 4px 4px 0;margin:8px 0 12px;font-size:13.5px}
+.fill{background:var(--tint);border:1px dashed var(--rule);border-radius:4px;padding:2px 8px;color:var(--sub);font-size:12.5px}
+.fig{overflow-x:auto;border:1px solid var(--rule);border-radius:4px;background:var(--tint);padding:10px;margin:8px 0 6px}
+.fig svg{display:block;min-width:760px;width:100%;height:auto}
+.fig text{font-family:var(--sans)}
+.cap{font-size:12px;color:var(--sub);margin:0 0 12px}
+.pri-h{color:var(--ng);font-weight:800}.pri-m{color:var(--warn);font-weight:800}.pri-l{color:var(--sub);font-weight:800}.pri-done{color:var(--ok);font-weight:800}
+a{color:var(--info)}
+footer{font-size:12px;color:var(--sub);padding:6px 4px}
+@media (max-width:640px){section{padding:18px 16px 14px}.cover{padding:20px 16px 16px}}
+@media print{nav.toc{display:none}.wrap{display:block;padding:0}section,.cover{break-inside:avoid;border:0}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="目次">
+  <a class="home" href="../index.html">← ドキュメント一覧</a>
+  <b>目次</b>
+<a href="#s1">1. 概要</a>
+  <a href="#s2">2. エンティティ一覧</a>
+  <a href="#s3">3. 取得元の段階的な差し替え</a>
+  <a href="#s4">4. 連携インターフェース</a>
+  <a href="#s5">5. 申請の項目定義</a>
+  <a href="#s6">6. 承認済み対策・監査ログの項目</a>
+  <a href="#s7">7. データ品質の扱い</a>
+  <a href="#s8">8. 未決事項</a>
+</nav>
+<main>
+<div class="cover">
+  <div class="kind">データ設計・連携仕様書</div>
+  <h1>SiteLive Twin（現場ライブツイン）<br>データ設計・連携仕様書</h1>
+  <div class="meta">
+    <div><span>文書番号</span>SLT-DOC-22</div>
+    <div><span>版</span>v0.1</div>
+    <div><span>作成日</span>2026年10月21日</div>
+    <div><span>フェーズ</span>PoC〜Release（共通）</div>
+    <div><span>状態</span>初版（PoCで連携先と確定）</div>
+  </div>
+</div>
+
+<section id="s1">
+  <h2><span class="no">1</span>概要</h2>
+  <p>SiteLive Twin が扱うデータの種類、正本の所在、保持期間、連携先とのインターフェースを定めます。構想段階のサンプルと同じデータの形を保ったまま、取得元を「ダミー → CSV・API → 実センサー」と順に差し替えられるように設計します。</p>
+  <p class="note">関連文書：<a href="architecture.html">アーキテクチャ設計書（SLT-DOC-21）</a>、<a href="../01-requirements/requirements.html">要件定義書（SLT-DOC-10）</a>、<a href="../adr/0001-repository-and-sor-scope.html">ADR-0001</a></p>
+</section>
+
+<section id="s2">
+  <h2><span class="no">2</span>エンティティ一覧</h2>
+  <p>「正本」は SiteLive Twin がデータの正しい値を持つもの、「参照」は他システムの値を読み取って表示・計算に使うもの、「集約」は他システムの時系列から SiteLive Twin が要約値を作って持つものです。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>エンティティ</th><th>主な項目</th><th>扱い</th><th>正本の所在</th><th>保持期間（案）</th></tr></thead>
+    <tbody>
+      <tr><td>現場</td><td>案件ID、名称、位置、工期、契約金額</td><td>参照</td><td>MCIP（案件ID）、CEOS（契約）</td><td>キャッシュのみ</td></tr>
+      <tr><td>部材（3D）</td><td>部材ID、種類（擁壁・道路・地形など）、形状への参照</td><td>参照</td><td>ArcSphere</td><td>キャッシュのみ</td></tr>
+      <tr><td>工程・タスク</td><td>タスクID、工種、計画開始・終了、実績進捗、部材との紐付け</td><td>参照（紐付けは正本）</td><td>CEOS（工程）、SiteLive Twin（部材との紐付け）</td><td>工事完了後3年</td></tr>
+      <tr><td>重機</td><td>重機ID、種類、位置、状態（稼働・待機・停止・故障）、稼働時間</td><td>集約</td><td>重機テレマティクス</td><td>集約値：工事完了後3年</td></tr>
+      <tr><td>作業員</td><td>職種、人数、エリア（個人名は持たない）</td><td>集約</td><td>入退場システム</td><td>集約値：工事完了後3年</td></tr>
+      <tr><td>センサー</td><td>センサーID、種類（暑さ指数・風速・騒音・振動）、値、時刻</td><td>集約</td><td>IoT・時系列保管領域</td><td>集約値：工事完了後3年</td></tr>
+      <tr><td>原価</td><td>実行予算、計画出来高、出来高、実際原価</td><td>参照</td><td>CEOS</td><td>キャッシュのみ（EVM計算結果は日次で保持）</td></tr>
+      <tr><td>イベント</td><td>種類（遅れ・稼働率・安全）、重要度、発生時刻、対象</td><td><span class="tag a">正本</span></td><td>SiteLive Twin</td><td>工事完了後3年</td></tr>
+      <tr><td>現場ライブ状態</td><td>時刻、工種別進捗、重機・人員・センサーの最新値、指標（SPI・CPI）</td><td><span class="tag a">正本</span></td><td>SiteLive Twin</td><td>日次スナップショット：工事完了後3年</td></tr>
+      <tr><td>対策案・申請</td><td>5章を参照</td><td><span class="tag a">正本</span></td><td>SiteLive Twin（承認の証跡は MCIP）</td><td>工事完了後10年</td></tr>
+      <tr><td>承認済み対策</td><td>6章を参照</td><td><span class="tag a">正本</span></td><td>SiteLive Twin（証跡は MCIP）</td><td>工事完了後10年</td></tr>
+      <tr><td>日報</td><td>日付、天候、作業員数、作業内容、特記事項、KY活動、提出者</td><td><span class="tag a">正本</span>（確定版は CDE）</td><td>SiteLive Twin／CDE</td><td>工事完了後10年</td></tr>
+      <tr><td>監査ログ</td><td>6章を参照</td><td><span class="tag a">正本</span></td><td>SiteLive Twin</td><td>工事完了後10年</td></tr>
+      <tr><td>通知</td><td>種類、本文、対象画面、既読状態</td><td><span class="tag a">正本</span></td><td>SiteLive Twin</td><td>1年</td></tr>
+      <tr><td>設定</td><td>SPI注意・危険しきい値、稼働率しきい値、通知のオン・オフ</td><td><span class="tag a">正本</span></td><td>SiteLive Twin</td><td>変更履歴を含め無期限</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">保持期間は要件定義書 NFR-070 の案です。社内規程と発注者との契約を確認して確定します。</p>
+</section>
+
+<section id="s3">
+  <h2><span class="no">3</span>取得元の段階的な差し替え</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>データ</th><th>構想段階（済）</th><th>PoC</th><th>MVP</th><th>Release</th></tr></thead>
+    <tbody>
+      <tr><td>重機</td><td>ダミー（ブラウザ内シミュレーション）</td><td>対象メーカー1社のテレマティクス API または CSV（T1）</td><td>対象現場の全重機</td><td>複数メーカー</td></tr>
+      <tr><td>作業員</td><td>ダミー</td><td>ダミー</td><td>入退場システムの CSV または API</td><td>API</td></tr>
+      <tr><td>センサー</td><td>ダミー</td><td>ダミー</td><td>MCAH Event &amp; Edge Gateway 経由</td><td>同左</td></tr>
+      <tr><td>工程・原価</td><td>ダミー</td><td>CEOS 契約API（T2）</td><td>同左</td><td>同左</td></tr>
+      <tr><td>3Dモデル</td><td>簡易形状（手作り）</td><td>ArcSphere の IFC／3D Tiles（T3）</td><td>同左</td><td>同左</td></tr>
+      <tr><td>気象</td><td>ダミー</td><td>ダミー</td><td>CODIP</td><td>同左</td></tr>
+      <tr><td>承認の証跡</td><td>ブラウザ内の監査ログ</td><td>MCIP（T6）</td><td>同左</td><td>同左</td></tr>
+    </tbody>
+  </table></div>
+  <p>どの段階でも、取り込み処理は「取得元ごとのアダプター」と「共通のデータの形」に分け、アダプターを差し替えるだけで済むようにします。</p>
+</section>
+
+<section id="s4">
+  <h2><span class="no">4</span>連携インターフェース</h2>
+  <p>他リポジトリのDBへは直接接続しません。契約（<code>contracts/</code>）は版を付けて管理し、手で編集しません。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>ID</th><th>相手</th><th>方向</th><th>内容</th><th>方式</th><th>頻度</th><th>遅延目標</th><th>開始</th></tr></thead>
+    <tbody>
+      <tr><td class="id">IF-001</td><td>重機テレマティクス</td><td>受信</td><td>位置・状態・稼働時間</td><td>MCAH Event &amp; Edge Gateway 経由のイベント（PoC は API または CSV を許容）</td><td>1〜5分</td><td>5分以内</td><td>PoC</td></tr>
+      <tr><td class="id">IF-002</td><td>CEOS</td><td>参照</td><td>工程計画・実績、実行予算・原価</td><td>版付き契約の API</td><td>15分ごと＋変更イベント</td><td>15分以内</td><td>PoC</td></tr>
+      <tr><td class="id">IF-003</td><td>ArcSphere</td><td>参照</td><td>3Dモデル（IFC／3D Tiles）、部材ID</td><td>正本 API の参照</td><td>モデル更新時</td><td>—</td><td>PoC</td></tr>
+      <tr><td class="id">IF-004</td><td>MCIP</td><td>送信・参照</td><td>案件ID の参照、起案・承認・差戻しの証跡記録</td><td>API</td><td>操作のたび</td><td>10秒以内</td><td>PoC</td></tr>
+      <tr><td class="id">IF-005</td><td>Entra ID／Cloudflare Access</td><td>参照</td><td>利用者の識別、グループ（ロール）</td><td>ID トークン</td><td>ログイン時</td><td>—</td><td>PoC</td></tr>
+      <tr><td class="id">IF-006</td><td>入退場システム</td><td>受信</td><td>職種別人数、エリア</td><td>CSV または API（MCAH 経由）</td><td>15分ごと</td><td>15分以内</td><td>MVP</td></tr>
+      <tr><td class="id">IF-007</td><td>IoTセンサー</td><td>受信</td><td>暑さ指数・風速・騒音・振動</td><td>MCAH Event &amp; Edge Gateway 経由のイベント</td><td>1分</td><td>2分以内</td><td>MVP</td></tr>
+      <tr><td class="id">IF-008</td><td>CODIP</td><td>参照</td><td>気象予報・実況</td><td>版付き契約の API</td><td>1時間ごと</td><td>—</td><td>MVP</td></tr>
+      <tr><td class="id">IF-009</td><td>MCAH Tool／Model Gateway</td><td>送信</td><td>日報の下書き（R1）</td><td>API</td><td>利用者の操作時</td><td>30秒以内</td><td>MVP</td></tr>
+      <tr><td class="id">IF-010</td><td>CDE</td><td>送信</td><td>週報・日報の確定版</td><td>API</td><td>確定時</td><td>—</td><td>MVP</td></tr>
+      <tr><td class="id">IF-011</td><td>画面（web）</td><td>配信</td><td>現場ライブ状態の変化</td><td>WebSocket または SSE（T4 で選定）</td><td>変化時</td><td>3秒以内</td><td>PoC</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s5">
+  <h2><span class="no">5</span>申請（対策案）の項目定義</h2>
+  <p>構想段階のシステムWebUIサンプルの申請データ（<code>requests</code>）を基にしています。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>項目</th><th>型</th><th>必須</th><th>説明</th></tr></thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>文字列</td><td class="c">○</td><td>申請番号。<code>REQ-0001</code> から現場ごとの連番</td></tr>
+      <tr><td><code>projectId</code></td><td>文字列</td><td class="c">○</td><td>MCIP の案件ID（サンプルにはない。PoC で追加）</td></tr>
+      <tr><td><code>title</code></td><td>文字列（60文字以内）</td><td class="c">○</td><td>件名</td></tr>
+      <tr><td><code>options</code></td><td>文字列の配列</td><td class="c">○</td><td>選んだ対策（例：<code>dump</code> ダンプ追加、<code>crew</code> 擁壁班追加、<code>sat</code> 土曜稼働、<code>pc</code> プレキャスト化）。1つ以上</td></tr>
+      <tr><td><code>status</code></td><td>列挙</td><td class="c">○</td><td><code>pending</code> 承認待ち ／ <code>approved</code> 承認済み ／ <code>rejected</code> 差戻し ／ <code>withdrawn</code> 取下げ</td></tr>
+      <tr><td><code>scn</code></td><td>文字列</td><td class="c">—</td><td>サンプルのシナリオ名。PoC 以降は使わず、データの版（取得時刻）に置き換える</td></tr>
+      <tr><td><code>createdBy</code></td><td>文字列</td><td class="c">○</td><td>起案者の表示名</td></tr>
+      <tr><td><code>createdById</code></td><td>文字列</td><td class="c">○</td><td>起案者の利用者ID（Entra ID）。承認時の職務分掌の判定に使う</td></tr>
+      <tr><td><code>createdAt</code></td><td>日時</td><td class="c">○</td><td>起案した日時</td></tr>
+      <tr><td><code>comment</code></td><td>文字列</td><td class="c">—</td><td>起案者のコメント・理由</td></tr>
+      <tr><td><code>before</code></td><td>オブジェクト</td><td class="c">○</td><td>起案時点の判断の根拠：<code>spi</code>、<code>cpi</code>、<code>wallDelay</code>（擁壁工の遅れ日数）、<code>util</code>（重機平均稼働率）、<code>bh1</code>（主要重機の稼働率）、<code>finish</code>（完成予測）、<code>eac</code>（最終原価見込み）</td></tr>
+      <tr><td><code>after</code></td><td>オブジェクト</td><td class="c">○</td><td>試算結果：<code>finish</code>、<code>eac</code>、<code>wallFinish</code>（擁壁工の完了予測）、<code>cost</code>（対策費）</td></tr>
+      <tr><td><code>history</code></td><td>配列</td><td class="c">○</td><td>履歴：<code>at</code>（実時刻）、<code>by</code>（操作者）、<code>action</code>（起案・承認・差戻し・取下げ）、<code>comment</code></td></tr>
+      <tr><td><code>decisionId</code></td><td>文字列</td><td class="c">—</td><td>承認されたときに作る承認済み対策のID</td></tr>
+      <tr><td><code>mcipRecordId</code></td><td>文字列</td><td class="c">—</td><td>MCIP に記録した証跡のID（PoC で追加）</td></tr>
+    </tbody>
+  </table></div>
+  <h3>状態のルール</h3>
+  <ul>
+    <li><code>pending</code> からのみ <code>approved</code>・<code>rejected</code>・<code>withdrawn</code> に変わります。処理済みの申請は変更できません。</li>
+    <li>承認・差戻しは、経営層であり、かつ <code>createdById</code> と異なる利用者だけが行えます（R3）。差戻しにはコメントが必須です。</li>
+  </ul>
+</section>
+
+<section id="s6">
+  <h2><span class="no">6</span>承認済み対策・監査ログの項目</h2>
+  <h3>承認済み対策（decision）</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>項目</th><th>説明</th></tr></thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>承認済み対策のID</td></tr>
+      <tr><td><code>reqId</code></td><td>元の申請番号</td></tr>
+      <tr><td><code>options</code></td><td>実施する対策</td></tr>
+      <tr><td><code>effective</code></td><td>反映日（承認日の翌稼働日）</td></tr>
+      <tr><td><code>approver</code>／<code>approverId</code></td><td>承認者の表示名と利用者ID</td></tr>
+      <tr><td><code>before</code>／<code>after</code></td><td>承認時点の判断の根拠と試算</td></tr>
+      <tr><td><code>comment</code></td><td>承認時のコメント</td></tr>
+    </tbody>
+  </table></div>
+  <h3>監査ログ（audit）</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>項目</th><th>説明</th></tr></thead>
+    <tbody>
+      <tr><td><code>at</code></td><td>実時刻</td></tr>
+      <tr><td><code>userId</code>／<code>userName</code>／<code>role</code></td><td>操作者</td></tr>
+      <tr><td><code>action</code></td><td>ログイン、ログアウト、起案、承認、差戻し、日報提出、設定変更、CSV出力、印刷 など</td></tr>
+      <tr><td><code>target</code>／<code>detail</code></td><td>対象（申請番号など）と詳細</td></tr>
+      <tr><td><code>projectId</code></td><td>案件ID</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">監査ログは追記のみとし、更新・削除はできないようにします（NFR-031）。</p>
+</section>
+
+<section id="s7">
+  <h2><span class="no">7</span>データ品質の扱い</h2>
+  <ul>
+    <li><b>欠測</b>：取り込めなかった時間帯は「欠測」として表示し、推定値と区別します。推定値には「推定」と明記します。</li>
+    <li><b>鮮度</b>：画面上の値には取得時刻を付け、遅延目標を超えたら「更新が遅れています」と表示します。</li>
+    <li><b>連携先の停止</b>：最後に取得した値を時刻付きで表示し、画面は止めません（NFR-012）。</li>
+    <li><b>個人情報</b>：作業員は職種・人数・エリアの集計だけを持ち、個人名は持ちません。</li>
+  </ul>
+</section>
+
+<section id="s8">
+  <h2><span class="no">8</span>未決事項</h2>
+  <ul>
+    <li><span class="fill">（未定：重機テレマティクスの提供元と契約形態）</span></li>
+    <li>CEOS・ArcSphere・MCIP 側の契約（API・イベント）の版と提供時期</li>
+    <li>保持期間（社内規程・発注者との契約で確定）</li>
+    <li>部材と工程タスクの紐付けを誰が作り、どこで維持するか（SiteLive Twin か ArcSphere か）</li>
+  </ul>
+</section>
+
+<footer>SiteLive Twin（現場ライブツイン） ／ データ設計・連携仕様書 v0.1 ／ 2026年10月21日</footer>
+</main>
+</div>
+</body>
+</html>
