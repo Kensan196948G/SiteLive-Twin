@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 270" width="1200" height="270" role="img" aria-label="判断の5ステップ：見る、気づく、原因を探す、対策を比べる、決める">
+  <defs>
+    <style>
+      text{font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo","Noto Sans JP",sans-serif}
+      .ring{fill:#16294a;stroke:#4c6584;stroke-width:3}
+      .glow{fill:none;stroke:#f0a447;stroke-width:6;opacity:0;animation:on 10s infinite}
+      .s2{animation-delay:2s}.s3{animation-delay:4s}.s4{animation-delay:6s}.s5{animation-delay:8s}
+      @keyframes on{0%{opacity:0}4%{opacity:1}18%{opacity:1}22%{opacity:0}100%{opacity:0}}
+      .pop{transform-box:fill-box;transform-origin:center;animation:pop 10s infinite}
+      @keyframes pop{0%{transform:scale(1)}4%{transform:scale(1.12)}12%{transform:scale(1)}100%{transform:scale(1)}}
+      .line{stroke:#4c6584;stroke-width:3;stroke-dasharray:8 8;animation:dash 1s linear infinite}
+      @keyframes dash{to{stroke-dashoffset:-16}}
+    </style>
+  </defs>
+  <rect width="1200" height="270" rx="18" fill="#0f1d31"/>
+  <g fill="none"><path class="line" d="M184,112 H312"/><path class="line" d="M419,112 H547"/><path class="line" d="M654,112 H782"/><path class="line" d="M889,112 H1017"/></g>
+  <!-- 進むしるし -->
+  <circle r="7" fill="#f0a447">
+    <animateMotion dur="10s" repeatCount="indefinite" path="M130,112 H1070" keyPoints="0;0;0.25;0.25;0.5;0.5;0.75;0.75;1;1" keyTimes="0;0.15;0.2;0.35;0.4;0.55;0.6;0.75;0.8;1" calcMode="linear"/>
+  </circle>
+  <g text-anchor="middle">
+    <g><circle class="ring" cx="130" cy="112" r="54"/><circle class="glow" cx="130" cy="112" r="60"/><text class="pop" x="130" y="128" font-size="44">👀</text>
+      <text x="130" y="200" font-size="20" font-weight="800" fill="#ffffff">① 見る</text><text x="130" y="228" font-size="13" fill="#98a4b6">全部の現場を</text><text x="130" y="246" font-size="13" fill="#98a4b6">ひと目で</text></g>
+    <g><circle class="ring" cx="365" cy="112" r="54"/><circle class="glow s2" cx="365" cy="112" r="60"/><text class="pop" x="365" y="128" font-size="44" style="animation-delay:2s">💡</text>
+      <text x="365" y="200" font-size="20" font-weight="800" fill="#ffffff">② 気づく</text><text x="365" y="228" font-size="13" fill="#98a4b6">遅れを色で</text><text x="365" y="246" font-size="13" fill="#98a4b6">お知らせ</text></g>
+    <g><circle class="ring" cx="600" cy="112" r="54"/><circle class="glow s3" cx="600" cy="112" r="60"/><text class="pop" x="600" y="128" font-size="44" style="animation-delay:4s">🔍</text>
+      <text x="600" y="200" font-size="20" font-weight="800" fill="#ffffff">③ 原因を探す</text><text x="600" y="228" font-size="13" fill="#98a4b6">3Dの現場で</text><text x="600" y="246" font-size="13" fill="#98a4b6">たしかめる</text></g>
+    <g><circle class="ring" cx="835" cy="112" r="54"/><circle class="glow s4" cx="835" cy="112" r="60"/><text class="pop" x="835" y="128" font-size="44" style="animation-delay:6s">⚖️</text>
+      <text x="835" y="200" font-size="20" font-weight="800" fill="#ffffff">④ 対策を比べる</text><text x="835" y="228" font-size="13" fill="#98a4b6">効果と費用を</text><text x="835" y="246" font-size="13" fill="#98a4b6">その場で計算</text></g>
+    <g><circle class="ring" cx="1070" cy="112" r="54"/><circle class="glow s5" cx="1070" cy="112" r="60"/><text class="pop" x="1070" y="128" font-size="44" style="animation-delay:8s">✅</text>
+      <text x="1070" y="200" font-size="20" font-weight="800" fill="#ffffff">⑤ 決める</text><text x="1070" y="228" font-size="13" fill="#98a4b6">承認して</text><text x="1070" y="246" font-size="13" fill="#98a4b6">記録に残す</text></g>
+  </g>
+</svg>

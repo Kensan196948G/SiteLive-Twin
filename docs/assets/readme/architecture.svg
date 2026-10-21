@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 440" width="1200" height="440" role="img" aria-label="システム構成：SiteLive Twin が ArcSphere、CEOS、CODIP、MCIP、MCAH、設備システムと版付き契約・API・イベントで連携する">
+  <defs>
+    <style>
+      text{font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo","Noto Sans JP",sans-serif}
+      .in{fill:none;stroke:#6aa0ef;stroke-width:2.5;stroke-dasharray:7 9;animation:in 1.2s linear infinite}
+      .out{fill:none;stroke:#f0a447;stroke-width:2.5;stroke-dasharray:7 9;animation:in 1.2s linear infinite}
+      @keyframes in{to{stroke-dashoffset:-32}}
+      .ext{fill:#16294a;stroke:#4c6584;stroke-width:1.5}
+      .core{fill:#1f3a63;stroke:#f0a447;stroke-width:2}
+      .cmp{fill:#0f1d31;stroke:#4c6584}
+      .db{animation:db 2.4s ease-in-out infinite}
+      @keyframes db{0%,100%{stroke:#47c07c;stroke-opacity:1}50%{stroke-opacity:.3}}
+    </style>
+  </defs>
+  <rect width="1200" height="440" rx="18" fill="#0f1d31"/>
+  <text x="36" y="40" font-size="18" font-weight="800" fill="#ffffff">🛠️ システム構成（PoC〜）</text>
+
+  <!-- 利用者と認証 -->
+  <g text-anchor="middle">
+    <text x="420" y="84" font-size="28">👥</text>
+    <text x="420" y="104" font-size="11" fill="#98a4b6">ブラウザ</text>
+    <rect class="ext" x="480" y="58" width="240" height="44" rx="10"/>
+    <text x="600" y="78" font-size="13" font-weight="700" fill="#e6ebf2">🔐 Entra ID ＋ Cloudflare Access</text>
+    <text x="600" y="94" font-size="11" fill="#98a4b6">ログイン（権限はサーバー側で判定）</text>
+  </g>
+  <path class="in" d="M440,80 L478,80"/>
+  <path class="in" d="M600,102 L600,128"/>
+
+  <!-- 中心：SiteLive Twin -->
+  <rect class="core" x="420" y="130" width="360" height="236" rx="16"/>
+  <text x="600" y="158" font-size="17" font-weight="800" fill="#ffd9a6" text-anchor="middle">SiteLive Twin</text>
+  <g font-size="12" fill="#e6ebf2" text-anchor="middle">
+    <rect class="cmp" x="440" y="172" width="150" height="46" rx="8"/><text x="515" y="192">🖥️ Web</text><text x="515" y="208" font-size="10.5" fill="#98a4b6">React＋TypeScript＋Vite</text>
+    <rect class="cmp" x="610" y="172" width="150" height="46" rx="8"/><text x="685" y="192">⚙️ API</text><text x="685" y="208" font-size="10.5" fill="#98a4b6">FastAPI（Python 3.13）</text>
+    <rect class="cmp" x="440" y="228" width="150" height="46" rx="8"/><text x="515" y="248">🧮 シミュレーション</text><text x="515" y="264" font-size="10.5" fill="#98a4b6">対策の試算・EVM</text>
+    <rect class="cmp" x="610" y="228" width="150" height="46" rx="8"/><text x="685" y="248">📥 取り込み</text><text x="685" y="264" font-size="10.5" fill="#98a4b6">イベント・リアルタイム配信</text>
+    <rect class="cmp db" x="440" y="286" width="320" height="64" rx="8" stroke-width="2"/>
+    <text x="600" y="310" font-weight="700">🗄️ PostgreSQL 18（正本は2つだけ）</text>
+    <text x="600" y="332" font-size="11" fill="#47c07c">① 現場ライブ状態・イベント　② 対策シミュレーション案（申請）</text>
+  </g>
+
+  <!-- 左：参照する製品 -->
+  <g font-size="13" fill="#e6ebf2">
+    <rect class="ext" x="40" y="130" width="250" height="58" rx="10"/><text x="58" y="155" font-weight="700">🧱 ArcSphere</text><text x="58" y="176" font-size="11.5" fill="#98a4b6">3Dモデル・点群（参照のみ）</text>
+    <rect class="ext" x="40" y="214" width="250" height="58" rx="10"/><text x="58" y="239" font-weight="700">📅 CEOS</text><text x="58" y="260" font-size="11.5" fill="#98a4b6">工程・原価・契約（参照のみ）</text>
+    <rect class="ext" x="40" y="298" width="250" height="58" rx="10"/><text x="58" y="323" font-weight="700">🌦️ CODIP</text><text x="58" y="344" font-size="11.5" fill="#98a4b6">気象・公開データ（参照のみ）</text>
+  </g>
+  <path class="in" d="M290,159 C350,159 360,190 418,196"/>
+  <path class="in" d="M290,243 L418,243"/>
+  <path class="in" d="M290,327 C350,327 360,300 418,296"/>
+  <text x="300" y="232" font-size="11" fill="#6aa0ef">版付き契約API</text>
+
+  <!-- 右：記録・ゲートウェイ・設備 -->
+  <g font-size="13" fill="#e6ebf2">
+    <rect class="ext" x="910" y="130" width="250" height="58" rx="10"/><text x="928" y="155" font-weight="700">✅ MCIP</text><text x="928" y="176" font-size="11.5" fill="#98a4b6">案件ID・承認（R3）・証跡</text>
+    <rect class="ext" x="910" y="214" width="250" height="58" rx="10"/><text x="928" y="239" font-weight="700">🤖 MCAH</text><text x="928" y="260" font-size="11.5" fill="#98a4b6">AI・イベントのゲートウェイ</text>
+    <rect class="ext" x="910" y="298" width="250" height="58" rx="10"/><text x="928" y="323" font-weight="700">📡 現場の設備</text><text x="928" y="344" font-size="11.5" fill="#98a4b6">重機・IoTセンサー・入退場</text>
+  </g>
+  <path class="out" d="M782,196 C850,190 850,159 908,159"/>
+  <path class="out" d="M782,234 L908,234"/>
+  <path class="in" d="M1035,298 L1035,274"/>
+  <path class="in" d="M908,256 L782,256"/>
+  <text x="800" y="184" font-size="11" fill="#f0a447">承認を記録</text>
+  <text x="800" y="226" font-size="11" fill="#f0a447">AIは経由のみ</text>
+  <text x="1044" y="290" font-size="11" fill="#6aa0ef">イベント</text>
+
+  <g font-size="12" fill="#98a4b6">
+    <line x1="40" y1="400" x2="72" y2="400" stroke="#6aa0ef" stroke-width="2.5" stroke-dasharray="7 9"/><text x="80" y="404">データを受け取る</text>
+    <line x1="220" y1="400" x2="252" y2="400" stroke="#f0a447" stroke-width="2.5" stroke-dasharray="7 9"/><text x="260" y="404">記録・依頼を送る</text>
+    <text x="420" y="404">🚫 ほかの製品のデータベースには直接つながない（全体構成 V3.6 のルール）</text>
+  </g>
+</svg>

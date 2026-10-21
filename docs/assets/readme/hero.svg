@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400" role="img" aria-label="SiteLive Twin（現場ライブツイン）：現場の「いま」を、みんなで見て、すぐ決める">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1626"/><stop offset="1" stop-color="#1b3557"/>
+    </linearGradient>
+    <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a4f6b"/><stop offset="1" stop-color="#22324a"/>
+    </linearGradient>
+    <path id="haul" d="M660,352 C760,330 860,312 960,292 C1040,276 1110,262 1180,250"/>
+    <style>
+      text{font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo","Noto Sans JP",sans-serif}
+      .blink{animation:blink 1.6s ease-in-out infinite}
+      @keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+      .pulse{transform-box:fill-box;transform-origin:center;animation:pulse 2.4s ease-out infinite}
+      .p2{animation-delay:.8s}.p3{animation-delay:1.6s}
+      @keyframes pulse{0%{opacity:.9;transform:scale(.4)}100%{opacity:0;transform:scale(2.2)}}
+      .wall{opacity:0;animation:build 8s linear infinite}
+      .w2{animation-delay:.6s}.w3{animation-delay:1.2s}.w4{animation-delay:1.8s}.w5{animation-delay:2.4s}
+      @keyframes build{0%{opacity:0}8%{opacity:1}85%{opacity:1}100%{opacity:0}}
+      .bar{transform-box:fill-box;transform-origin:bottom;animation:grow 3s ease-in-out infinite alternate}
+      .b2{animation-delay:.4s}.b3{animation-delay:.8s}.b4{animation-delay:1.2s}
+      @keyframes grow{0%{transform:scaleY(.3)}100%{transform:scaleY(1)}}
+      .flow{stroke-dasharray:6 8;animation:dash 1.2s linear infinite}
+      @keyframes dash{to{stroke-dashoffset:-28}}
+      .chip{animation:float 4s ease-in-out infinite}
+      .c2{animation-delay:.5s}.c3{animation-delay:1s}.c4{animation-delay:1.5s}
+      @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+    </style>
+  </defs>
+  <rect width="1200" height="400" rx="18" fill="url(#bg)"/>
+  <!-- 星のような点（データ） -->
+  <g fill="#9dbbe2" opacity=".35"><circle cx="80" cy="40" r="1.5"/><circle cx="260" cy="70" r="1.2"/><circle cx="520" cy="36" r="1.6"/><circle cx="610" cy="120" r="1.2"/><circle cx="420" cy="360" r="1.4"/><circle cx="140" cy="350" r="1.2"/></g>
+
+  <!-- タイトル -->
+  <text x="56" y="120" font-size="58" font-weight="800" fill="#ffffff">SiteLive Twin</text>
+  <text x="58" y="168" font-size="30" font-weight="700" fill="#f0a447">現場ライブツイン</text>
+  <text x="58" y="214" font-size="19" fill="#c3cfdf">現場の「いま」を、みんなで見て、すぐ決める。</text>
+  <g font-size="15" font-weight="700">
+    <g class="chip"><rect x="56" y="246" width="118" height="34" rx="17" fill="#ffffff" fill-opacity=".1" stroke="#9dbbe2" stroke-opacity=".5"/><text x="115" y="268" text-anchor="middle" fill="#e6ebf2">📡 ライブ</text></g>
+    <g class="chip c2"><rect x="184" y="246" width="96" height="34" rx="17" fill="#ffffff" fill-opacity=".1" stroke="#9dbbe2" stroke-opacity=".5"/><text x="232" y="268" text-anchor="middle" fill="#e6ebf2">🧱 3D</text></g>
+    <g class="chip c3"><rect x="290" y="246" width="122" height="34" rx="17" fill="#ffffff" fill-opacity=".1" stroke="#9dbbe2" stroke-opacity=".5"/><text x="351" y="268" text-anchor="middle" fill="#e6ebf2">📅 4D工程</text></g>
+    <g class="chip c4"><rect x="56" y="290" width="226" height="34" rx="17" fill="#f0a447" fill-opacity=".18" stroke="#f0a447"/><text x="169" y="312" text-anchor="middle" fill="#ffd9a6">🧮 対策シミュレーション</text></g>
+  </g>
+  <text x="58" y="364" font-size="13" fill="#8ea1bb">見る → 気づく → 原因を探す → 対策を比べる → 決める</text>
+
+  <!-- 現場の地面 -->
+  <polygon points="640,380 1190,240 1190,392 640,392" fill="url(#ground)"/>
+  <use href="#haul" fill="none" stroke="#6b7f99" stroke-width="22" stroke-linecap="round" opacity=".7"/>
+  <use href="#haul" fill="none" stroke="#c3cfdf" stroke-width="2" stroke-dasharray="12 10" opacity=".6"/>
+
+  <!-- 擁壁（少しずつ積み上がる） -->
+  <g stroke="#0b1626" stroke-width="1">
+    <rect class="wall"    x="720" y="290" width="40" height="34" fill="#47c07c"/>
+    <rect class="wall w2" x="764" y="280" width="40" height="34" fill="#47c07c"/>
+    <rect class="wall w3" x="808" y="270" width="40" height="34" fill="#47c07c"/>
+    <rect class="wall w4" x="852" y="260" width="40" height="34" fill="#ee7070"/>
+    <rect class="wall w5" x="896" y="250" width="40" height="34" fill="#6aa0ef" opacity=".6"/>
+  </g>
+  <text x="742" y="244" font-size="13" fill="#c3cfdf">🧱 擁壁工</text>
+
+  <!-- バックホウ（アームが動く） -->
+  <g transform="translate(1000,232)">
+    <rect x="-24" y="-12" width="48" height="22" rx="4" fill="#f0a447"/>
+    <rect x="-20" y="10" width="40" height="8" rx="4" fill="#2b3542"/>
+    <g>
+      <path d="M14,-8 L46,-36 L62,-18" stroke="#f0a447" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <animateTransform attributeName="transform" type="rotate" values="0 14 -8; -16 14 -8; 0 14 -8" dur="2.4s" repeatCount="indefinite"/>
+    </g>
+    <circle class="pulse" cx="0" cy="-30" r="10" fill="none" stroke="#6aa0ef" stroke-width="2"/>
+    <circle class="pulse p2" cx="0" cy="-30" r="10" fill="none" stroke="#6aa0ef" stroke-width="2"/>
+  </g>
+
+  <!-- ダンプ（道を走る） -->
+  <g>
+    <g>
+      <rect x="-22" y="-12" width="30" height="18" rx="3" fill="#e2bb3a"/>
+      <rect x="8" y="-8" width="14" height="14" rx="2" fill="#e2bb3a"/>
+      <circle cx="-14" cy="8" r="4" fill="#2b3542"/><circle cx="14" cy="8" r="4" fill="#2b3542"/>
+      <animateMotion dur="7s" repeatCount="indefinite" rotate="auto"><mpath href="#haul"/></animateMotion>
+    </g>
+  </g>
+
+  <!-- 作業員 -->
+  <g fill="#9dbbe2"><circle cx="790" cy="336" r="5"/><circle cx="806" cy="332" r="5"/><circle cx="822" cy="338" r="5"/></g>
+  <circle class="pulse p3" cx="806" cy="334" r="10" fill="none" stroke="#6aa0ef" stroke-width="2"/>
+
+  <!-- データが画面へ流れる -->
+  <path class="flow" d="M1000,196 C1000,150 980,130 960,120" fill="none" stroke="#6aa0ef" stroke-width="2"/>
+  <path class="flow" d="M806,320 C800,240 820,170 880,130" fill="none" stroke="#6aa0ef" stroke-width="2"/>
+
+  <!-- ダッシュボード -->
+  <g>
+    <rect x="860" y="30" width="300" height="150" rx="12" fill="#0b1626" fill-opacity=".85" stroke="#9dbbe2" stroke-opacity=".6"/>
+    <text x="878" y="58" font-size="14" font-weight="700" fill="#e6ebf2">📊 A現場 ライブ</text>
+    <circle class="blink" cx="1138" cy="53" r="6" fill="#ee7070"/>
+    <text x="878" y="86" font-size="13" fill="#98a4b6">工程の進み具合（SPI）</text>
+    <text class="blink" x="878" y="130" font-size="30" font-weight="800" fill="#e2bb3a">0.92 ⚠</text>
+    <g fill="#6aa0ef">
+      <rect class="bar"    x="1032" y="90" width="18" height="52" rx="2"/>
+      <rect class="bar b2" x="1058" y="90" width="18" height="52" rx="2"/>
+      <rect class="bar b3" x="1084" y="90" width="18" height="52" rx="2" fill="#ee7070"/>
+      <rect class="bar b4" x="1110" y="90" width="18" height="52" rx="2"/>
+    </g>
+    <text x="878" y="166" font-size="12" fill="#98a4b6">擁壁工が 3日 遅れています</text>
+  </g>
+</svg>
