@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SiteLive Twin プロジェクト憲章</title>
+<style>
+/* SiteLive Twin 文書テンプレート：左に目次、右に本文。表と図は横スクロール可能な枠に入れる */
+:root{
+  --bg:#f5f6f8; --paper:#ffffff; --ink:#1a2230; --sub:#5a6577; --rule:#d9dee6; --tint:#f0f3f7;
+  --navy:#1b3557; --accent:#c8740a; --accent-soft:#fdf1e1;
+  --ok:#1d8a4c; --warn:#a87800; --ng:#c43d3d; --info:#2a64a8;
+  --sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+  --mono:"BIZ UDGothic","Consolas","Menlo",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+    --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+    --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+  --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+  --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{display:grid;grid-template-columns:240px minmax(0,1fr);max-width:1280px;margin:0 auto;gap:28px;padding:28px 16px 60px}
+@media (max-width:900px){.wrap{grid-template-columns:1fr;gap:0}}
+nav.toc{position:sticky;top:20px;align-self:start;font-size:13px;max-height:calc(100vh - 40px);overflow:auto}
+@media (max-width:900px){nav.toc{position:static;max-height:none;margin-bottom:18px}}
+.toc b{display:block;font-size:11px;letter-spacing:.12em;color:var(--sub);margin-bottom:6px}
+.toc a{display:block;color:var(--ink);text-decoration:none;padding:3px 10px;border-left:2px solid var(--rule)}
+.toc a:hover,.toc a:focus-visible{border-left-color:var(--accent);color:var(--accent);outline:none}
+.toc .home{margin-bottom:12px;border-left:0;padding-left:0;color:var(--info)}
+main{min-width:0}
+.cover{background:var(--paper);border:1px solid var(--rule);border-top:5px solid var(--navy);border-radius:6px;padding:26px 28px 20px;margin-bottom:26px}
+.cover .kind{font-size:12px;letter-spacing:.14em;color:var(--sub);font-weight:700}
+.cover h1{margin:4px 0 14px;font-size:clamp(22px,3.4vw,30px);line-height:1.35;text-wrap:balance;color:var(--navy)}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));border-top:1px solid var(--rule);border-left:1px solid var(--rule);font-size:13px}
+.meta div{padding:7px 12px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.meta span{display:block;font-size:11px;color:var(--sub)}
+section{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:22px 26px 18px;margin-bottom:20px;min-width:0}
+h2{font-size:19px;margin:0 0 12px;color:var(--navy);text-wrap:balance;display:flex;gap:10px;align-items:baseline}
+h2 .no{font-family:var(--mono);font-size:14px;color:var(--accent)}
+h3{font-size:15px;margin:20px 0 8px}
+p{margin:0 0 10px;max-width:76ch}
+ul,ol{margin:0 0 10px;padding-left:22px}
+li{margin-bottom:3px}
+.tbl{overflow-x:auto;margin:6px 0 12px;border:1px solid var(--rule);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:640px}
+th,td{border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);padding:7px 9px;text-align:left;vertical-align:top}
+th:last-child,td:last-child{border-right:0}
+tr:last-child td{border-bottom:0}
+thead th{background:var(--tint);font-size:12px;color:var(--sub);white-space:nowrap}
+td.c,th.c{text-align:center}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+code,.id{font-family:var(--mono);font-size:12.5px}
+.id{color:var(--navy);font-weight:700;white-space:nowrap}
+.y{color:var(--ok);font-weight:800}.n{color:var(--sub)}.r{color:var(--warn);font-weight:700}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:0 7px;border-radius:3px;background:var(--tint);border:1px solid var(--rule);white-space:nowrap;margin:1px 2px 1px 0}
+.tag.a{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.st{display:inline-block;font-size:11px;font-weight:800;padding:0 8px;border-radius:999px;white-space:nowrap;border:1px solid currentColor}
+.st.done{color:var(--ok)}.st.wip{color:var(--accent)}.st.todo{color:var(--sub)}.st.tpl{color:var(--info)}
+.note{font-size:12.5px;color:var(--sub)}
+.callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 14px;border-radius:0 4px 4px 0;margin:8px 0 12px;font-size:13.5px}
+.fill{background:var(--tint);border:1px dashed var(--rule);border-radius:4px;padding:2px 8px;color:var(--sub);font-size:12.5px}
+.fig{overflow-x:auto;border:1px solid var(--rule);border-radius:4px;background:var(--tint);padding:10px;margin:8px 0 6px}
+.fig svg{display:block;min-width:760px;width:100%;height:auto}
+.fig text{font-family:var(--sans)}
+.cap{font-size:12px;color:var(--sub);margin:0 0 12px}
+.pri-h{color:var(--ng);font-weight:800}.pri-m{color:var(--warn);font-weight:800}.pri-l{color:var(--sub);font-weight:800}.pri-done{color:var(--ok);font-weight:800}
+a{color:var(--info)}
+footer{font-size:12px;color:var(--sub);padding:6px 4px}
+@media (max-width:640px){section{padding:18px 16px 14px}.cover{padding:20px 16px 16px}}
+@media print{nav.toc{display:none}.wrap{display:block;padding:0}section,.cover{break-inside:avoid;border:0}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="目次">
+  <a class="home" href="../index.html">← ドキュメント一覧</a>
+  <b>目次</b>
+  <a href="#s1">1. プロジェクトの概要</a>
+  <a href="#s2">2. 目的と成功基準</a>
+  <a href="#s3">3. スコープ</a>
+  <a href="#s4">4. 進め方（フェーズ）</a>
+  <a href="#s5">5. スケジュール</a>
+  <a href="#s6">6. 体制と役割</a>
+  <a href="#s7">7. ポートフォリオ上の位置付け</a>
+  <a href="#s8">8. 意思決定と会議体</a>
+  <a href="#s9">9. 前提・制約</a>
+  <a href="#s10">10. 未決事項</a>
+  <a href="#s11">11. 承認</a>
+</nav>
+<main>
+<div class="cover">
+  <div class="kind">プロジェクト憲章</div>
+  <h1>SiteLive Twin（現場ライブツイン）<br>プロジェクト憲章</h1>
+  <div class="meta">
+    <div><span>文書番号</span>SLT-DOC-02</div>
+    <div><span>版</span>v0.1</div>
+    <div><span>作成日</span>2026年10月21日</div>
+    <div><span>フェーズ</span>共通（G0 で承認）</div>
+    <div><span>状態</span>承認待ち</div>
+  </div>
+</div>
+
+<section id="s1">
+  <h2><span class="no">1</span>プロジェクトの概要</h2>
+  <div class="tbl"><table>
+    <tbody>
+      <tr><th style="width:180px">プロジェクト名</th><td>現場ライブツイン（英語名：SiteLive Twin）</td></tr>
+      <tr><th>リポジトリ名</th><td><code>SiteLive-Twin</code>（<code>Mirai-Admin-Platform</code> 配下）</td></tr>
+      <tr><th>システムID（案）</th><td><code>sitelive-twin</code>（Mirai-Platform-Infra の <code>systems.yaml</code> に登録予定）</td></tr>
+      <tr><th>ひとことで</th><td>全現場の状況を一目で把握し、問題の原因を3Dで確かめ、対策の効果をその場で試算して、すぐ決めるための業務システム</td></tr>
+      <tr><th>判断の流れ</th><td>見る → 気づく → 原因を探す → 対策を比べる → 決める</td></tr>
+      <tr><th>最初の題材</th><td>擁壁を含む道路改良工事（A現場：県道○○線 道路改良）</td></tr>
+    </tbody>
+  </table></div>
+  <p>詳しい背景と構想は <a href="concept.html">企画構想案（SLT-DOC-01）</a> を参照してください。</p>
+</section>
+
+<section id="s2">
+  <h2><span class="no">2</span>目的と成功基準</h2>
+  <h3>目的</h3>
+  <ul>
+    <li>工程・現場の状況・原価をつなぎ、遅れや異常に<b>その日のうちに気づける</b>ようにする</li>
+    <li>対策の効果を数字で比べ、<b>根拠のある判断を早く</b>下せるようにする</li>
+    <li>判断の経緯（誰が・いつ・何を根拠に決めたか）を記録し、次の現場の計画に生かす</li>
+  </ul>
+  <h3>成功基準（MVPで測る指標）</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>指標</th><th>現状のイメージ</th><th>目標</th></tr></thead>
+    <tbody>
+      <tr><td>遅延に気づくまでの時間</td><td>数日（週報ベース）</td><td>1営業日以内</td></tr>
+      <tr><td>検知から対策承認までの時間</td><td>次回の会議まで</td><td>3営業日以内</td></tr>
+      <tr><td>重機の待機率</td><td>把握できていない</td><td>可視化し、10%改善</td></tr>
+      <tr><td>週報・日報の作成時間</td><td>手作業で集計</td><td>50%削減</td></tr>
+      <tr><td>利用率</td><td>—</td><td>対象者の80%が週1回以上利用</td></tr>
+      <tr><td>工程会議での利用</td><td>—</td><td>毎回この画面で議論する</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">計測の方法とベースラインの取り方は <a href="../30-mvp/mvp-definition.html">MVP定義書（SLT-DOC-50）</a> で定めます。</p>
+</section>
+
+<section id="s3">
+  <h2><span class="no">3</span>スコープ</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>区分</th><th>含めるもの</th></tr></thead>
+    <tbody>
+      <tr><td>範囲内</td><td>全社ダッシュボード、現場一覧、現場概要、ライブツイン（3D）、4D工程（計画と実績の比較）、対策シミュレーション、承認ワークフロー、重機・稼働、日報、安全・環境、原価管理（EVM）、レポート、設定、監査ログ、ユーザー・権限</td></tr>
+      <tr><td>範囲内（連携）</td><td>CEOS（工程・原価）、ArcSphere（3Dモデル）、MCIP（案件ID・承認・証跡）、CODIP（気象）、重機テレマティクス・入退場・IoTセンサーの取り込み、Entra ID による認証</td></tr>
+      <tr><td>範囲外</td><td>3Dモデルや図面の作成・編集（ArcSphere・Web-CAD）、工程表・原価・契約の正本管理（CEOS）、住民向けの公開（Construction-Public-Twin-Portal）、作業単位の施工安全計画（Civil-4D-AI-Planner）、勤怠・給与</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout">SiteLive Twin が正本として持つデータは「現場ライブ状態の集約ビュー・イベント」と「対策シミュレーション案（申請）」に限ります。それ以外は他製品の正本を参照します（<a href="../adr/0001-repository-and-sor-scope.html">ADR-0001</a>）。</div>
+</section>
+
+<section id="s4">
+  <h2><span class="no">4</span>進め方（フェーズ）</h2>
+  <p>各フェーズの終わりにゲート（G1〜G4）を置き、「問い」に答えられたときだけ次へ進みます。判定の基準と必要な文書は <a href="phase-gates.html">フェーズゲート定義書（SLT-DOC-03）</a> で定めます。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>フェーズ</th><th>問い</th><th>出口のゲート</th></tr></thead>
+    <tbody>
+      <tr><td>構想</td><td>取り組む価値があるか？</td><td>G0 構想承認（PoC 着手）</td></tr>
+      <tr><td>PoC</td><td>技術的に成立するか？</td><td>G1 Go / No-Go</td></tr>
+      <tr><td>Prototype（必要に応じて）</td><td>利用者が理解・操作できるか？</td><td>G2</td></tr>
+      <tr><td>MVP</td><td>最小の価値で、本当に使われるか？</td><td>G3</td></tr>
+      <tr><td>Staging</td><td>本番に近い条件で、安全・安定して運用できるか？</td><td>G4 リリース判定</td></tr>
+      <tr><td>Release</td><td>本番環境で、対象ユーザーへ正式提供する</td><td>—</td></tr>
+      <tr><td>運用・改善</td><td>計測 → 学習 → 改善 → 次リリース</td><td>G5 改善レビュー（四半期ごと）</td></tr>
+    </tbody>
+  </table></div>
+  <h3>現在地</h3>
+  <p>構想フェーズの終盤です。企画構想案、オフラインデモ、システムWebUIサンプル、画面設計書ができており、G0 で PoC 着手の承認を得る段階です。これらのデモは Prototype の先行成果物として、Prototype フェーズでも使います。</p>
+</section>
+
+<section id="s5">
+  <h2><span class="no">5</span>スケジュール（案）</h2>
+  <div class="fig">
+    <svg viewBox="0 0 880 250" role="img" aria-label="フェーズのスケジュール">
+      <g font-size="11" fill="var(--sub)" text-anchor="middle">
+        <text x="150" y="20">2026/11</text><text x="210" y="20">12</text><text x="270" y="20">2027/1</text><text x="330" y="20">2</text><text x="390" y="20">3</text><text x="450" y="20">4</text><text x="510" y="20">5</text><text x="570" y="20">6</text><text x="630" y="20">7</text><text x="690" y="20">8</text><text x="750" y="20">9</text><text x="810" y="20">10〜</text>
+      </g>
+      <g stroke="var(--rule)"><line x1="120" y1="28" x2="120" y2="232"/><line x1="180" y1="28" x2="180" y2="232"/><line x1="240" y1="28" x2="240" y2="232"/><line x1="300" y1="28" x2="300" y2="232"/><line x1="360" y1="28" x2="360" y2="232"/><line x1="420" y1="28" x2="420" y2="232"/><line x1="480" y1="28" x2="480" y2="232"/><line x1="540" y1="28" x2="540" y2="232"/><line x1="600" y1="28" x2="600" y2="232"/><line x1="660" y1="28" x2="660" y2="232"/><line x1="720" y1="28" x2="720" y2="232"/><line x1="780" y1="28" x2="780" y2="232"/></g>
+      <g font-size="12" fill="var(--ink)">
+        <text x="10" y="56">PoC</text><text x="10" y="88">Prototype</text><text x="10" y="120">MVP</text><text x="10" y="152">Staging</text><text x="10" y="184">Release</text><text x="10" y="216">運用・改善</text>
+      </g>
+      <rect x="122" y="42" width="114" height="20" rx="4" fill="var(--navy)"/>
+      <rect x="242" y="74" width="56" height="20" rx="4" fill="var(--navy)" opacity=".7"/>
+      <rect x="302" y="106" width="176" height="20" rx="4" fill="var(--navy)"/>
+      <rect x="482" y="138" width="116" height="20" rx="4" fill="var(--navy)"/>
+      <rect x="602" y="170" width="56" height="20" rx="4" fill="var(--accent)"/>
+      <rect x="602" y="202" width="240" height="20" rx="4" fill="var(--ok)" opacity=".75"/>
+      <g font-size="11" font-weight="700" fill="var(--accent)">
+        <text x="232" y="38">G1</text><text x="294" y="70">G2</text><text x="482" y="102">G3</text><text x="592" y="134">G4</text>
+      </g>
+      <g fill="var(--accent)"><circle cx="238" cy="52" r="4"/><circle cx="300" cy="84" r="4"/><circle cx="486" cy="116" r="4"/><circle cx="598" cy="148" r="4"/></g>
+    </svg>
+  </div>
+  <p class="cap">図1　フェーズのスケジュール（案）。G0 は 2026年10月末を想定</p>
+  <div class="tbl"><table>
+    <thead><tr><th>フェーズ</th><th>期間（案）</th><th>ゲート</th><th>主な成果物</th></tr></thead>
+    <tbody>
+      <tr><td>PoC</td><td>2026/11/02〜12/25（8週）</td><td>G1：2026/12/25</td><td>PoC計画書、検証結果、G1判定書</td></tr>
+      <tr><td>Prototype</td><td>2027/01/05〜01/29（4週）</td><td>G2：2027/01末</td><td>ユーザビリティテストの結果、改善した画面</td></tr>
+      <tr><td>MVP</td><td>2027/02/01〜04/30（1現場で運用）</td><td>G3：2027/05上旬</td><td>MVP、KPIの測定結果</td></tr>
+      <tr><td>Staging</td><td>2027/05〜06</td><td>G4：2027/06末</td><td>運用設計、診断結果、リリース判定書</td></tr>
+      <tr><td>Release</td><td>2027/07</td><td>—</td><td>本番環境、利用者マニュアル、研修</td></tr>
+      <tr><td>運用・改善</td><td>2027/07〜</td><td>G5：四半期ごと</td><td>改善記録、次のリリース</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s6">
+  <h2><span class="no">6</span>体制と役割</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>役割</th><th>担当</th><th>責任</th></tr></thead>
+    <tbody>
+      <tr><td>スポンサー</td><td><span class="fill">（未定：支店長または工事部長）</span></td><td>予算と人の確保、ゲートでの最終判断</td></tr>
+      <tr><td>プロダクトオーナー</td><td><span class="fill">（未定：DX推進部）</span></td><td>優先順位、要件、KPI、ゲート資料の取りまとめ</td></tr>
+      <tr><td>アーキテクト</td><td><span class="fill">（未定）</span></td><td>技術方針、ポートフォリオとの整合（V3.6）、ADR</td></tr>
+      <tr><td>開発</td><td><span class="fill">（未定）</span></td><td>実装、テスト、CI、レビュー</td></tr>
+      <tr><td>運用担当</td><td><span class="fill">（未定）</span></td><td>Staging 以降の監視・バックアップ・障害対応</td></tr>
+      <tr><td>情報セキュリティ担当</td><td><span class="fill">（未定）</span></td><td>権限・監査・診断の確認（G4）</td></tr>
+      <tr><td>現場協力者</td><td><span class="fill">（未定：パイロット現場の所長・工務）</span></td><td>現場データの提供、ユーザビリティテストとMVPへの参加</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s7">
+  <h2><span class="no">7</span>ポートフォリオ上の位置付け</h2>
+  <p>「みらい建設土木DX・AI統合基盤 全体構成 V3.6」とリポジトリ構成ベストプラクティス V3.6 に従います。SiteLive Twin は現時点で V3.6 の12リポジトリに含まれていないため、独立リポジトリとする理由を <a href="../adr/0001-repository-and-sor-scope.html">ADR-0001</a> で示し、G3 で再評価します。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>データ・機能</th><th>正本</th><th>SiteLive Twin の扱い</th></tr></thead>
+    <tbody>
+      <tr><td>現場ライブ状態の集約ビュー・イベント</td><td>SiteLive Twin</td><td class="y">正本</td></tr>
+      <tr><td>対策シミュレーション案（申請）</td><td>SiteLive Twin</td><td class="y">正本（承認の証跡は MCIP）</td></tr>
+      <tr><td>3Dモデル・点群</td><td>ArcSphere</td><td>参照のみ</td></tr>
+      <tr><td>工程・原価・契約</td><td>CEOS</td><td>参照のみ（版付き契約API）</td></tr>
+      <tr><td>案件ID・承認・証跡</td><td>MCIP</td><td>参照・記録（承認は R3 二者承認）</td></tr>
+      <tr><td>気象</td><td>CODIP</td><td>参照のみ</td></tr>
+      <tr><td>重機・IoTの時系列</td><td>各設備システム／時系列保管領域</td><td>集約して表示</td></tr>
+      <tr><td>AI（日報の下書きなど）</td><td>MCAH</td><td>MCAH 経由のみで利用（R1）。直接呼び出しは禁止</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s8">
+  <h2><span class="no">8</span>意思決定と会議体</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>会議</th><th>頻度</th><th>参加者</th><th>決めること</th></tr></thead>
+    <tbody>
+      <tr><td>ゲート判定会議</td><td>各フェーズの終わり</td><td>スポンサー、プロダクトオーナー、アーキテクト、情報セキュリティ担当（G4）</td><td>Go／条件付きGo／No-Go</td></tr>
+      <tr><td>定例</td><td>週1回</td><td>プロダクトオーナー、開発、アーキテクト</td><td>進捗、課題、リスク、優先順位</td></tr>
+      <tr><td>現場レビュー</td><td>MVP 中は隔週</td><td>現場協力者、プロダクトオーナー</td><td>使い勝手、データの正しさ、運用ルール</td></tr>
+      <tr><td>改善レビュー（G5）</td><td>四半期ごと</td><td>スポンサー、プロダクトオーナー、運用担当</td><td>KPI の振り返り、次のリリースの範囲</td></tr>
+    </tbody>
+  </table></div>
+  <p>技術的な判断は ADR（<code>docs/adr/</code>）に、リスクと課題は <a href="risk-register.html">リスク・課題管理台帳（SLT-DOC-04）</a> に記録します。コードの変更は main への直接 push を禁止し、PR → CI → 人のレビュー（通常2名、重要な変更は3名）を経て取り込みます。</p>
+</section>
+
+<section id="s9">
+  <h2><span class="no">9</span>前提・制約</h2>
+  <ul>
+    <li>他リポジトリのデータベースには直接接続しません。版付きの契約（<code>contracts/</code>）・API・イベントで連携します。</li>
+    <li>AI は MCAH の Tool Gateway・Model Gateway を経由してだけ使います。</li>
+    <li>認証は Entra ID と Cloudflare Access を使い、権限はサーバー側でも必ず判定します。</li>
+    <li>技術スタックは OS・アプリ選定ベストプラクティス V3.5 に従います（<a href="../adr/0002-tech-stack.html">ADR-0002</a>）。</li>
+    <li>リリースは SBOM・署名・Attestation・digest 固定で行い、<code>latest</code> タグは使いません。</li>
+    <li>PoC では、取得できないデータをダミーや手入力で代用してよいものとします。</li>
+  </ul>
+</section>
+
+<section id="s10">
+  <h2><span class="no">10</span>未決事項</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>項目</th><th>内容</th><th>決める時期</th></tr></thead>
+    <tbody>
+      <tr><td>GitHub の Organization</td><td><code>mirai-construction-dx</code> を推奨（ArcSphere・Mirai-Platform-Infra と同じ）。旧系統の <code>Kensan196948G</code> と混在している</td><td>G0</td></tr>
+      <tr><td>リポジトリの分離</td><td>独立リポジトリか、ArcSphere の現場運用モジュールか（ADR-0001）</td><td>G0 で仮決定、G3 で再評価</td></tr>
+      <tr><td>パイロット現場</td><td>MVP で使う1現場と、データ提供元（重機メーカー・入退場システム）</td><td>G1</td></tr>
+      <tr><td>名称の商標確認</td><td>「SiteLive Twin」「現場ライブツイン」を J-PlatPat で確認する（類似名：Gammon 社の「GTwin」など）</td><td>G3（Release 前）</td></tr>
+      <tr><td>予算と要員</td><td>PoC 8週間の工数と、検証環境の費用</td><td>G0</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s11">
+  <h2><span class="no">11</span>承認</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>役割</th><th>氏名</th><th>判定</th><th>日付</th></tr></thead>
+    <tbody>
+      <tr><td>スポンサー</td><td><span class="fill">（記入）</span></td><td><span class="fill">承認／差戻し</span></td><td><span class="fill">（記入）</span></td></tr>
+      <tr><td>プロダクトオーナー</td><td><span class="fill">（記入）</span></td><td><span class="fill">承認／差戻し</span></td><td><span class="fill">（記入）</span></td></tr>
+      <tr><td>アーキテクト</td><td><span class="fill">（記入）</span></td><td><span class="fill">承認／差戻し</span></td><td><span class="fill">（記入）</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<footer>SiteLive Twin（現場ライブツイン） ／ プロジェクト憲章 v0.1 ／ 2026年10月21日</footer>
+</main>
+</div>
+
+</body>
+</html>

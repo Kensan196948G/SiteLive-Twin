@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SiteLive Twin 運用・改善計画</title>
+<style>
+/* SiteLive Twin 文書テンプレート：左に目次、右に本文。表と図は横スクロール可能な枠に入れる */
+:root{
+  --bg:#f5f6f8; --paper:#ffffff; --ink:#1a2230; --sub:#5a6577; --rule:#d9dee6; --tint:#f0f3f7;
+  --navy:#1b3557; --accent:#c8740a; --accent-soft:#fdf1e1;
+  --ok:#1d8a4c; --warn:#a87800; --ng:#c43d3d; --info:#2a64a8;
+  --sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+  --mono:"BIZ UDGothic","Consolas","Menlo",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+    --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+    --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+  --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+  --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{display:grid;grid-template-columns:240px minmax(0,1fr);max-width:1280px;margin:0 auto;gap:28px;padding:28px 16px 60px}
+@media (max-width:900px){.wrap{grid-template-columns:1fr;gap:0}}
+nav.toc{position:sticky;top:20px;align-self:start;font-size:13px;max-height:calc(100vh - 40px);overflow:auto}
+@media (max-width:900px){nav.toc{position:static;max-height:none;margin-bottom:18px}}
+.toc b{display:block;font-size:11px;letter-spacing:.12em;color:var(--sub);margin-bottom:6px}
+.toc a{display:block;color:var(--ink);text-decoration:none;padding:3px 10px;border-left:2px solid var(--rule)}
+.toc a:hover,.toc a:focus-visible{border-left-color:var(--accent);color:var(--accent);outline:none}
+.toc .home{margin-bottom:12px;border-left:0;padding-left:0;color:var(--info)}
+main{min-width:0}
+.cover{background:var(--paper);border:1px solid var(--rule);border-top:5px solid var(--navy);border-radius:6px;padding:26px 28px 20px;margin-bottom:26px}
+.cover .kind{font-size:12px;letter-spacing:.14em;color:var(--sub);font-weight:700}
+.cover h1{margin:4px 0 14px;font-size:clamp(22px,3.4vw,30px);line-height:1.35;text-wrap:balance;color:var(--navy)}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));border-top:1px solid var(--rule);border-left:1px solid var(--rule);font-size:13px}
+.meta div{padding:7px 12px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.meta span{display:block;font-size:11px;color:var(--sub)}
+section{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:22px 26px 18px;margin-bottom:20px;min-width:0}
+h2{font-size:19px;margin:0 0 12px;color:var(--navy);text-wrap:balance;display:flex;gap:10px;align-items:baseline}
+h2 .no{font-family:var(--mono);font-size:14px;color:var(--accent)}
+h3{font-size:15px;margin:20px 0 8px}
+p{margin:0 0 10px;max-width:76ch}
+ul,ol{margin:0 0 10px;padding-left:22px}
+li{margin-bottom:3px}
+.tbl{overflow-x:auto;margin:6px 0 12px;border:1px solid var(--rule);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:640px}
+th,td{border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);padding:7px 9px;text-align:left;vertical-align:top}
+th:last-child,td:last-child{border-right:0}
+tr:last-child td{border-bottom:0}
+thead th{background:var(--tint);font-size:12px;color:var(--sub);white-space:nowrap}
+td.c,th.c{text-align:center}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+code,.id{font-family:var(--mono);font-size:12.5px}
+.id{color:var(--navy);font-weight:700;white-space:nowrap}
+.y{color:var(--ok);font-weight:800}.n{color:var(--sub)}.r{color:var(--warn);font-weight:700}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:0 7px;border-radius:3px;background:var(--tint);border:1px solid var(--rule);white-space:nowrap;margin:1px 2px 1px 0}
+.tag.a{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.st{display:inline-block;font-size:11px;font-weight:800;padding:0 8px;border-radius:999px;white-space:nowrap;border:1px solid currentColor}
+.st.done{color:var(--ok)}.st.wip{color:var(--accent)}.st.todo{color:var(--sub)}.st.tpl{color:var(--info)}
+.note{font-size:12.5px;color:var(--sub)}
+.callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 14px;border-radius:0 4px 4px 0;margin:8px 0 12px;font-size:13.5px}
+.fill{background:var(--tint);border:1px dashed var(--rule);border-radius:4px;padding:2px 8px;color:var(--sub);font-size:12.5px}
+.fig{overflow-x:auto;border:1px solid var(--rule);border-radius:4px;background:var(--tint);padding:10px;margin:8px 0 6px}
+.fig svg{display:block;min-width:760px;width:100%;height:auto}
+.fig text{font-family:var(--sans)}
+.cap{font-size:12px;color:var(--sub);margin:0 0 12px}
+.pri-h{color:var(--ng);font-weight:800}.pri-m{color:var(--warn);font-weight:800}.pri-l{color:var(--sub);font-weight:800}.pri-done{color:var(--ok);font-weight:800}
+a{color:var(--info)}
+footer{font-size:12px;color:var(--sub);padding:6px 4px}
+@media (max-width:640px){section{padding:18px 16px 14px}.cover{padding:20px 16px 16px}}
+@media print{nav.toc{display:none}.wrap{display:block;padding:0}section,.cover{break-inside:avoid;border:0}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="目次">
+  <a class="home" href="../index.html">← ドキュメント一覧</a>
+  <b>目次</b>
+  <a href="#s1">1. 目的</a>
+  <a href="#s2">2. 改善サイクル</a>
+  <a href="#s3">3. 計測する指標</a>
+  <a href="#s4">4. 学習の場</a>
+  <a href="#s5">5. 改善バックログの管理</a>
+  <a href="#s6">6. リリースの頻度</a>
+  <a href="#s7">7. 機能拡張の候補</a>
+  <a href="#s8">8. 改善記録の様式</a>
+  <a href="#s9">9. 体制と関連文書</a>
+</nav>
+<main>
+<div class="cover">
+  <div class="kind">運用・改善計画</div>
+  <h1>SiteLive Twin（現場ライブツイン）<br>運用・改善計画（計測→学習→改善→次リリース）</h1>
+  <div class="meta">
+    <div><span>文書番号</span>SLT-DOC-80</div>
+    <div><span>版</span>v0.1</div>
+    <div><span>作成日</span>2026年10月21日</div>
+    <div><span>フェーズ</span>運用・改善</div>
+    <div><span>状態</span>初版（リリース後に運用開始）</div>
+  </div>
+</div>
+
+<section id="s1">
+  <h2><span class="no">1</span>目的</h2>
+  <p>運用・改善フェーズの問いは「<b>計測→学習→改善→次リリース</b>」を回し続けることです。本書は、リリース後に何を測り、どこで学び、どう優先順位を付けて次のリリースにつなげるかを定めます。</p>
+  <ul>
+    <li>期間：2027年7月（ハイパーケア終了後）から継続</li>
+    <li>四半期ごとに G5（改善レビュー）を開き、継続・拡張・見直しを判断します。</li>
+    <li>障害対応・監視・バックアップなどの日々の運用は<a href="../40-staging/operations-design.html">運用設計書</a>に従います。</li>
+  </ul>
+</section>
+
+<section id="s2">
+  <h2><span class="no">2</span>改善サイクル</h2>
+  <div class="fig">
+    <svg viewBox="0 0 760 330" role="img" aria-label="計測、学習、改善、次リリースの循環図">
+      <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--navy)"/></marker></defs>
+      <circle cx="380" cy="165" r="62" fill="var(--accent-soft)" stroke="var(--accent)"/>
+      <text x="380" y="160" font-size="14" font-weight="700" text-anchor="middle" fill="var(--accent)">G5</text>
+      <text x="380" y="180" font-size="12" text-anchor="middle" fill="var(--ink)">四半期ごとの改善レビュー</text>
+      <g text-anchor="middle">
+        <rect x="300" y="14" width="160" height="58" rx="8" fill="var(--paper)" stroke="var(--navy)"/>
+        <text x="380" y="38" font-size="14" font-weight="700" fill="var(--navy)">計測</text><text x="380" y="58" font-size="11" fill="var(--sub)">KPI・利用ログ・障害</text>
+        <rect x="570" y="136" width="170" height="58" rx="8" fill="var(--paper)" stroke="var(--navy)"/>
+        <text x="655" y="160" font-size="14" font-weight="700" fill="var(--navy)">学習</text><text x="655" y="180" font-size="11" fill="var(--sub)">ヒアリング・分析</text>
+        <rect x="300" y="258" width="160" height="58" rx="8" fill="var(--paper)" stroke="var(--navy)"/>
+        <text x="380" y="282" font-size="14" font-weight="700" fill="var(--navy)">改善</text><text x="380" y="302" font-size="11" fill="var(--sub)">バックログ・開発</text>
+        <rect x="20" y="136" width="170" height="58" rx="8" fill="var(--paper)" stroke="var(--navy)"/>
+        <text x="105" y="160" font-size="14" font-weight="700" fill="var(--navy)">次リリース</text><text x="105" y="180" font-size="11" fill="var(--sub)">月1回の定期リリース</text>
+      </g>
+      <g fill="none" stroke="var(--navy)" stroke-width="1.8" marker-end="url(#ar)">
+        <path d="M462,44 C600,44 655,80 655,132"/>
+        <path d="M655,196 C655,250 600,288 464,288"/>
+        <path d="M298,288 C160,288 105,250 105,198"/>
+        <path d="M105,134 C105,80 160,44 296,44"/>
+      </g>
+    </svg>
+  </div>
+  <p class="cap">図1　改善サイクル（毎月まわし、四半期ごとに G5 で振り返る）</p>
+  <div class="tbl"><table>
+    <thead><tr><th>段階</th><th>やること</th><th>頻度</th><th>担当</th></tr></thead>
+    <tbody>
+      <tr><td>計測</td><td>KPI と利用ログを自動で集計し、ダッシュボードで確認する</td><td>毎週</td><td>運用担当</td></tr>
+      <tr><td>学習</td><td>数字の変化と利用者の声から、課題と仮説を立てる</td><td>毎月</td><td>プロダクトオーナー</td></tr>
+      <tr><td>改善</td><td>バックログに登録し、優先度を付けて開発する</td><td>毎月</td><td>開発、アーキテクト</td></tr>
+      <tr><td>次リリース</td><td>定期リリースで提供し、効果を次の計測で確かめる</td><td>毎月</td><td>開発、運用担当</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s3">
+  <h2><span class="no">3</span>計測する指標</h2>
+  <h3>3.1 成果の指標（MVP の KPI を継続）</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>指標</th><th>目標</th><th>測り方</th></tr></thead>
+    <tbody>
+      <tr><td>遅延検知リードタイム</td><td>数日 → 1営業日以内</td><td>遅れの発生（SPI のしきい値割れ）から通知までの時間</td></tr>
+      <tr><td>検知から対策承認まで</td><td>3営業日以内</td><td>通知の日時から承認の日時まで（申請の履歴から算出）</td></tr>
+      <tr><td>重機待機率</td><td>可視化し、10%改善</td><td>稼働・待機・停止の時間比率（月次）</td></tr>
+      <tr><td>週報・日報の作成時間</td><td>50%削減</td><td>作成にかかった時間（四半期ごとに抜き取り調査）</td></tr>
+      <tr><td>利用率</td><td>対象者の80%が週1回以上</td><td>ログイン記録（週次）</td></tr>
+      <tr><td>工程会議での画面利用</td><td>毎回</td><td>各現場の所長からの報告（月次）</td></tr>
+    </tbody>
+  </table></div>
+  <h3>3.2 利用と運用の指標</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>指標</th><th>見方</th><th>集計元</th></tr></thead>
+    <tbody>
+      <tr><td>画面別の利用回数</td><td>使われていない画面は、改善するか統合・削除を検討する</td><td>利用ログ</td></tr>
+      <tr><td>起案数（現場別）</td><td>起案が少ない現場は、使い方の支援が必要か確認する</td><td>申請データ</td></tr>
+      <tr><td>承認リードタイム</td><td>起案から承認・差戻しまでの時間。長いときは承認者への通知を見直す</td><td>申請の履歴</td></tr>
+      <tr><td>差戻し率</td><td>高いときは、起案時の判断材料が足りていないかを確認する</td><td>申請データ</td></tr>
+      <tr><td>通知の既読率</td><td>低い種類の通知は、内容やしきい値を見直す</td><td>通知の既読記録</td></tr>
+      <tr><td>問い合わせ件数（内容別）</td><td>多い質問はマニュアルや画面の表示を改善する</td><td>問い合わせ記録</td></tr>
+      <tr><td>障害件数（重要度別）と復旧時間</td><td>重要度1・2は再発防止策を必ず決める</td><td>障害記録</td></tr>
+      <tr><td>データ連携の遅れ</td><td>現場データの更新が5分以内に収まっているか</td><td>監視</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">利用ログは個人の評価には使いません。集計は現場・ロール単位で行います。</p>
+</section>
+
+<section id="s4">
+  <h2><span class="no">4</span>学習の場</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>場</th><th>頻度</th><th>参加者</th><th>内容</th><th>成果物</th></tr></thead>
+    <tbody>
+      <tr><td>週次の指標確認</td><td>毎週（15分）</td><td>プロダクトオーナー、運用担当</td><td>KPI・利用状況・障害の確認</td><td>気づきのメモ</td></tr>
+      <tr><td>利用者ヒアリング</td><td>毎月</td><td>現場所長・工務（2〜3現場）、経営層1名、プロダクトオーナー</td><td>困っていること、使っていない機能とその理由、工程会議での使われ方</td><td>課題と仮説（改善記録）</td></tr>
+      <tr><td>改善計画会議</td><td>毎月</td><td>プロダクトオーナー、アーキテクト、開発</td><td>バックログの優先度付けと、次の定期リリースの範囲決定</td><td>リリース計画（範囲）</td></tr>
+      <tr><td>G5 改善レビュー</td><td>四半期ごと</td><td>経営層、プロダクトオーナー、アーキテクト、情報セキュリティ担当</td><td>KPI の達成状況、投資対効果、展開範囲（他支店）、機能拡張の優先度</td><td>判定記録（継続・拡張・見直し）</td></tr>
+    </tbody>
+  </table></div>
+  <p>G5 の判定基準は<a href="../00-project/phase-gates.html">フェーズゲート定義書</a>に従います。</p>
+</section>
+
+<section id="s5">
+  <h2><span class="no">5</span>改善バックログの管理</h2>
+  <p>要望・課題・障害の再発防止策は、すべて1つのバックログに登録します（GitHub Issues を想定 <span class="fill">（未定：GitHub Org）</span>）。</p>
+  <h3>優先度の付け方</h3>
+  <ol>
+    <li><b>安全・セキュリティ・データの正しさ</b>に関わるものは、効果や工数にかかわらず最優先にします。</li>
+    <li>それ以外は「効果 × 工数」で並べます。効果は KPI への影響と対象者の数、工数は開発の規模で、それぞれ3段階（大・中・小）で評価します。</li>
+    <li>効果が大きく工数が小さいものから着手します。効果が小さく工数が大きいものは保留にし、G5 で見直します。</li>
+  </ol>
+  <div class="tbl"><table>
+    <thead><tr><th></th><th class="c">工数 小</th><th class="c">工数 中</th><th class="c">工数 大</th></tr></thead>
+    <tbody>
+      <tr><td><b>効果 大</b></td><td class="c pri-h">すぐ着手</td><td class="c pri-h">次のリリース</td><td class="c pri-m">計画して着手</td></tr>
+      <tr><td><b>効果 中</b></td><td class="c pri-m">次のリリース</td><td class="c pri-m">計画して着手</td><td class="c pri-l">保留</td></tr>
+      <tr><td><b>効果 小</b></td><td class="c pri-l">余力で着手</td><td class="c pri-l">保留</td><td class="c pri-l">見送り</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">他システムが正本を持つ機能（3D は ArcSphere、工程・原価は CEOS、承認・証跡は MCIP）に関する要望は、該当するリポジトリへ連携し、SiteLive Twin では重複して作りません。</p>
+</section>
+
+<section id="s6">
+  <h2><span class="no">6</span>リリースの頻度</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>種類</th><th>頻度</th><th>内容</th><th>承認</th></tr></thead>
+    <tbody>
+      <tr><td>定期リリース</td><td>月1回（第2週を想定）</td><td>改善計画会議で決めた範囲の機能改善・不具合修正</td><td>通常変更として2名</td></tr>
+      <tr><td>緊急修正</td><td>必要なとき</td><td>重要度1・2の障害、セキュリティの修正</td><td>重要変更として3名</td></tr>
+      <tr><td>大きな機能追加</td><td>G5 で判断</td><td>多段承認、他支店展開など。必要に応じて Staging で事前検証</td><td>重要変更として3名</td></tr>
+    </tbody>
+  </table></div>
+  <p>手順は<a href="../50-release/release-plan.html">リリース計画書</a>の3章（PR → CI → Human Review → タグ → SBOM・署名・Attestation → digest 固定でデプロイ → <code>releases.yaml</code> 更新）と同じです。リリースのたびに利用者へ変更点を告知し、利用者マニュアルを更新します。</p>
+</section>
+
+<section id="s7">
+  <h2><span class="no">7</span>機能拡張の候補</h2>
+  <p>次の候補を G5 で評価し、優先度を決めます。時期は目安です。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>候補</th><th>内容</th><th>関係するシステム</th><th>時期の目安</th></tr></thead>
+    <tbody>
+      <tr><td>多段承認</td><td>金額や工期への影響に応じて、所長 → 工事部長 → 支店長のように承認を重ねる</td><td>MCIP（承認・証跡）</td><td>2027年度 下期</td></tr>
+      <tr><td>他支店への展開</td><td>支店ごとの現場マスタ、権限、データ連携の設定</td><td>CEOS、重機データの提供元</td><td>2027年10月以降</td></tr>
+      <tr><td>IFC・点群の高度化</td><td>実際の BIM/CIM モデルと点群を使った出来形の確認</td><td>ArcSphere（参照のみ）</td><td>2027年度 下期</td></tr>
+      <tr><td>AI による日報の下書き</td><td>重機・入退場データから日報の下書きを作る（R1：AI下書き、人が確認して提出）。AI は MCAH 経由のみで呼び出す</td><td>MCAH</td><td>2028年度</td></tr>
+      <tr><td>フロントローディング</td><td>着工前に 4D 工程と対策シミュレーションで施工手順・班数・重機配置を比べる</td><td>CEOS、ArcSphere</td><td>2028年度</td></tr>
+      <tr><td>他現場のナレッジ化</td><td>承認された対策と効果の記録を、次の現場の計画で参照できるようにする</td><td>MCIP、CDE</td><td>2028年度</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s8">
+  <h2><span class="no">8</span>改善記録の様式</h2>
+  <p>改善の経緯は <code>docs/60-operations/improvement-ledger-YYYY-MM.html</code> に月ごとに記録します。様式は次のとおりです。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>日付</th><th>課題</th><th>仮説</th><th>施策</th><th>結果</th><th>次の一手</th></tr></thead>
+    <tbody>
+      <tr><td>2027-08-05（記入例）</td><td>B現場の起案が月0件</td><td>対策シミュレーションの選択肢が B現場の工種に合っていない</td><td>所長へのヒアリング、選択肢の追加（舗装班の追加）</td><td>9月の起案が3件、承認まで平均2営業日</td><td>他の工種の選択肢も見直す</td></tr>
+      <tr><td><span class="fill">（記入）</span></td><td><span class="fill">（記入）</span></td><td><span class="fill">（記入）</span></td><td><span class="fill">（記入）</span></td><td><span class="fill">（記入）</span></td><td><span class="fill">（記入）</span></td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">結果は数字で書き、計測の方法と期間を添えます。効果がなかった施策も記録し、同じ施策を繰り返さないようにします。</p>
+</section>
+
+<section id="s9">
+  <h2><span class="no">9</span>体制と関連文書</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>役割</th><th>運用・改善での責任</th></tr></thead>
+    <tbody>
+      <tr><td>プロダクトオーナー</td><td>指標の確認、ヒアリング、バックログの優先度付け、G5 の準備</td></tr>
+      <tr><td>アーキテクト</td><td>改善案の技術判断、ポートフォリオとの整合（正本の範囲）</td></tr>
+      <tr><td>開発</td><td>改善の実装、テスト、定期リリース</td></tr>
+      <tr><td>運用担当</td><td>指標の集計、監視、障害対応、問い合わせ対応</td></tr>
+      <tr><td>情報セキュリティ担当</td><td>セキュリティ修正の判断、四半期ごとの権限の棚卸し</td></tr>
+      <tr><td>現場協力者</td><td>ヒアリングへの参加、改善の試行</td></tr>
+    </tbody>
+  </table></div>
+  <ul>
+    <li><a href="../00-project/phase-gates.html">フェーズゲート定義書</a>（G5 の判定基準）</li>
+    <li><a href="../30-mvp/mvp-definition.html">MVP 定義書</a>（KPI の定義と計測方法）</li>
+    <li><a href="../40-staging/operations-design.html">運用設計書</a></li>
+    <li><a href="../50-release/release-plan.html">リリース計画書</a></li>
+    <li><a href="../00-project/risk-register.html">リスク・課題管理台帳</a></li>
+  </ul>
+</section>
+
+<footer>SiteLive Twin（現場ライブツイン） ／ 運用・改善計画 v0.1 ／ 2026年10月21日</footer>
+</main>
+</div>
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SiteLive Twin MVP定義書</title>
+<style>
+/* SiteLive Twin 文書テンプレート：左に目次、右に本文。表と図は横スクロール可能な枠に入れる */
+:root{
+  --bg:#f5f6f8; --paper:#ffffff; --ink:#1a2230; --sub:#5a6577; --rule:#d9dee6; --tint:#f0f3f7;
+  --navy:#1b3557; --accent:#c8740a; --accent-soft:#fdf1e1;
+  --ok:#1d8a4c; --warn:#a87800; --ng:#c43d3d; --info:#2a64a8;
+  --sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+  --mono:"BIZ UDGothic","Consolas","Menlo",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+    --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+    --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+  --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+  --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{display:grid;grid-template-columns:240px minmax(0,1fr);max-width:1280px;margin:0 auto;gap:28px;padding:28px 16px 60px}
+@media (max-width:900px){.wrap{grid-template-columns:1fr;gap:0}}
+nav.toc{position:sticky;top:20px;align-self:start;font-size:13px;max-height:calc(100vh - 40px);overflow:auto}
+@media (max-width:900px){nav.toc{position:static;max-height:none;margin-bottom:18px}}
+.toc b{display:block;font-size:11px;letter-spacing:.12em;color:var(--sub);margin-bottom:6px}
+.toc a{display:block;color:var(--ink);text-decoration:none;padding:3px 10px;border-left:2px solid var(--rule)}
+.toc a:hover,.toc a:focus-visible{border-left-color:var(--accent);color:var(--accent);outline:none}
+.toc .home{margin-bottom:12px;border-left:0;padding-left:0;color:var(--info)}
+main{min-width:0}
+.cover{background:var(--paper);border:1px solid var(--rule);border-top:5px solid var(--navy);border-radius:6px;padding:26px 28px 20px;margin-bottom:26px}
+.cover .kind{font-size:12px;letter-spacing:.14em;color:var(--sub);font-weight:700}
+.cover h1{margin:4px 0 14px;font-size:clamp(22px,3.4vw,30px);line-height:1.35;text-wrap:balance;color:var(--navy)}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));border-top:1px solid var(--rule);border-left:1px solid var(--rule);font-size:13px}
+.meta div{padding:7px 12px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.meta span{display:block;font-size:11px;color:var(--sub)}
+section{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:22px 26px 18px;margin-bottom:20px;min-width:0}
+h2{font-size:19px;margin:0 0 12px;color:var(--navy);text-wrap:balance;display:flex;gap:10px;align-items:baseline}
+h2 .no{font-family:var(--mono);font-size:14px;color:var(--accent)}
+h3{font-size:15px;margin:20px 0 8px}
+p{margin:0 0 10px;max-width:76ch}
+ul,ol{margin:0 0 10px;padding-left:22px}
+li{margin-bottom:3px}
+.tbl{overflow-x:auto;margin:6px 0 12px;border:1px solid var(--rule);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:640px}
+th,td{border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);padding:7px 9px;text-align:left;vertical-align:top}
+th:last-child,td:last-child{border-right:0}
+tr:last-child td{border-bottom:0}
+thead th{background:var(--tint);font-size:12px;color:var(--sub);white-space:nowrap}
+td.c,th.c{text-align:center}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+code,.id{font-family:var(--mono);font-size:12.5px}
+.id{color:var(--navy);font-weight:700;white-space:nowrap}
+.y{color:var(--ok);font-weight:800}.n{color:var(--sub)}.r{color:var(--warn);font-weight:700}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:0 7px;border-radius:3px;background:var(--tint);border:1px solid var(--rule);white-space:nowrap;margin:1px 2px 1px 0}
+.tag.a{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.st{display:inline-block;font-size:11px;font-weight:800;padding:0 8px;border-radius:999px;white-space:nowrap;border:1px solid currentColor}
+.st.done{color:var(--ok)}.st.wip{color:var(--accent)}.st.todo{color:var(--sub)}.st.tpl{color:var(--info)}
+.note{font-size:12.5px;color:var(--sub)}
+.callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 14px;border-radius:0 4px 4px 0;margin:8px 0 12px;font-size:13.5px}
+.fill{background:var(--tint);border:1px dashed var(--rule);border-radius:4px;padding:2px 8px;color:var(--sub);font-size:12.5px}
+.fig{overflow-x:auto;border:1px solid var(--rule);border-radius:4px;background:var(--tint);padding:10px;margin:8px 0 6px}
+.fig svg{display:block;min-width:760px;width:100%;height:auto}
+.fig text{font-family:var(--sans)}
+.cap{font-size:12px;color:var(--sub);margin:0 0 12px}
+.pri-h{color:var(--ng);font-weight:800}.pri-m{color:var(--warn);font-weight:800}.pri-l{color:var(--sub);font-weight:800}.pri-done{color:var(--ok);font-weight:800}
+a{color:var(--info)}
+footer{font-size:12px;color:var(--sub);padding:6px 4px}
+@media (max-width:640px){section{padding:18px 16px 14px}.cover{padding:20px 16px 16px}}
+@media print{nav.toc{display:none}.wrap{display:block;padding:0}section,.cover{break-inside:avoid;border:0}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="目次">
+  <a class="home" href="../index.html">← ドキュメント一覧</a>
+  <b>目次</b>
+  <a href="#s1">1. 目的</a>
+  <a href="#s2">2. 対象現場</a>
+  <a href="#s3">3. 利用者</a>
+  <a href="#s4">4. MVPの機能範囲</a>
+  <a href="#s5">5. KPI計測計画</a>
+  <a href="#s6">6. 運用ルール</a>
+  <a href="#s7">7. サポート体制</a>
+  <a href="#s8">8. スケジュール</a>
+  <a href="#s9">9. G3判定基準</a>
+</nav>
+<main>
+<div class="cover">
+  <div class="kind">MVP定義書</div>
+  <h1>SiteLive Twin（現場ライブツイン）<br>MVP定義書（スコープ・KPI計測計画）</h1>
+  <div class="meta">
+    <div><span>文書番号</span>SLT-DOC-50</div>
+    <div><span>版</span>v0.1</div>
+    <div><span>作成日</span>2026年10月21日</div>
+    <div><span>フェーズ</span>MVP</div>
+    <div><span>状態</span>初版（G1後に確定）</div>
+  </div>
+</div>
+
+<section id="s1">
+  <h2><span class="no">1</span>目的</h2>
+  <p>MVPで確かめる問いは<b>「最小の価値で、本当に使われるか？」</b>です。実際の1現場で約3か月（2027年2月1日〜4月30日、案）運用し、利用者が日々の業務の中で使い続けるか、遅れへの気づきと判断が早くなるかをKPIで確かめます。</p>
+  <ul>
+    <li>機能は「見る → 気づく → 原因を探す → 対策を比べる → 決める」を1現場で回すのに必要な分だけに絞る</li>
+    <li>効果はKPIで測り、導入前（ベースライン）と比べる</li>
+    <li>使われなかった場合は、その理由を記録して次の判断材料にする</li>
+  </ul>
+</section>
+
+<section id="s2">
+  <h2><span class="no">2</span>対象現場</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>条件</th><th>内容</th><th>理由</th></tr></thead>
+    <tbody>
+      <tr><td>工種</td><td>擁壁を含む道路改良工事（または同等の土工・構造物の組み合わせ）</td><td>オフラインデモ・WebUIサンプルの題材と同じで、PoCの検証結果をそのまま使える</td></tr>
+      <tr><td>工期</td><td>MVP期間の前後を含めて6か月以上</td><td>ベースラインの取得と3か月の運用期間を確保するため</td></tr>
+      <tr><td>重機</td><td>テレマティクスに対応した重機が2台以上</td><td>重機の稼働・待機を自動で取り込むため（PoCのT1）</td></tr>
+      <tr><td>データ</td><td>CEOSで工程・原価を管理している。ArcSphereに3Dモデルがある、または作成できる</td><td>正本を参照する構成を実現場で確かめるため</td></tr>
+      <tr><td>体制</td><td>現場所長が協力に合意し、工程会議を週1回以上開いている</td><td>KPIの計測と運用ルールの実施に必要</td></tr>
+      <tr><td>現場名</td><td colspan="2"><span class="fill">（未定：G1判定時に候補を決め、MVP開始の4週間前までに確定）</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s3">
+  <h2><span class="no">3</span>利用者</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>ロール</th><th class="num">想定人数</th><th>主な使い方</th></tr></thead>
+    <tbody>
+      <tr><td>経営層（支店長・工事部長）</td><td class="num">2名</td><td>全社ダッシュボードで状況を見る。対策の申請を承認・差戻しする</td></tr>
+      <tr><td>現場所長</td><td class="num">1名</td><td>毎朝の状況確認、対策の起案、工程会議での説明</td></tr>
+      <tr><td>工務</td><td class="num">2〜3名</td><td>工程と原価の確認、日報の確認と提出、対策の起案</td></tr>
+      <tr><td>システム管理者</td><td class="num">1名</td><td>しきい値・通知の設定、利用者の管理、問い合わせ対応</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">KPIの「利用率」は、この表の利用者（6〜7名）を母数とします。</p>
+</section>
+
+<section id="s4">
+  <h2><span class="no">4</span>MVPの機能範囲</h2>
+  <p>機能IDは要件定義書（<a href="../01-requirements/requirements.html">SLT-DOC-10</a>）の体系に合わせます（FR-0xx：画面、FR-1xx：連携・共通機能・承認・監査）。Must＝MVPに必ず入れる、Should＝できれば入れる、Could＝余裕があれば入れる、Won't＝MVPでは入れない、です。</p>
+  <h3>4.1 含める機能</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>ID</th><th>機能</th><th>優先度</th><th>関連する画面・検証</th></tr></thead>
+    <tbody>
+      <tr><td class="id">FR-002</td><td>全社ダッシュボード（現場の状態、承認待ち、アラート）</td><td class="pri-h">Must</td><td>SCR-01</td></tr>
+      <tr><td class="id">FR-006</td><td>現場概要（指標カード、工種別の進捗、本日の状況）</td><td class="pri-h">Must</td><td>SCR-05</td></tr>
+      <tr><td class="id">FR-007</td><td>ライブツイン（3Dで重機・進捗を表示、計画との比較の色分け）</td><td class="pri-h">Must</td><td>SCR-06、PoC T3・T4</td></tr>
+      <tr><td class="id">FR-008</td><td>4D工程（計画と実績のガント、日付を指定した3D表示）</td><td class="pri-h">Must</td><td>SCR-07</td></tr>
+      <tr><td class="id">FR-009</td><td>対策シミュレーション（対策の組み合わせの試算と比較）</td><td class="pri-h">Must</td><td>SCR-08、PoC T5</td></tr>
+      <tr><td class="id">FR-010</td><td>重機・稼働（稼働率、待機時間）</td><td class="pri-h">Must</td><td>SCR-09</td></tr>
+      <tr><td class="id">FR-011</td><td>日報（自動作成された内容の確認・追記・提出）</td><td class="pri-m">Should</td><td>SCR-10</td></tr>
+      <tr><td class="id">FR-013</td><td>原価管理（EVM、Sカーブ）</td><td class="pri-h">Must</td><td>SCR-12、PoC T2</td></tr>
+      <tr><td class="id">FR-111</td><td>通知（遅れ・稼働率・承認依頼）</td><td class="pri-h">Must</td><td>共通部品</td></tr>
+      <tr><td class="id">FR-005</td><td>週報の自動作成と印刷・PDF出力</td><td class="pri-m">Should</td><td>SCR-04</td></tr>
+      <tr><td class="id">FR-012</td><td>安全・環境（センサー値、安全イベント）</td><td class="pri-l">Could</td><td>SCR-11</td></tr>
+      <tr><td class="id">FR-101</td><td>重機テレマティクス・位置データの取り込み</td><td class="pri-h">Must</td><td>PoC T1</td></tr>
+      <tr><td class="id">FR-104</td><td>CEOSの工程・原価の参照（契約API）</td><td class="pri-h">Must</td><td>PoC T2</td></tr>
+      <tr><td class="id">FR-105</td><td>ArcSphereの3Dモデルの参照</td><td class="pri-h">Must</td><td>PoC T3</td></tr>
+      <tr><td class="id">FR-106</td><td>CODIPの気象データの参照</td><td class="pri-l">Could</td><td>—</td></tr>
+      <tr><td class="id">FR-001・FR-016</td><td>ログインとロール別の権限（サーバー側で判定）</td><td class="pri-h">Must</td><td>PoC T7</td></tr>
+      <tr><td class="id">FR-120〜122</td><td>対策の起案・承認・差戻し（起案者は承認不可、MCIPへ記録）</td><td class="pri-h">Must</td><td>SCR-03、PoC T6</td></tr>
+      <tr><td class="id">FR-015・FR-140</td><td>監査ログ（操作の記録と照会）</td><td class="pri-h">Must</td><td>SCR-14</td></tr>
+      <tr><td class="id">FR-170</td><td>KPIの計測ログ（検知・起案・承認の時刻、画面の利用記録）</td><td class="pri-h">Must</td><td>5章</td></tr>
+    </tbody>
+  </table></div>
+  <h3>4.2 含めない機能（Won't）</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>機能</th><th>入れない理由</th><th>検討する時期</th></tr></thead>
+    <tbody>
+      <tr><td>複数現場の同時運用（B〜E現場のデータ連携）</td><td>1現場で価値を確かめることが先</td><td>Release</td></tr>
+      <tr><td>点群の表示</td><td>データ量が大きく、MVPの判断には必須でない</td><td>運用・改善</td></tr>
+      <tr><td>日報のAI下書き（R1）</td><td>MCAH経由の評価（golden-set）が整ってから</td><td>Staging以降</td></tr>
+      <tr><td>多段承認（金額や工期の影響による承認ルート）</td><td>1段の承認で運用を確かめてから</td><td>Release</td></tr>
+      <tr><td>スマートフォン専用の入力アプリ（電波がない場所での入力）</td><td>現場の通信状況をMVPで把握してから</td><td>運用・改善</td></tr>
+      <tr><td>勤怠・購買など他の社内システムとの連携</td><td>正本を持つシステム側の準備が必要</td><td>Release以降</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s5">
+  <h2><span class="no">5</span>KPI計測計画</h2>
+  <p>ベースラインはMVP開始前の4週間（2027年1月、案）に、現在のやり方（週報・工程会議・Excel）で取得します。計測に必要な時刻は、FR-170の計測ログで自動的に記録します。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>KPI</th><th>定義</th><th>計測方法</th><th>ベースラインの取り方</th><th>目標値</th><th>計測頻度</th></tr></thead>
+    <tbody>
+      <tr><td><b>遅延検知リードタイム</b></td><td>工種の遅れが発生（計画比で1日以上）してから、関係者が気づくまでの時間</td><td>遅れの発生時刻（実績データから判定）と、通知の既読・画面の確認時刻の差</td><td>直近の工事の週報・会議録から、遅れが最初に報告されるまでの日数を調べる</td><td>数日 → <b>1営業日以内</b></td><td>週次</td></tr>
+      <tr><td><b>対策決定までの時間</b></td><td>遅れの検知から、対策が承認されるまでの時間</td><td>計測ログ（検知・起案・承認の時刻）</td><td>会議録から、対策を決めるまでの日数を調べる</td><td><b>3営業日以内</b></td><td>案件ごと</td></tr>
+      <tr><td><b>重機待機率</b></td><td>重機の稼働時間のうち、待機（エンジンはかかっているが作業していない）の割合</td><td>テレマティクスの稼働・待機・停止の時間</td><td>MVP開始後の最初の2週間を基準にする（それ以前は計測手段がない）</td><td>可視化し、基準から<b>10%改善</b></td><td>週次</td></tr>
+      <tr><td><b>週報・日報の作成時間</b></td><td>週報・日報1件の作成にかかる時間</td><td>利用者への記録票（開始・終了時刻）、画面の操作時間</td><td>導入前に同じ記録票で2週間計測</td><td><b>50%削減</b></td><td>月次</td></tr>
+      <tr><td><b>利用率</b></td><td>対象の利用者のうち、週1回以上ログインして画面を確認した人の割合</td><td>ログイン・画面表示の記録</td><td>—（新規）</td><td><b>80%以上</b>（毎週）</td><td>週次</td></tr>
+      <tr><td><b>工程会議での利用</b></td><td>工程会議でこの画面を使って議論した回数の割合</td><td>会議の記録（現場所長が記入）</td><td>—（新規）</td><td><b>毎回（100%）</b></td><td>会議ごと</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">KPIの値は月次でプロダクトオーナーが集計し、経営層に報告します。目標に届かない場合は、理由を利用者に聞き取って記録します（使われない理由はMVPの重要な結果です）。</p>
+</section>
+
+<section id="s6">
+  <h2><span class="no">6</span>運用ルール</h2>
+  <ol>
+    <li><b>工程会議ではこの画面を使う。</b>資料は事前に作らず、現場概要・4D工程・対策シミュレーションを画面に映して議論する。</li>
+    <li>現場所長は毎朝、現場概要と通知を確認する（目安5分）。</li>
+    <li>遅れの通知が出たら、当日中に原因を確認し、必要なら対策を起案する。</li>
+    <li>対策の承認は、起案者以外の経営層が行う。承認の判断は3営業日以内を目安にする。</li>
+    <li>日報は自動作成された内容を確認・追記して、当日中に提出する。</li>
+    <li>データが欠測している場合は、画面の「データなし」の表示を信じ、推測で補わない。気づいたらシステム管理者に連絡する。</li>
+    <li>MVP期間中は従来の週報も並行して作成し、KPIの比較に使う（最初の4週間のみ）。</li>
+  </ol>
+</section>
+
+<section id="s7">
+  <h2><span class="no">7</span>サポート体制</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>内容</th><th>窓口</th><th>対応時間の目安</th></tr></thead>
+    <tbody>
+      <tr><td>操作の質問、表示の誤り</td><td>システム管理者（DX推進部）</td><td>平日 当日中に回答</td></tr>
+      <tr><td>画面が開かない、データが更新されない</td><td>システム管理者 → 開発</td><td>平日 4時間以内に一次回答</td></tr>
+      <tr><td>改善の要望</td><td>プロダクトオーナー</td><td>隔週の振り返りで扱う</td></tr>
+      <tr><td>情報漏えいの疑い、不正なアクセス</td><td>情報セキュリティ担当</td><td>直ちに連絡</td></tr>
+    </tbody>
+  </table></div>
+  <p>運用開始の週に、現場で30分の説明会を行います。隔週で利用者との振り返り（30分）を行い、要望と使われない理由を集めます。</p>
+</section>
+
+<section id="s8">
+  <h2><span class="no">8</span>スケジュール</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>時期（案）</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td>2027年1月</td><td>対象現場の確定、ベースラインの取得、Prototypeの改善の反映</td></tr>
+      <tr><td>2027年2月1日</td><td>運用開始、現場での説明会</td></tr>
+      <tr><td>2027年2月〜4月</td><td>運用、隔週の振り返り、月次のKPI報告、改善のリリース（2週間ごと）</td></tr>
+      <tr><td>2027年4月30日</td><td>運用期間の終了、KPIの集計</td></tr>
+      <tr><td>2027年5月上旬</td><td>G3判定</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s9">
+  <h2><span class="no">9</span>G3判定基準</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>判定</th><th>条件</th><th>その後</th></tr></thead>
+    <tbody>
+      <tr><td class="y">Go（Stagingへ）</td><td>6つのKPIのうち、遅延検知リードタイム・対策決定までの時間・利用率を含む4つ以上で目標を達成。利用者の継続利用の意向がある。重大な障害・情報漏えいが0件</td><td>Stagingで本番に近い条件の検証へ進む</td></tr>
+      <tr><td class="r">条件付きGo</td><td>目標達成が3つで、未達の理由と改善策が明確。利用率は60%以上</td><td>改善策をStagingの期間中に入れ、運用・改善の最初のG5で再確認する</td></tr>
+      <tr><td style="color:var(--ng);font-weight:800">No-Go</td><td>利用率が60%未満、または目標達成が2つ以下</td><td>使われなかった理由をもとに範囲を見直し、MVPを延長または中止する</td></tr>
+    </tbody>
+  </table></div>
+  <p>判定はプロダクトオーナーが起案し、経営層が承認します。テストの合否は<a href="test-plan.html">テスト計画書（SLT-DOC-51）</a>、フェーズ全体の考え方は<a href="../00-project/phase-gates.html">フェーズゲート定義書（SLT-DOC-03）</a>を参照してください。</p>
+</section>
+
+<footer>SiteLive Twin（現場ライブツイン） ／ MVP定義書 v0.1 ／ 2026年10月21日</footer>
+</main>
+</div>
+</body>
+</html>

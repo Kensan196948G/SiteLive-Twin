@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SiteLive Twin テスト計画書</title>
+<style>
+/* SiteLive Twin 文書テンプレート：左に目次、右に本文。表と図は横スクロール可能な枠に入れる */
+:root{
+  --bg:#f5f6f8; --paper:#ffffff; --ink:#1a2230; --sub:#5a6577; --rule:#d9dee6; --tint:#f0f3f7;
+  --navy:#1b3557; --accent:#c8740a; --accent-soft:#fdf1e1;
+  --ok:#1d8a4c; --warn:#a87800; --ng:#c43d3d; --info:#2a64a8;
+  --sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+  --mono:"BIZ UDGothic","Consolas","Menlo",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+    --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+    --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+  --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+  --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{display:grid;grid-template-columns:240px minmax(0,1fr);max-width:1280px;margin:0 auto;gap:28px;padding:28px 16px 60px}
+@media (max-width:900px){.wrap{grid-template-columns:1fr;gap:0}}
+nav.toc{position:sticky;top:20px;align-self:start;font-size:13px;max-height:calc(100vh - 40px);overflow:auto}
+@media (max-width:900px){nav.toc{position:static;max-height:none;margin-bottom:18px}}
+.toc b{display:block;font-size:11px;letter-spacing:.12em;color:var(--sub);margin-bottom:6px}
+.toc a{display:block;color:var(--ink);text-decoration:none;padding:3px 10px;border-left:2px solid var(--rule)}
+.toc a:hover,.toc a:focus-visible{border-left-color:var(--accent);color:var(--accent);outline:none}
+.toc .home{margin-bottom:12px;border-left:0;padding-left:0;color:var(--info)}
+main{min-width:0}
+.cover{background:var(--paper);border:1px solid var(--rule);border-top:5px solid var(--navy);border-radius:6px;padding:26px 28px 20px;margin-bottom:26px}
+.cover .kind{font-size:12px;letter-spacing:.14em;color:var(--sub);font-weight:700}
+.cover h1{margin:4px 0 14px;font-size:clamp(22px,3.4vw,30px);line-height:1.35;text-wrap:balance;color:var(--navy)}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));border-top:1px solid var(--rule);border-left:1px solid var(--rule);font-size:13px}
+.meta div{padding:7px 12px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.meta span{display:block;font-size:11px;color:var(--sub)}
+section{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:22px 26px 18px;margin-bottom:20px;min-width:0}
+h2{font-size:19px;margin:0 0 12px;color:var(--navy);text-wrap:balance;display:flex;gap:10px;align-items:baseline}
+h2 .no{font-family:var(--mono);font-size:14px;color:var(--accent)}
+h3{font-size:15px;margin:20px 0 8px}
+p{margin:0 0 10px;max-width:76ch}
+ul,ol{margin:0 0 10px;padding-left:22px}
+li{margin-bottom:3px}
+.tbl{overflow-x:auto;margin:6px 0 12px;border:1px solid var(--rule);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:640px}
+th,td{border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);padding:7px 9px;text-align:left;vertical-align:top}
+th:last-child,td:last-child{border-right:0}
+tr:last-child td{border-bottom:0}
+thead th{background:var(--tint);font-size:12px;color:var(--sub);white-space:nowrap}
+td.c,th.c{text-align:center}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+code,.id{font-family:var(--mono);font-size:12.5px}
+.id{color:var(--navy);font-weight:700;white-space:nowrap}
+.y{color:var(--ok);font-weight:800}.n{color:var(--sub)}.r{color:var(--warn);font-weight:700}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:0 7px;border-radius:3px;background:var(--tint);border:1px solid var(--rule);white-space:nowrap;margin:1px 2px 1px 0}
+.tag.a{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.st{display:inline-block;font-size:11px;font-weight:800;padding:0 8px;border-radius:999px;white-space:nowrap;border:1px solid currentColor}
+.st.done{color:var(--ok)}.st.wip{color:var(--accent)}.st.todo{color:var(--sub)}.st.tpl{color:var(--info)}
+.note{font-size:12.5px;color:var(--sub)}
+.callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 14px;border-radius:0 4px 4px 0;margin:8px 0 12px;font-size:13.5px}
+.fill{background:var(--tint);border:1px dashed var(--rule);border-radius:4px;padding:2px 8px;color:var(--sub);font-size:12.5px}
+.fig{overflow-x:auto;border:1px solid var(--rule);border-radius:4px;background:var(--tint);padding:10px;margin:8px 0 6px}
+.fig svg{display:block;min-width:760px;width:100%;height:auto}
+.fig text{font-family:var(--sans)}
+.cap{font-size:12px;color:var(--sub);margin:0 0 12px}
+.pri-h{color:var(--ng);font-weight:800}.pri-m{color:var(--warn);font-weight:800}.pri-l{color:var(--sub);font-weight:800}.pri-done{color:var(--ok);font-weight:800}
+a{color:var(--info)}
+footer{font-size:12px;color:var(--sub);padding:6px 4px}
+@media (max-width:640px){section{padding:18px 16px 14px}.cover{padding:20px 16px 16px}}
+@media print{nav.toc{display:none}.wrap{display:block;padding:0}section,.cover{break-inside:avoid;border:0}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="目次">
+  <a class="home" href="../index.html">← ドキュメント一覧</a>
+  <b>目次</b>
+  <a href="#s1">1. テスト方針</a>
+  <a href="#s2">2. テストレベル</a>
+  <a href="#s3">3. 重点観点</a>
+  <a href="#s4">4. 環境とデータ</a>
+  <a href="#s5">5. 合否基準</a>
+  <a href="#s6">6. 不具合管理</a>
+  <a href="#s7">7. スケジュール</a>
+  <a href="#s8">8. AI機能の評価</a>
+</nav>
+<main>
+<div class="cover">
+  <div class="kind">テスト計画書</div>
+  <h1>SiteLive Twin（現場ライブツイン）<br>テスト計画書</h1>
+  <div class="meta">
+    <div><span>文書番号</span>SLT-DOC-51</div>
+    <div><span>版</span>v0.1</div>
+    <div><span>作成日</span>2026年10月21日</div>
+    <div><span>フェーズ</span>MVP（Staging・Releaseまで適用）</div>
+    <div><span>状態</span>初版</div>
+  </div>
+</div>
+
+<section id="s1">
+  <h2><span class="no">1</span>テスト方針</h2>
+  <ul>
+    <li><b>自動テストを基本にする。</b>PRごとにCIで単体・契約・結合テストを実行し、失敗したらマージしない（mainへの直接pushは禁止、PR→CI→人のレビュー）。</li>
+    <li><b>正本を持たない構成を守る。</b>CEOS・ArcSphere・MCIPとの境界は契約テストで確かめ、相手のDBに直接接続するコードがないことを検査する。</li>
+    <li><b>判断に使う数値の正しさを最優先する。</b>EVM・遅れ・対策シミュレーションの結果は、誤ると経営判断を誤らせるため、基準値との一致を必ずテストする。</li>
+    <li><b>権限はサーバー側でテストする。</b>画面のボタンが消えていることではなく、APIが拒否することを確かめる。</li>
+    <li>フェーズが進むほど本番に近い条件を足す（MVP：機能と正しさ、Staging：性能・セキュリティ・復旧、Release：本番での確認）。</li>
+  </ul>
+</section>
+
+<section id="s2">
+  <h2><span class="no">2</span>テストレベル</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>レベル</th><th>目的</th><th>置き場所・手段</th><th>実行タイミング</th><th>主なフェーズ</th></tr></thead>
+    <tbody>
+      <tr><td>単体テスト</td><td>計算ロジック（EVM、遅れ、対策シミュレーション、権限判定）を部品単位で確かめる</td><td><code>tests/unit/</code>（Python：pytest、画面：Vitest）</td><td>PRごと（CI）</td><td>PoC後半〜</td></tr>
+      <tr><td>契約テスト</td><td>CEOS・ArcSphere・MCIP・テレマティクスとの入出力が契約定義（<code>contracts/</code>）どおりか確かめる</td><td><code>tests/contract/</code></td><td>PRごと（CI）、契約の更新時</td><td>MVP〜</td></tr>
+      <tr><td>結合テスト</td><td>API・DB・イベント配信をつないだ動きを確かめる</td><td><code>tests/integration/</code>（Docker ComposeでPostgreSQL 18を起動）</td><td>PRごと（CI）</td><td>MVP〜</td></tr>
+      <tr><td>E2Eテスト</td><td>利用者の操作の流れ（ログイン→確認→起案→承認）を画面から確かめる</td><td>ブラウザ自動操作（<span class="fill">（未定：ツールの選定）</span>）</td><td>mainへのマージ後、リリース前</td><td>MVP〜</td></tr>
+      <tr><td>受入テスト</td><td>パイロット現場の利用者が、業務で使える状態かを確かめる</td><td>受入シナリオ（プロトタイプ評価のタスク1〜6を基にする）</td><td>MVP開始前、各リリース前</td><td>MVP〜Release</td></tr>
+      <tr><td>性能テスト</td><td>画面反映3秒以内・同時接続・3D表示の基準を、本番に近い量で確かめる</td><td>負荷ツール（<span class="fill">（未定：ツールの選定）</span>）</td><td>Staging期間、大きな変更の後</td><td>Staging</td></tr>
+      <tr><td>セキュリティテスト</td><td>認証・権限・入力値・依存ライブラリの脆弱性を確かめる</td><td>依存関係の自動検査（CI）、脆弱性診断（外部または情報セキュリティ担当）</td><td>CI（毎回）、Stagingで診断1回</td><td>MVP〜Staging</td></tr>
+      <tr><td>復旧テスト</td><td>バックアップからの復元と、障害時の切り戻しができるか確かめる</td><td>運用設計書（<a href="../40-staging/operations-design.html">SLT-DOC-60</a>）の手順</td><td>Staging期間に1回以上、本番前に1回</td><td>Staging</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s3">
+  <h2><span class="no">3</span>重点観点</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>観点</th><th>確かめること</th><th>主なレベル</th></tr></thead>
+    <tbody>
+      <tr><td>権限</td><td>4ロール×全操作の組み合わせで、許可・拒否がサーバー側で正しく判定される。画面を経由しないAPI呼び出しも拒否される。拒否は監査ログに残る</td><td>単体、結合、E2E</td></tr>
+      <tr><td>職務分掌</td><td>起案者本人は自分の申請を承認・差戻しできない（APIで拒否）。承認はR3（二者承認）としてMCIPに記録される</td><td>単体、契約、E2E</td></tr>
+      <tr><td>監査</td><td>ログイン・起案・承認・差戻し・日報提出・設定変更・出力がすべて記録され、利用者が後から変更・削除できない</td><td>結合</td></tr>
+      <tr><td>シミュレーションの決定性</td><td>同じ入力（工程・原価・対策・日付）から常に同じ結果が出る。全16通りの試算が3秒以内に終わる</td><td>単体、性能</td></tr>
+      <tr><td>EVM計算の一致</td><td>PV・EV・AC・SPI・CPI・EACが、CEOSの値と誤差0.5%以内で一致する。端数処理の規則を固定する</td><td>単体、契約</td></tr>
+      <tr><td>欠測の扱い</td><td>テレマティクスの欠測を「データなし」と表示し、推定値と区別する。欠測から自動で回復する</td><td>結合</td></tr>
+      <tr><td>リアルタイム性</td><td>状態変化から画面反映まで3秒以内（95%）、同時20人（Releaseでは想定利用者数に合わせて見直す）</td><td>性能</td></tr>
+      <tr><td>正本の境界</td><td>他リポジトリのDBへの直接接続がない。AIの呼び出しはMCAH経由のみ</td><td>静的検査（CI）、契約</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s4">
+  <h2><span class="no">4</span>環境とデータ</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>環境</th><th>用途</th><th>データ</th></tr></thead>
+    <tbody>
+      <tr><td>開発者のPC（Docker Compose）</td><td>単体・結合テスト</td><td>テスト用のダミー（固定のシード値で毎回同じデータを生成）</td></tr>
+      <tr><td>CI</td><td>PRごとの自動テスト</td><td>同上。連携先はモック（契約定義から生成）</td></tr>
+      <tr><td>Staging（<span class="fill">（未定：ホスト名）</span>）</td><td>E2E・性能・セキュリティ・復旧テスト、受入テスト</td><td>本番に近い量のダミー、または匿名化した実データ。連携先は各製品のstg</td></tr>
+      <tr><td>本番</td><td>リリース後の確認（読み取り中心）</td><td>実データ。テストのための書き込みはしない</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">実データをテストに使う場合は、作業員名など個人を特定できる情報を取り除き、情報セキュリティ担当の確認を受けます。基準値（EVMなど）のデータセットは <code>tests/</code> 配下に置き、変更はPRでレビューします。</p>
+</section>
+
+<section id="s5">
+  <h2><span class="no">5</span>合否基準</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>場面</th><th>合格の条件</th></tr></thead>
+    <tbody>
+      <tr><td>PRのマージ</td><td>CIの単体・契約・結合テストがすべて成功。計算ロジックと権限判定の変更箇所はテストで網羅されている。人のレビューで承認済み</td></tr>
+      <tr><td>MVP運用開始（パイロット現場への提供）</td><td>受入テストの全シナリオが成功。重大度「致命的」「高」の未解決不具合が0件</td></tr>
+      <tr><td>G3（MVP → Staging）</td><td>上記に加え、MVP期間中の重大な障害が0件</td></tr>
+      <tr><td>G4（リリース判定）</td><td>性能・セキュリティ・復旧テストが基準を満たす。重大度「中」の未解決不具合は回避策と期限が決まっている。詳細は<a href="../40-staging/release-readiness.html">リリース判定書（SLT-DOC-61）</a></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s6">
+  <h2><span class="no">6</span>不具合管理</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>重大度</th><th>定義</th><th>例</th><th>対応の目安</th></tr></thead>
+    <tbody>
+      <tr><td class="pri-h">致命的</td><td>誤った経営判断につながる、情報が漏れる、データを失う</td><td>EVMの計算誤り、権限のない承認ができる、監査ログが消える</td><td>直ちに対応。リリースを止める</td></tr>
+      <tr><td class="pri-h">高</td><td>主要な業務が行えない</td><td>起案ができない、3Dが表示されない、データが更新されない</td><td>2営業日以内</td></tr>
+      <tr><td class="pri-m">中</td><td>回避策はあるが不便</td><td>CSV出力の列がずれる、通知が遅れる</td><td>次のリリースまで</td></tr>
+      <tr><td class="pri-l">低</td><td>表示や表現の改善</td><td>文言の誤り、配色</td><td>計画的に対応</td></tr>
+    </tbody>
+  </table></div>
+  <p>不具合はリポジトリのIssueで管理し、重大度・発見したテストレベル・再現手順を記録します。修正にはその不具合を再現するテストを必ず追加します。</p>
+</section>
+
+<section id="s7">
+  <h2><span class="no">7</span>スケジュール</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>時期（案）</th><th>テスト活動</th></tr></thead>
+    <tbody>
+      <tr><td>PoC（2026年11月〜12月）</td><td>計算ロジックの単体テストを作り始める。CIを構成する</td></tr>
+      <tr><td>Prototype（2027年1月）</td><td>契約定義と契約テストを整える。受入シナリオを作る</td></tr>
+      <tr><td>MVP（2027年2月〜4月）</td><td>2週間ごとのリリース前にE2Eテスト。運用開始前に受入テスト</td></tr>
+      <tr><td>Staging（2027年5月〜6月）</td><td>性能・セキュリティ・復旧テスト、受入テストの再実施</td></tr>
+      <tr><td>Release（2027年7月）</td><td>本番での確認（ログイン、表示、連携の疎通）</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s8">
+  <h2><span class="no">8</span>AI機能の評価</h2>
+  <p>日報のAI下書き（リスク区分R1：人が確認してから提出）は、MCAH経由で呼び出し、次の評価を通過するまで本番で有効にしません（MVPでは対象外）。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>評価</th><th>置き場所</th><th>内容</th><th>合格の条件</th></tr></thead>
+    <tbody>
+      <tr><td>正解セット評価</td><td><code>ai/evals/golden-set/</code></td><td>過去の日報と元データの組から、下書きが事実（作業内容・人数・重機・天候）と一致するかを確かめる</td><td><span class="fill">（未定：一致率の目標値。初期案：重要項目の一致率95%以上）</span></td></tr>
+      <tr><td>レッドチーム評価</td><td><code>ai/evals/redteam/</code></td><td>入力に含まれる指示文での誤動作、存在しない事実の作文、機密情報の混入を確かめる</td><td>重大な問題0件</td></tr>
+      <tr><td>運用中の確認</td><td>監査ログ</td><td>利用者が下書きをどれだけ修正したか（修正率）を記録する</td><td>修正率の推移を四半期ごとに確認</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">プロンプトは <code>ai/prompts/</code> で管理し、変更時は正解セット評価を再実行します。</p>
+</section>
+
+<footer>SiteLive Twin（現場ライブツイン） ／ テスト計画書 v0.1 ／ 2026年10月21日</footer>
+</main>
+</div>
+</body>
+</html>

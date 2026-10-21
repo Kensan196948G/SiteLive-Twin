@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SiteLive Twin PoC計画書</title>
+<style>
+/* SiteLive Twin 文書テンプレート：左に目次、右に本文。表と図は横スクロール可能な枠に入れる */
+:root{
+  --bg:#f5f6f8; --paper:#ffffff; --ink:#1a2230; --sub:#5a6577; --rule:#d9dee6; --tint:#f0f3f7;
+  --navy:#1b3557; --accent:#c8740a; --accent-soft:#fdf1e1;
+  --ok:#1d8a4c; --warn:#a87800; --ng:#c43d3d; --info:#2a64a8;
+  --sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+  --mono:"BIZ UDGothic","Consolas","Menlo",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+    --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+    --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+  --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+  --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{display:grid;grid-template-columns:240px minmax(0,1fr);max-width:1280px;margin:0 auto;gap:28px;padding:28px 16px 60px}
+@media (max-width:900px){.wrap{grid-template-columns:1fr;gap:0}}
+nav.toc{position:sticky;top:20px;align-self:start;font-size:13px;max-height:calc(100vh - 40px);overflow:auto}
+@media (max-width:900px){nav.toc{position:static;max-height:none;margin-bottom:18px}}
+.toc b{display:block;font-size:11px;letter-spacing:.12em;color:var(--sub);margin-bottom:6px}
+.toc a{display:block;color:var(--ink);text-decoration:none;padding:3px 10px;border-left:2px solid var(--rule)}
+.toc a:hover,.toc a:focus-visible{border-left-color:var(--accent);color:var(--accent);outline:none}
+.toc .home{margin-bottom:12px;border-left:0;padding-left:0;color:var(--info)}
+main{min-width:0}
+.cover{background:var(--paper);border:1px solid var(--rule);border-top:5px solid var(--navy);border-radius:6px;padding:26px 28px 20px;margin-bottom:26px}
+.cover .kind{font-size:12px;letter-spacing:.14em;color:var(--sub);font-weight:700}
+.cover h1{margin:4px 0 14px;font-size:clamp(22px,3.4vw,30px);line-height:1.35;text-wrap:balance;color:var(--navy)}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));border-top:1px solid var(--rule);border-left:1px solid var(--rule);font-size:13px}
+.meta div{padding:7px 12px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.meta span{display:block;font-size:11px;color:var(--sub)}
+section{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:22px 26px 18px;margin-bottom:20px;min-width:0}
+h2{font-size:19px;margin:0 0 12px;color:var(--navy);text-wrap:balance;display:flex;gap:10px;align-items:baseline}
+h2 .no{font-family:var(--mono);font-size:14px;color:var(--accent)}
+h3{font-size:15px;margin:20px 0 8px}
+p{margin:0 0 10px;max-width:76ch}
+ul,ol{margin:0 0 10px;padding-left:22px}
+li{margin-bottom:3px}
+.tbl{overflow-x:auto;margin:6px 0 12px;border:1px solid var(--rule);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:640px}
+th,td{border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);padding:7px 9px;text-align:left;vertical-align:top}
+th:last-child,td:last-child{border-right:0}
+tr:last-child td{border-bottom:0}
+thead th{background:var(--tint);font-size:12px;color:var(--sub);white-space:nowrap}
+td.c,th.c{text-align:center}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+code,.id{font-family:var(--mono);font-size:12.5px}
+.id{color:var(--navy);font-weight:700;white-space:nowrap}
+.y{color:var(--ok);font-weight:800}.n{color:var(--sub)}.r{color:var(--warn);font-weight:700}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:0 7px;border-radius:3px;background:var(--tint);border:1px solid var(--rule);white-space:nowrap;margin:1px 2px 1px 0}
+.tag.a{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.st{display:inline-block;font-size:11px;font-weight:800;padding:0 8px;border-radius:999px;white-space:nowrap;border:1px solid currentColor}
+.st.done{color:var(--ok)}.st.wip{color:var(--accent)}.st.todo{color:var(--sub)}.st.tpl{color:var(--info)}
+.note{font-size:12.5px;color:var(--sub)}
+.callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 14px;border-radius:0 4px 4px 0;margin:8px 0 12px;font-size:13.5px}
+.fill{background:var(--tint);border:1px dashed var(--rule);border-radius:4px;padding:2px 8px;color:var(--sub);font-size:12.5px}
+.fig{overflow-x:auto;border:1px solid var(--rule);border-radius:4px;background:var(--tint);padding:10px;margin:8px 0 6px}
+.fig svg{display:block;min-width:760px;width:100%;height:auto}
+.fig text{font-family:var(--sans)}
+.cap{font-size:12px;color:var(--sub);margin:0 0 12px}
+.pri-h{color:var(--ng);font-weight:800}.pri-m{color:var(--warn);font-weight:800}.pri-l{color:var(--sub);font-weight:800}.pri-done{color:var(--ok);font-weight:800}
+a{color:var(--info)}
+footer{font-size:12px;color:var(--sub);padding:6px 4px}
+@media (max-width:640px){section{padding:18px 16px 14px}.cover{padding:20px 16px 16px}}
+@media print{nav.toc{display:none}.wrap{display:block;padding:0}section,.cover{break-inside:avoid;border:0}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="目次">
+  <a class="home" href="../index.html">← ドキュメント一覧</a>
+  <b>目次</b>
+  <a href="#s1">1. 目的</a>
+  <a href="#s2">2. 範囲と対象外</a>
+  <a href="#s3">3. 検証項目</a>
+  <a href="#s4">4. 体制</a>
+  <a href="#s5">5. スケジュール</a>
+  <a href="#s6">6. 環境とデータ</a>
+  <a href="#s7">7. 前提条件と依存</a>
+  <a href="#s8">8. 成果物</a>
+  <a href="#s9">9. Go/No-Go判定基準</a>
+  <a href="#s10">10. リスクと対策</a>
+</nav>
+<main>
+<div class="cover">
+  <div class="kind">PoC計画書</div>
+  <h1>SiteLive Twin（現場ライブツイン）<br>PoC計画書</h1>
+  <div class="meta">
+    <div><span>文書番号</span>SLT-DOC-30</div>
+    <div><span>版</span>v0.1</div>
+    <div><span>作成日</span>2026年10月21日</div>
+    <div><span>フェーズ</span>PoC</div>
+    <div><span>状態</span>初版（G0承認待ち）</div>
+  </div>
+</div>
+
+<section id="s1">
+  <h2><span class="no">1</span>目的</h2>
+  <p>PoCで確かめる問いは<b>「技術的に成立するか？」</b>の1点です。オフラインデモとシステムWebUIサンプルで描いた「見る → 気づく → 原因を探す → 対策を比べる → 決める」の流れを、実際のデータと既存の社内システムにつないでも成り立つかを、8週間で検証します。</p>
+  <ul>
+    <li>現場データ（重機の稼働・位置）を、実用的な遅れで取り込めるか</li>
+    <li>工程・原価（CEOS）、3Dモデル（ArcSphere）、承認・証跡（MCIP）を、正本を持たずに参照だけで組み合わせられるか</li>
+    <li>複数人が同時に見ても、画面が遅れず更新されるか</li>
+    <li>認証と権限判定をサーバー側で行えるか</li>
+  </ul>
+  <div class="callout">結果はPoC結果報告書（<a href="poc-report-gate1.html">SLT-DOC-31</a>）にまとめ、G1（Go/No-Go）で次に進むかを判定します。フェーズ全体の考え方は<a href="../00-project/phase-gates.html">フェーズゲート定義書（SLT-DOC-03）</a>を参照してください。</div>
+</section>
+
+<section id="s2">
+  <h2><span class="no">2</span>範囲と対象外</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>区分</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td>範囲</td><td>検証項目T1〜T7の技術検証、検証用の最小限のAPIと画面、計測スクリプト、結果の記録</td></tr>
+      <tr><td>範囲</td><td>既存のシステムWebUIサンプル（<code>prototypes/system-webui/</code>）の画面を、検証結果の表示に流用すること</td></tr>
+      <tr><td>対象外</td><td>実際の現場での運用（MVPで実施）、利用者による操作性の評価（Prototypeで実施）</td></tr>
+      <tr><td>対象外</td><td>本番相当の可用性・負荷・セキュリティ診断（Stagingで実施）</td></tr>
+      <tr><td>対象外</td><td>点群表示、日報のAI下書き、複数現場への展開</td></tr>
+      <tr><td>対象外</td><td>CEOS・ArcSphere・MCIP側の改修（必要な場合は依頼事項として記録する）</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s3">
+  <h2><span class="no">3</span>検証項目</h2>
+  <p>Must＝G1でGoとするために必ず達成する項目、Should＝代替手段があれば条件付きで進める項目です。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>ID</th><th>検証内容</th><th>検証方法</th><th>使うデータ</th><th>成功基準</th><th>区分</th><th>担当ロール</th><th>週</th></tr></thead>
+    <tbody>
+      <tr><td class="id">T1</td><td>重機テレマティクス・位置データの取り込み</td><td>提供元APIまたはCSVから定期取得し、取り込み時刻と発生時刻の差を記録。通信断を再現して欠測時の表示を確認</td><td>提供元の実データ（2台以上）。用意できない場合は同じ形式のダミー</td><td>発生から取り込みまで5分以内（95%）。欠測を「データなし」と表示し、推定値と区別できる</td><td>Must</td><td>開発、アーキテクト</td><td>W2〜W4</td></tr>
+      <tr><td class="id">T2</td><td>CEOSの工程・原価を契約API経由で参照し、EVMを算出</td><td>CEOSの契約APIから計画工程・実行予算・実績原価を取得し、PV・EV・AC・SPI・CPIを計算してCEOSの値と比較</td><td>CEOSの検証用データ（1現場分）</td><td>CEOSの値との誤差0.5%以内。CEOSのDBへ直接接続しない</td><td>Must</td><td>開発、アーキテクト</td><td>W2〜W5</td></tr>
+      <tr><td class="id">T3</td><td>ArcSphereの3Dモデルを参照表示し、部材と工程を紐付け</td><td>ArcSphereからIFCまたは3D Tilesを取得してブラウザに表示。部材IDと工種を対応表で紐付け、進捗で色分け</td><td>ArcSphereの検証用モデル（擁壁を含む道路改良）</td><td>読み込み10秒以内、表示30fps以上（標準的な業務PC）。紐付けた部材が進捗に応じて色分けされる</td><td>Must</td><td>開発</td><td>W3〜W6</td></tr>
+      <tr><td class="id">T4</td><td>リアルタイム配信</td><td>状態変化イベントを配信し、画面に反映されるまでの時間を計測。20人の同時接続を負荷ツールで再現</td><td>ダミーのイベント（T1の形式）</td><td>状態変化から画面反映まで3秒以内（95%）、同時20人で維持</td><td>Must</td><td>開発</td><td>W4〜W6</td></tr>
+      <tr><td class="id">T5</td><td>対策シミュレーション</td><td>サーバー側で4つの対策の全組み合わせ（16通り）を試算し、所要時間と結果の再現性を確認</td><td>T2で取得した工程・原価、サンプルのシナリオ</td><td>16通りの試算を3秒以内。同じ入力から同じ結果が得られる（決定性）</td><td>Must</td><td>開発</td><td>W5〜W6</td></tr>
+      <tr><td class="id">T6</td><td>MCIPへの承認記録</td><td>起案・承認・差戻しをMCIPへ記録。起案者と承認者が同じ場合に拒否されることを確認</td><td>検証用の案件ID</td><td>R3（二者承認）として記録され、職務分掌が守られる。証跡を後から照会できる</td><td>Should</td><td>アーキテクト、開発</td><td>W5〜W7</td></tr>
+      <tr><td class="id">T7</td><td>認証とサーバー側の権限判定</td><td>Entra ID＋Cloudflare Accessでログインし、APIでロール別の権限を判定。画面を経由しない呼び出しも拒否されることを確認</td><td>検証用アカウント（4ロール分）</td><td>権限のない操作がAPIで100%拒否される。拒否は監査ログに残る</td><td>Must</td><td>アーキテクト、情報セキュリティ担当</td><td>W2〜W4</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">T6をShouldとしているのは、MCIPの受け入れ準備がPoC期間に間に合わない可能性があるためです。間に合わない場合は、SiteLive Twin内に同じ形式の承認記録を残し、MVPまでにMCIPへ移す計画を示せれば代替手段とみなします。</p>
+</section>
+
+<section id="s4">
+  <h2><span class="no">4</span>体制</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>ロール</th><th>PoCでの役割</th><th>関わる目安</th></tr></thead>
+    <tbody>
+      <tr><td>プロダクトオーナー</td><td>検証の優先順位付け、G1判定の起案、関係部署との調整</td><td>週1回の定例＋判定</td></tr>
+      <tr><td>アーキテクト</td><td>連携方式の設計（契約API・イベント）、T2・T6・T7の検証、ADRの作成</td><td>専任に近い</td></tr>
+      <tr><td>開発</td><td>検証用APIと画面の実装、計測、結果の記録</td><td>専任（1〜2名）</td></tr>
+      <tr><td>情報セキュリティ担当</td><td>T7の確認、データの取り扱い（実データの持ち出し可否）の判断</td><td>W2・W7に確認</td></tr>
+      <tr><td>現場協力者（パイロット現場）</td><td>テレマティクスの実データ提供の調整、現場で使う値の妥当性確認</td><td>隔週</td></tr>
+      <tr><td>経営層</td><td>G1判定の承認</td><td>判定会議のみ</td></tr>
+      <tr><td>連携先の担当（CEOS・ArcSphere・MCIP）</td><td>検証用データと契約APIの提供、問い合わせ対応</td><td>必要に応じて</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s5">
+  <h2><span class="no">5</span>スケジュール</h2>
+  <p>期間は2026年11月2日〜12月25日の8週間です（案）。最終週に結果をまとめ、12月25日にG1判定を行います。</p>
+  <div class="fig">
+    <svg viewBox="0 0 860 300" role="img" aria-label="PoCの8週間のスケジュール">
+      <g font-size="11" fill="var(--sub)">
+        <text x="150" y="20">W1 11/2</text><text x="235" y="20">W2 11/9</text><text x="320" y="20">W3 11/16</text><text x="405" y="20">W4 11/23</text>
+        <text x="490" y="20">W5 11/30</text><text x="575" y="20">W6 12/7</text><text x="660" y="20">W7 12/14</text><text x="745" y="20">W8 12/21</text>
+      </g>
+      <g stroke="var(--rule)"><line x1="145" y1="28" x2="145" y2="290"/><line x1="230" y1="28" x2="230" y2="290"/><line x1="315" y1="28" x2="315" y2="290"/><line x1="400" y1="28" x2="400" y2="290"/><line x1="485" y1="28" x2="485" y2="290"/><line x1="570" y1="28" x2="570" y2="290"/><line x1="655" y1="28" x2="655" y2="290"/><line x1="740" y1="28" x2="740" y2="290"/><line x1="825" y1="28" x2="825" y2="290"/></g>
+      <g font-size="12" fill="var(--ink)">
+        <text x="10" y="50">準備・環境構築</text><text x="10" y="80">T7 認証・権限</text><text x="10" y="110">T1 テレマティクス</text><text x="10" y="140">T2 CEOS・EVM</text>
+        <text x="10" y="170">T3 ArcSphere 3D</text><text x="10" y="200">T4 リアルタイム配信</text><text x="10" y="230">T5 対策シミュレーション</text><text x="10" y="260">T6 MCIP承認記録</text><text x="10" y="285">まとめ・G1判定</text>
+      </g>
+      <g fill="var(--navy)" opacity=".85">
+        <rect x="147" y="38" width="81" height="16" rx="3"/>
+        <rect x="232" y="68" width="251" height="16" rx="3"/>
+        <rect x="232" y="98" width="251" height="16" rx="3"/>
+        <rect x="232" y="128" width="336" height="16" rx="3"/>
+        <rect x="317" y="158" width="336" height="16" rx="3"/>
+        <rect x="402" y="188" width="251" height="16" rx="3"/>
+        <rect x="487" y="218" width="166" height="16" rx="3"/>
+      </g>
+      <rect x="487" y="248" width="251" height="16" rx="3" fill="var(--navy)" opacity=".45"/>
+      <rect x="657" y="273" width="166" height="16" rx="3" fill="var(--accent)"/>
+      <path d="M823,270 l6,10 l-6,10 l-6,-10 z" fill="var(--accent)"/>
+      <text x="790" y="266" font-size="11" fill="var(--accent)" font-weight="700">G1</text>
+    </svg>
+  </div>
+  <p class="cap">図1　PoCのスケジュール（案）。薄い帯のT6はShould項目</p>
+  <div class="tbl"><table>
+    <thead><tr><th>週</th><th>期間</th><th>主な作業</th><th>確認の場</th></tr></thead>
+    <tbody>
+      <tr><td>W1</td><td>11/2〜11/6</td><td>環境構築、検証データの受け取り、計測方法の確定</td><td>キックオフ</td></tr>
+      <tr><td>W2〜W4</td><td>11/9〜11/27</td><td>T7・T1を完了、T2・T3に着手</td><td>週次定例（中間：11/27）</td></tr>
+      <tr><td>W5〜W6</td><td>11/30〜12/11</td><td>T2〜T5を完了、T6に着手</td><td>週次定例</td></tr>
+      <tr><td>W7</td><td>12/14〜12/18</td><td>T6の完了、再計測、不足分の補完</td><td>週次定例</td></tr>
+      <tr><td>W8</td><td>12/21〜12/25</td><td>結果報告書の作成、G1判定</td><td>G1判定会議（12/25）</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s6">
+  <h2><span class="no">6</span>環境とデータ</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>項目</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td>開発環境</td><td>各開発者のPC（Docker Compose）。PostgreSQL 18、Python 3.13（uv）＋FastAPI、React＋TypeScript＋Vite、Node 24</td></tr>
+      <tr><td>検証環境</td><td>T4・T7の計測用に検証用のstg環境を用意する予定（<span class="fill">（未定：ホスト名と配置先）</span>）。ポートフォリオのstg命名規則に従う</td></tr>
+      <tr><td>データ</td><td>原則はダミー。提供元から実データを受け取れる項目（テレマティクス、CEOS・ArcSphereの検証データ）は実データでも計測する</td></tr>
+      <tr><td>実データの扱い</td><td>持ち出しはPoC環境内に限定し、終了時に削除する。個人を特定できる情報（作業員名など）は受け取らない</td></tr>
+      <tr><td>ソースコード</td><td>リポジトリ <code>SiteLive-Twin</code>。mainへ直接pushせず、PR→CI→人のレビューを経てマージする</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s7">
+  <h2><span class="no">7</span>前提条件と依存</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>依存先</th><th>必要なもの</th><th>必要な時期</th><th>間に合わない場合</th></tr></thead>
+    <tbody>
+      <tr><td>CEOS</td><td>工程・原価の契約API（読み取り）、検証用データ1現場分</td><td>W2開始時</td><td>CEOSと同じ形式のエクスポートで代替し、API接続は結果報告書で残課題とする</td></tr>
+      <tr><td>ArcSphere</td><td>3Dモデル（IFCまたは3D Tiles）の参照API、部材ID</td><td>W3開始時</td><td>同等のIFCファイルを直接読み込んで性能のみ確認する</td></tr>
+      <tr><td>MCIP</td><td>案件ID、承認記録の受け口（R3）</td><td>W5開始時</td><td>T6の代替手段（3章の注記）を適用する</td></tr>
+      <tr><td>テレマティクス提供元</td><td>データ取得の方法（APIまたはCSV）と利用許諾</td><td>W2開始時</td><td>同じ形式のダミーで遅れと欠測を再現する。実データでの確認はMVPの前提条件にする</td></tr>
+      <tr><td>Entra ID・Cloudflare Access</td><td>検証用アプリ登録、4ロール分の検証アカウント</td><td>W2開始時</td><td>T7はMustのため、間に合わない場合はスケジュールを見直す</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">他リポジトリのDBへ直接接続しないこと、AIを使う場合はMCAH経由とすることは、PoCでも守ります（<a href="../adr/0001-repository-and-sor-scope.html">ADR-0001</a>）。</p>
+</section>
+
+<section id="s8">
+  <h2><span class="no">8</span>成果物</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>成果物</th><th>置き場所</th></tr></thead>
+    <tbody>
+      <tr><td>PoC結果報告書・G1 Go/No-Go判定書</td><td><a href="poc-report-gate1.html">docs/10-poc/poc-report-gate1.html</a></td></tr>
+      <tr><td>検証用のソースコード（API・画面・計測スクリプト）</td><td><code>src/</code>、<code>tests/</code></td></tr>
+      <tr><td>連携の契約定義（参照するAPIの型）</td><td><code>contracts/</code></td></tr>
+      <tr><td>計測結果の生データ（CSV）</td><td><code>docs/10-poc/</code> 配下に保存</td></tr>
+      <tr><td>アーキテクチャの決定記録（必要に応じて追加）</td><td><code>docs/adr/</code></td></tr>
+      <tr><td>アーキテクチャ設計書・データ連携設計書の更新</td><td><a href="../02-design/architecture.html">SLT-DOC-21</a>、<a href="../02-design/data-integration.html">SLT-DOC-22</a></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s9">
+  <h2><span class="no">9</span>Go/No-Go判定基準（G1）</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>判定</th><th>条件</th><th>その後</th></tr></thead>
+    <tbody>
+      <tr><td class="y">Go</td><td>Must項目（T1・T2・T3・T4・T5・T7）をすべて達成し、T6も達成または代替手段で記録できている</td><td>Prototype（必要に応じて）またはMVPへ進む</td></tr>
+      <tr><td class="r">条件付きGo</td><td>Must項目のうち未達が1件以内で、期限付きの解決策がある（例：実データでの再計測が依存先の都合で未実施）。T6が未達でもMVPまでの移行計画がある</td><td>条件と期限を判定書に記録して進む。期限までに満たせなければ再判定</td></tr>
+      <tr><td style="color:var(--ng);font-weight:800">No-Go</td><td>Must項目の未達が2件以上、またはT7（権限判定）が未達。もしくは連携先の正本を持たないと成り立たないことが判明した</td><td>中止、または範囲・方式を見直して再PoC（期間と費用を再見積もり）</td></tr>
+    </tbody>
+  </table></div>
+  <p>判定の承認者は経営層です。プロダクトオーナーが起案し、アーキテクトが技術的な結論に責任を持ちます。</p>
+</section>
+
+<section id="s10">
+  <h2><span class="no">10</span>リスクと対策</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>優先</th><th>リスク</th><th>影響</th><th>対策</th></tr></thead>
+    <tbody>
+      <tr><td class="pri-h">高</td><td>テレマティクスの実データが期間内に手に入らない</td><td>T1を実データで確認できない</td><td>W1で提供元と取得方法を確定。ダミーで方式を確認し、実データ確認をMVPの前提条件にする</td></tr>
+      <tr><td class="pri-h">高</td><td>CEOSの契約APIに必要な項目（実績原価の粒度など）がない</td><td>EVMが算出できない</td><td>W2で項目を突き合わせ、不足はCEOSへの依頼事項として記録。正本を複製しない方針は変えない</td></tr>
+      <tr><td class="pri-m">中</td><td>3Dモデルが重く、性能基準を満たさない</td><td>T3が未達</td><td>3D Tilesでの段階表示、表示範囲の絞り込みを比較する</td></tr>
+      <tr><td class="pri-m">中</td><td>MCIPの受け入れ準備が遅れる</td><td>T6が未達</td><td>3章の代替手段で記録し、移行計画を残す</td></tr>
+      <tr><td class="pri-m">中</td><td>検証が膨らみ、8週間で終わらない</td><td>G1が遅れる</td><td>範囲外（2章）を週次定例で確認し、追加の要望は次フェーズの候補として記録する</td></tr>
+      <tr><td class="pri-l">低</td><td>リポジトリ分離の方針（単独製品かArcSphereの一部か）が決まらない</td><td>構成の手戻り</td><td>ADR-0001を提案状態のまま進め、G1でPoC結果を踏まえて確定する</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">全体のリスクは<a href="../00-project/risk-register.html">リスク・課題管理台帳（SLT-DOC-04）</a>で管理します。</p>
+</section>
+
+<footer>SiteLive Twin（現場ライブツイン） ／ PoC計画書 v0.1 ／ 2026年10月21日</footer>
+</main>
+</div>
+</body>
+</html>

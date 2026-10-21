@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SiteLive Twin アーキテクチャ設計書</title>
+<style>
+/* SiteLive Twin 文書テンプレート：左に目次、右に本文。表と図は横スクロール可能な枠に入れる */
+:root{
+  --bg:#f5f6f8; --paper:#ffffff; --ink:#1a2230; --sub:#5a6577; --rule:#d9dee6; --tint:#f0f3f7;
+  --navy:#1b3557; --accent:#c8740a; --accent-soft:#fdf1e1;
+  --ok:#1d8a4c; --warn:#a87800; --ng:#c43d3d; --info:#2a64a8;
+  --sans:"Hiragino Kaku Gothic ProN","Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+  --mono:"BIZ UDGothic","Consolas","Menlo",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+    --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+    --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1319; --paper:#151c25; --ink:#e4e9f0; --sub:#9aa6b7; --rule:#2b3542; --tint:#1b2430;
+  --navy:#9dbbe2; --accent:#f0a447; --accent-soft:#38280f;
+  --ok:#47c07c; --warn:#e2bb3a; --ng:#ee7070; --info:#6fa8ea; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{display:grid;grid-template-columns:240px minmax(0,1fr);max-width:1280px;margin:0 auto;gap:28px;padding:28px 16px 60px}
+@media (max-width:900px){.wrap{grid-template-columns:1fr;gap:0}}
+nav.toc{position:sticky;top:20px;align-self:start;font-size:13px;max-height:calc(100vh - 40px);overflow:auto}
+@media (max-width:900px){nav.toc{position:static;max-height:none;margin-bottom:18px}}
+.toc b{display:block;font-size:11px;letter-spacing:.12em;color:var(--sub);margin-bottom:6px}
+.toc a{display:block;color:var(--ink);text-decoration:none;padding:3px 10px;border-left:2px solid var(--rule)}
+.toc a:hover,.toc a:focus-visible{border-left-color:var(--accent);color:var(--accent);outline:none}
+.toc .home{margin-bottom:12px;border-left:0;padding-left:0;color:var(--info)}
+main{min-width:0}
+.cover{background:var(--paper);border:1px solid var(--rule);border-top:5px solid var(--navy);border-radius:6px;padding:26px 28px 20px;margin-bottom:26px}
+.cover .kind{font-size:12px;letter-spacing:.14em;color:var(--sub);font-weight:700}
+.cover h1{margin:4px 0 14px;font-size:clamp(22px,3.4vw,30px);line-height:1.35;text-wrap:balance;color:var(--navy)}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));border-top:1px solid var(--rule);border-left:1px solid var(--rule);font-size:13px}
+.meta div{padding:7px 12px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.meta span{display:block;font-size:11px;color:var(--sub)}
+section{background:var(--paper);border:1px solid var(--rule);border-radius:6px;padding:22px 26px 18px;margin-bottom:20px;min-width:0}
+h2{font-size:19px;margin:0 0 12px;color:var(--navy);text-wrap:balance;display:flex;gap:10px;align-items:baseline}
+h2 .no{font-family:var(--mono);font-size:14px;color:var(--accent)}
+h3{font-size:15px;margin:20px 0 8px}
+p{margin:0 0 10px;max-width:76ch}
+ul,ol{margin:0 0 10px;padding-left:22px}
+li{margin-bottom:3px}
+.tbl{overflow-x:auto;margin:6px 0 12px;border:1px solid var(--rule);border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:640px}
+th,td{border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);padding:7px 9px;text-align:left;vertical-align:top}
+th:last-child,td:last-child{border-right:0}
+tr:last-child td{border-bottom:0}
+thead th{background:var(--tint);font-size:12px;color:var(--sub);white-space:nowrap}
+td.c,th.c{text-align:center}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+code,.id{font-family:var(--mono);font-size:12.5px}
+.id{color:var(--navy);font-weight:700;white-space:nowrap}
+.y{color:var(--ok);font-weight:800}.n{color:var(--sub)}.r{color:var(--warn);font-weight:700}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:0 7px;border-radius:3px;background:var(--tint);border:1px solid var(--rule);white-space:nowrap;margin:1px 2px 1px 0}
+.tag.a{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.st{display:inline-block;font-size:11px;font-weight:800;padding:0 8px;border-radius:999px;white-space:nowrap;border:1px solid currentColor}
+.st.done{color:var(--ok)}.st.wip{color:var(--accent)}.st.todo{color:var(--sub)}.st.tpl{color:var(--info)}
+.note{font-size:12.5px;color:var(--sub)}
+.callout{border-left:3px solid var(--accent);background:var(--accent-soft);padding:10px 14px;border-radius:0 4px 4px 0;margin:8px 0 12px;font-size:13.5px}
+.fill{background:var(--tint);border:1px dashed var(--rule);border-radius:4px;padding:2px 8px;color:var(--sub);font-size:12.5px}
+.fig{overflow-x:auto;border:1px solid var(--rule);border-radius:4px;background:var(--tint);padding:10px;margin:8px 0 6px}
+.fig svg{display:block;min-width:760px;width:100%;height:auto}
+.fig text{font-family:var(--sans)}
+.cap{font-size:12px;color:var(--sub);margin:0 0 12px}
+.pri-h{color:var(--ng);font-weight:800}.pri-m{color:var(--warn);font-weight:800}.pri-l{color:var(--sub);font-weight:800}.pri-done{color:var(--ok);font-weight:800}
+a{color:var(--info)}
+footer{font-size:12px;color:var(--sub);padding:6px 4px}
+@media (max-width:640px){section{padding:18px 16px 14px}.cover{padding:20px 16px 16px}}
+@media print{nav.toc{display:none}.wrap{display:block;padding:0}section,.cover{break-inside:avoid;border:0}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="toc" aria-label="目次">
+  <a class="home" href="../index.html">← ドキュメント一覧</a>
+  <b>目次</b>
+<a href="#s1">1. 概要</a>
+  <a href="#s2">2. ポートフォリオ上の位置付け</a>
+  <a href="#s3">3. システムコンテキスト</a>
+  <a href="#s4">4. コンポーネント構成</a>
+  <a href="#s5">5. 環境</a>
+  <a href="#s6">6. 権限とセキュリティ</a>
+  <a href="#s7">7. 技術スタック</a>
+  <a href="#s8">8. フェーズごとの構成</a>
+  <a href="#s9">9. 未決事項</a>
+</nav>
+<main>
+<div class="cover">
+  <div class="kind">アーキテクチャ設計書</div>
+  <h1>SiteLive Twin（現場ライブツイン）<br>アーキテクチャ設計書</h1>
+  <div class="meta">
+    <div><span>文書番号</span>SLT-DOC-21</div>
+    <div><span>版</span>v0.1</div>
+    <div><span>作成日</span>2026年10月21日</div>
+    <div><span>フェーズ</span>PoC〜Release（共通）</div>
+    <div><span>状態</span>初版（PoCで検証して更新）</div>
+  </div>
+</div>
+
+<section id="s1">
+  <h2><span class="no">1</span>概要</h2>
+  <p>SiteLive Twin は、他のシステムが持つ3Dモデル・工程・原価・設備データを参照し、現場の「いまの状態」を集約して配信するシステムです。自らが正本として持つデータは最小限に絞り、みらい建設土木DX・AI統合基盤（全体構成 V3.6）の連携ルールに従います。</p>
+  <p class="note">関連文書：<a href="../01-requirements/requirements.html">要件定義書（SLT-DOC-10）</a>、<a href="data-integration.html">データ設計・連携仕様書（SLT-DOC-22）</a>、<a href="../adr/0001-repository-and-sor-scope.html">ADR-0001</a>、<a href="../adr/0002-tech-stack.html">ADR-0002</a></p>
+</section>
+
+<section id="s2">
+  <h2><span class="no">2</span>ポートフォリオ上の位置付け</h2>
+  <p>V3.6 の12リポジトリには、現在 SiteLive Twin は含まれていません。独立リポジトリとして PoC を進め、MVP 終了時（G3）に位置付けを再評価します（<a href="../adr/0001-repository-and-sor-scope.html">ADR-0001</a>）。</p>
+  <div class="tbl"><table>
+    <thead><tr><th>データ・機能</th><th>正本</th><th>SiteLive Twin での扱い</th></tr></thead>
+    <tbody>
+      <tr><td><b>現場ライブ状態の集約ビュー・イベント</b></td><td><span class="tag a">SiteLive Twin</span></td><td>正本として保持・配信する</td></tr>
+      <tr><td><b>対策シミュレーション案（申請）</b></td><td><span class="tag a">SiteLive Twin</span></td><td>正本として保持する。承認の証跡は MCIP に記録する</td></tr>
+      <tr><td>3Dモデル・点群・GIS</td><td>ArcSphere</td><td>参照のみ（IFC／3D Tiles）</td></tr>
+      <tr><td>工程・原価・契約</td><td>CEOS</td><td>参照のみ（契約API）。EVM は参照値から算出する</td></tr>
+      <tr><td>案件ID・承認・証跡</td><td>MCIP</td><td>案件IDで紐付け、承認（R3）の証跡を記録する</td></tr>
+      <tr><td>気象・公開データ</td><td>CODIP</td><td>参照のみ</td></tr>
+      <tr><td>確定版文書（週報の確定版など）</td><td>CDE</td><td>確定版は CDE に保存する</td></tr>
+      <tr><td>重機・入退場・IoT の時系列</td><td>各設備システム／時系列保管領域</td><td>集約値だけを PostgreSQL に持つ</td></tr>
+      <tr><td>AI（日報の下書きなど）</td><td>MCAH</td><td>Tool Gateway・Model Gateway 経由でのみ使う</td></tr>
+      <tr><td>認証</td><td>Entra ID</td><td>Cloudflare Access を経由して利用者を識別する</td></tr>
+    </tbody>
+  </table></div>
+  <h3>範囲が重なる既存製品</h3>
+  <ul>
+    <li><b>Civil-4D-AI-Planner</b>：作業単位の4D施工安全計画。SiteLive Twin は安全イベントの表示にとどめ、安全計画は持ちません。</li>
+    <li><b>Construction-Public-Twin-Portal</b>：住民向けの公開ポータル。利用者が異なるため、データの共有は MCIP・ArcSphere を介して行います。</li>
+  </ul>
+</section>
+
+<section id="s3">
+  <h2><span class="no">3</span>システムコンテキスト</h2>
+  <div class="fig">
+    <svg viewBox="0 0 960 520" role="img" aria-label="システムコンテキスト図">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--navy)"/></marker></defs>
+      <!-- 利用者 -->
+      <rect x="370" y="14" width="220" height="50" rx="8" fill="var(--tint)" stroke="var(--rule)"/>
+      <text x="480" y="36" font-size="13" font-weight="700" text-anchor="middle" fill="var(--ink)">利用者（ブラウザ）</text>
+      <text x="480" y="54" font-size="11" text-anchor="middle" fill="var(--sub)">経営層・現場所長・工務・管理者</text>
+      <!-- 認証 -->
+      <rect x="370" y="96" width="220" height="44" rx="8" fill="var(--paper)" stroke="var(--navy)"/>
+      <text x="480" y="116" font-size="12.5" font-weight="700" text-anchor="middle" fill="var(--ink)">Cloudflare Access</text>
+      <text x="480" y="132" font-size="11" text-anchor="middle" fill="var(--sub)">Entra ID（多要素認証）</text>
+      <!-- 中心 -->
+      <rect x="340" y="196" width="280" height="120" rx="10" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="2"/>
+      <text x="480" y="232" font-size="17" font-weight="800" text-anchor="middle" fill="var(--accent)">SiteLive Twin</text>
+      <text x="480" y="254" font-size="12" text-anchor="middle" fill="var(--ink)">正本：現場ライブ状態の集約・イベント</text>
+      <text x="480" y="272" font-size="12" text-anchor="middle" fill="var(--ink)">正本：対策シミュレーション案（申請）</text>
+      <text x="480" y="296" font-size="11" text-anchor="middle" fill="var(--sub)">Web・API・シミュレーション・取り込み</text>
+      <!-- 左 -->
+      <g font-size="12.5" font-weight="700" fill="var(--ink)">
+        <rect x="20" y="170" width="230" height="52" rx="8" fill="var(--paper)" stroke="var(--navy)"/><text x="34" y="192">ArcSphere</text>
+        <rect x="20" y="242" width="230" height="52" rx="8" fill="var(--paper)" stroke="var(--navy)"/><text x="34" y="264">CEOS</text>
+        <rect x="20" y="314" width="230" height="52" rx="8" fill="var(--paper)" stroke="var(--navy)"/><text x="34" y="336">CODIP</text>
+      </g>
+      <g font-size="11" fill="var(--sub)">
+        <text x="34" y="210">3Dモデル（IFC／3D Tiles）参照</text>
+        <text x="34" y="282">工程・原価・契約 参照（契約API）</text>
+        <text x="34" y="354">気象予報・実況 参照</text>
+      </g>
+      <!-- 右 -->
+      <g font-size="12.5" font-weight="700" fill="var(--ink)">
+        <rect x="710" y="170" width="230" height="52" rx="8" fill="var(--paper)" stroke="var(--navy)"/><text x="724" y="192">MCIP</text>
+        <rect x="710" y="242" width="230" height="52" rx="8" fill="var(--paper)" stroke="var(--navy)"/><text x="724" y="264">MCAH Tool／Model Gateway</text>
+        <rect x="710" y="314" width="230" height="52" rx="8" fill="var(--paper)" stroke="var(--navy)"/><text x="724" y="336">CDE</text>
+      </g>
+      <g font-size="11" fill="var(--sub)">
+        <text x="724" y="210">案件ID・承認（R3）の証跡を記録</text>
+        <text x="724" y="282">日報の下書き（R1）などのAI利用</text>
+        <text x="724" y="354">週報の確定版を保存</text>
+      </g>
+      <!-- 下 -->
+      <rect x="340" y="370" width="280" height="50" rx="8" fill="var(--paper)" stroke="var(--navy)"/>
+      <text x="480" y="391" font-size="12.5" font-weight="700" text-anchor="middle" fill="var(--ink)">MCAH Event &amp; Edge Gateway</text>
+      <text x="480" y="409" font-size="11" text-anchor="middle" fill="var(--sub)">設備データ・工程変更のイベント化</text>
+      <rect x="250" y="456" width="460" height="50" rx="8" fill="var(--tint)" stroke="var(--rule)"/>
+      <text x="480" y="477" font-size="12.5" font-weight="700" text-anchor="middle" fill="var(--ink)">設備システム（正本：時系列）</text>
+      <text x="480" y="495" font-size="11" text-anchor="middle" fill="var(--sub)">重機テレマティクス・入退場・IoTセンサー（気象・騒音・振動）</text>
+      <!-- 矢印 -->
+      <g fill="none" stroke="var(--navy)" stroke-width="1.6" marker-end="url(#ah)">
+        <path d="M480,64 L480,94"/>
+        <path d="M480,140 L480,194"/>
+        <path d="M252,196 L338,226"/>
+        <path d="M252,268 L338,256"/>
+        <path d="M252,340 L338,290"/>
+        <path d="M622,226 L708,196"/>
+        <path d="M622,256 L708,268"/>
+        <path d="M622,290 L708,340"/>
+        <path d="M480,454 L480,422"/>
+        <path d="M480,368 L480,318"/>
+      </g>
+    </svg>
+  </div>
+  <p class="cap">図1　システムコンテキスト（矢印はデータの主な流れ。他リポジトリのDBへは直結しない）</p>
+</section>
+
+<section id="s4">
+  <h2><span class="no">4</span>コンポーネント構成</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>コンポーネント</th><th>役割</th><th>技術</th><th>配置（予定）</th></tr></thead>
+    <tbody>
+      <tr><td><b>web</b></td><td>15画面のUI、3D表示、リアルタイム表示</td><td>React＋TypeScript＋Vite、3D表示ライブラリ（PoCで選定）</td><td><code>src/web/</code></td></tr>
+      <tr><td><b>api</b></td><td>画面向けAPI、サーバー側の権限判定、監査ログの記録、MCIP への証跡記録</td><td>FastAPI（Python 3.13）</td><td><code>src/api/</code></td></tr>
+      <tr><td><b>simulation</b></td><td>工程・原価の予測、対策の組み合わせごとの試算（全16通り）、EVM 計算</td><td>Python（api から呼び出すライブラリ）</td><td><code>src/simulation/</code></td></tr>
+      <tr><td><b>ingestion</b></td><td>重機・入退場・センサーのイベント受信、CEOS・ArcSphere・CODIP の定期参照、集約</td><td>Python ワーカー</td><td><code>src/ingestion/</code></td></tr>
+      <tr><td><b>realtime</b></td><td>状態変化の画面への配信（3秒以内）</td><td>WebSocket または Server-Sent Events（PoC T4 で選定）</td><td>api に同居</td></tr>
+      <tr><td><b>db</b></td><td>現場ライブ状態、イベント、申請、承認済み対策、日報、監査ログ、通知、設定</td><td>PostgreSQL 18</td><td><code>migrations/</code>（自分の schema のみ）</td></tr>
+      <tr><td><b>contracts</b></td><td>連携先との版付き契約（API・イベントの定義）</td><td>OpenAPI・JSON Schema（手編集禁止、生成物）</td><td><code>contracts/</code></td></tr>
+    </tbody>
+  </table></div>
+  <p>シミュレーションの計算ロジックは、構想段階のサンプル（<code>prototypes/offline-demo/</code>）の考え方（タスク係数・重機稼働・EVM）を出発点とし、PoC で実データとの差を確認して作り直します。</p>
+</section>
+
+<section id="s5">
+  <h2><span class="no">5</span>環境</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>環境</th><th>用途</th><th>URL</th><th>データ</th><th>開始</th></tr></thead>
+    <tbody>
+      <tr><td>local</td><td>開発者の手元での開発・単体テスト</td><td><code>localhost</code></td><td>ダミーデータ</td><td>PoC</td></tr>
+      <tr><td>poc</td><td>技術検証（限られた利用者）</td><td><span class="fill">（未定：PoC用URL）</span></td><td>対象現場の実データの一部＋ダミー</td><td>PoC</td></tr>
+      <tr><td>stg</td><td>本番に近い条件での検証、リリース判定</td><td><code>sitelive-stg.mirai-dx-platform.com</code></td><td>本番と同じ形式のデータ（匿名化・複製）</td><td>Staging</td></tr>
+      <tr><td>prod</td><td>正式提供</td><td><span class="fill">（未定：本番URL）</span></td><td>本番データ</td><td>Release</td></tr>
+    </tbody>
+  </table></div>
+  <p>stg は MCDX-ADR-0010 の「家族パターン」に従い、専用の Cloudflare Tunnel／Access、専用の DB、専用の loopback ポートで構成します。</p>
+</section>
+
+<section id="s6">
+  <h2><span class="no">6</span>権限とセキュリティ</h2>
+  <ul>
+    <li><b>認証</b>：Cloudflare Access が Entra ID で利用者を確認し、API は受け取った ID トークンを検証します。ロールは Entra ID のグループから割り当てます。</li>
+    <li><b>認可</b>：すべての API でサーバー側の権限判定を行います。権限は「閲覧」「対策の起案」「承認・差戻し」「日報の作成」「設定の変更・リセット」の5つです（<a href="screen-design.html">画面設計書</a> 6章）。</li>
+    <li><b>職務分掌</b>：承認 API は「起案者と承認者が同じ」場合に拒否します（R3 二者承認）。</li>
+    <li><b>監査</b>：操作はすべて追記のみの監査ログに残し、承認の証跡は MCIP に記録します。</li>
+    <li><b>秘密情報</b>：接続情報や鍵はリポジトリに置かず、環境ごとの秘密情報管理を使います。</li>
+    <li><b>AI</b>：MCAH 経由でのみ使い、プロンプトと応答の記録は MCAH・MCIP の規定に従います。</li>
+    <li><b>サプライチェーン</b>：リリース成果物に SBOM・署名・Attestation を付け、コンテナは digest で固定します。</li>
+  </ul>
+</section>
+
+<section id="s7">
+  <h2><span class="no">7</span>技術スタック</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>区分</th><th>採用</th><th>根拠</th></tr></thead>
+    <tbody>
+      <tr><td>OS</td><td>Ubuntu 26.04 LTS</td><td rowspan="8">OS・アプリケーション選定ベストプラクティス V3.5（<a href="../adr/0002-tech-stack.html">ADR-0002</a>）</td></tr>
+      <tr><td>DB</td><td>PostgreSQL 18</td></tr>
+      <tr><td>バックエンド</td><td>Python 3.13 ＋ uv（uv.lock 必須）、FastAPI</td></tr>
+      <tr><td>フロントエンド</td><td>React ＋ TypeScript ＋ Vite、Node 24 LTS</td></tr>
+      <tr><td>コンテナ</td><td>Docker Compose</td></tr>
+      <tr><td>インフラ定義</td><td>OpenTofu</td></tr>
+      <tr><td>認証</td><td>Entra ID ＋ Cloudflare Access</td></tr>
+      <tr><td>CI</td><td>GitHub Actions（<code>.github/workflows/</code>）</td></tr>
+      <tr><td>3D表示</td><td><span class="fill">（未定：PoC T3 で選定）</span></td><td>IFC と 3D Tiles の表示性能で比較する</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s8">
+  <h2><span class="no">8</span>フェーズごとの構成</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>フェーズ</th><th>構成</th><th>データ</th><th>この段階で確かめること</th></tr></thead>
+    <tbody>
+      <tr><td>構想段階（済）</td><td>単体HTML（オフラインデモ、システムWebUIサンプル）。ブラウザ内のシミュレーションと保存</td><td>すべてダミー</td><td>コンセプトと画面の流れを説明できるか（G0）</td></tr>
+      <tr><td>PoC</td><td>web・api・simulation・ingestion を最小構成で作り、poc 環境で動かす</td><td>対象現場の実データの一部（重機・CEOS・ArcSphere）＋ダミー</td><td>T1〜T7 が技術的に成立するか（G1）</td></tr>
+      <tr><td>Prototype</td><td>PoC の構成に画面を追加。必要に応じて単体HTMLで画面だけ先に試す</td><td>PoC と同じ</td><td>利用者が理解・操作できるか（G2）</td></tr>
+      <tr><td>MVP</td><td>15画面のうち Must の機能。通知・監査ログ・日報。1現場で運用</td><td>1現場の実データ</td><td>本当に使われるか、KPI が改善するか（G3）</td></tr>
+      <tr><td>Staging</td><td>stg 環境。監視・バックアップ・リリース統制を本番と同じにする</td><td>本番と同じ形式（匿名化・複製）</td><td>安全・安定して運用できるか（G4）</td></tr>
+      <tr><td>Release／運用</td><td>prod 環境。複数現場、多段承認</td><td>本番データ</td><td>計測→学習→改善を回せるか（G5 四半期レビュー）</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s9">
+  <h2><span class="no">9</span>未決事項</h2>
+  <ul>
+    <li>独立リポジトリとするか、ArcSphere の現場運用モジュールとするか（<a href="../adr/0001-repository-and-sor-scope.html">ADR-0001</a>、G3 で再評価）</li>
+    <li>GitHub Org（推奨：<code>mirai-construction-dx</code>）と <code>systems.yaml</code> への <code>system_id: sitelive-twin</code> の登録</li>
+    <li>3D表示ライブラリとリアルタイム配信方式（PoC T3・T4 で選定）</li>
+    <li>poc・prod 環境のURLと配置先（オンプレミスかクラウドか）</li>
+  </ul>
+</section>
+
+<footer>SiteLive Twin（現場ライブツイン） ／ アーキテクチャ設計書 v0.1 ／ 2026年10月21日</footer>
+</main>
+</div>
+</body>
+</html>
