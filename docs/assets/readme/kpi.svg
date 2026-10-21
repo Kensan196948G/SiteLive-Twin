@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" width="1200" height="320" role="img" aria-label="MVPで目指す効果：遅れに気づくまで1営業日以内、対策を決めるまで3営業日以内、報告書づくり50%削減、重機の待機10%改善、利用率80%">
+  <defs>
+    <style>
+      text{font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo","Noto Sans JP",sans-serif}
+      .shrink{transform-box:fill-box;transform-origin:left;animation:shrink 6s ease-in-out infinite}
+      .r2{animation-delay:.3s}.r3{animation-delay:.6s}.r4{animation-delay:.9s}
+      .to20{--to:.2}.to30{--to:.3}.to50{--to:.5}.to90{--to:.9}
+      @keyframes shrink{0%,10%{transform:scaleX(1)}45%,90%{transform:scaleX(var(--to))}100%{transform:scaleX(1)}}
+      .tag{opacity:0;animation:tag 6s infinite}
+      .r2.tag{animation-delay:.3s}.r3.tag{animation-delay:.6s}.r4.tag{animation-delay:.9s}
+      @keyframes tag{0%,40%{opacity:0}50%,90%{opacity:1}100%{opacity:0}}
+      .donut{stroke-dasharray:0 302;animation:fill 6s ease-in-out infinite}
+      @keyframes fill{0%,10%{stroke-dasharray:0 302}50%,90%{stroke-dasharray:241.6 302}100%{stroke-dasharray:0 302}}
+    </style>
+  </defs>
+  <rect width="1200" height="320" rx="18" fill="#0f1d31"/>
+  <text x="36" y="42" font-size="18" font-weight="800" fill="#ffffff">📈 MVP（1つの現場）で確かめる効果</text>
+  <g font-size="11" fill="#98a4b6"><rect x="560" y="30" width="14" height="10" fill="#4c6584"/><text x="580" y="39">いま</text><rect x="620" y="30" width="14" height="10" fill="#47c07c"/><text x="640" y="39">目標</text></g>
+
+  <g font-size="14" font-weight="700" fill="#e6ebf2">
+    <text x="36" y="92">🔔 遅れに気づくまで</text>
+    <text x="36" y="152">⚖️ 対策を決めるまで</text>
+    <text x="36" y="212">📝 日報・週報づくり</text>
+    <text x="36" y="272">🚜 重機の待ち時間</text>
+  </g>
+  <!-- いま（うすい） -->
+  <g fill="#4c6584">
+    <rect x="240" y="70" width="460" height="12" rx="6"/><rect x="240" y="130" width="460" height="12" rx="6"/><rect x="240" y="190" width="460" height="12" rx="6"/><rect x="240" y="250" width="460" height="12" rx="6"/>
+  </g>
+  <g font-size="11" fill="#98a4b6"><text x="712" y="81">数日（週報で知る）</text><text x="712" y="141">次の会議まで</text><text x="712" y="201">手作業で集計</text><text x="712" y="261">見えていない</text></g>
+  <!-- 目標（ちぢむ） -->
+  <g fill="#47c07c">
+    <rect class="shrink to20" x="240" y="86" width="460" height="12" rx="6"/>
+    <rect class="shrink r2 to30" x="240" y="146" width="460" height="12" rx="6"/>
+    <rect class="shrink r3 to50" x="240" y="206" width="460" height="12" rx="6"/>
+    <rect class="shrink r4 to90" x="240" y="266" width="460" height="12" rx="6"/>
+  </g>
+  <g font-size="13" font-weight="800" fill="#47c07c">
+    <text class="tag" x="342" y="97">1営業日以内 ⚡</text>
+    <text class="tag r2" x="388" y="157">3営業日以内 ⚡</text>
+    <text class="tag r3" x="480" y="217">50% へらす ✂️</text>
+    <text class="tag r4" x="664" y="277">10% 改善 ⬇</text>
+  </g>
+
+  <!-- 利用率ドーナツ -->
+  <g transform="translate(1010,180)">
+    <circle r="48" fill="none" stroke="#2b3542" stroke-width="16"/>
+    <circle class="donut" r="48" fill="none" stroke="#f0a447" stroke-width="16" transform="rotate(-90)" stroke-linecap="round"/>
+    <text y="8" font-size="24" font-weight="800" fill="#ffffff" text-anchor="middle">80%</text>
+    <text y="-90" font-size="14" font-weight="700" fill="#e6ebf2" text-anchor="middle">👥 使われているか</text>
+    <text y="82" font-size="12" fill="#98a4b6" text-anchor="middle">対象者の80%が</text>
+    <text y="100" font-size="12" fill="#98a4b6" text-anchor="middle">週1回以上つかう</text>
+  </g>
+</svg>

@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 340" width="1200" height="340" role="img" aria-label="擁壁工の遅れに対して、対策を選ぶと完成予測が早まる様子">
+  <defs>
+    <style>
+      text{font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Meiryo","Noto Sans JP",sans-serif}
+      .late{transform-box:fill-box;transform-origin:left;animation:late 9s ease-in-out infinite}
+      @keyframes late{0%{transform:scaleX(.05)}25%{transform:scaleX(1)}100%{transform:scaleX(1)}}
+      .chk{opacity:0;animation:chk 9s infinite}
+      .k2{animation-delay:.9s}
+      @keyframes chk{0%,30%{opacity:0}34%{opacity:1}92%{opacity:1}100%{opacity:0}}
+      .box{animation:box 9s infinite}
+      .x2{animation-delay:.9s}
+      @keyframes box{0%,30%{fill:#16294a;stroke:#4c6584}34%,92%{fill:#1d4d33;stroke:#47c07c}100%{fill:#16294a;stroke:#4c6584}}
+      .fin{animation:fin 9s ease-in-out infinite}
+      @keyframes fin{0%,48%{transform:translateX(0)}62%,92%{transform:translateX(-112px)}100%{transform:translateX(0)}}
+      .finc{animation:finc 9s infinite}
+      @keyframes finc{0%,48%{stroke:#ee7070;fill:#ee7070}62%,92%{stroke:#47c07c;fill:#47c07c}100%{stroke:#ee7070;fill:#ee7070}}
+      .before{animation:bef 9s infinite}
+      @keyframes bef{0%,50%{opacity:1}58%,92%{opacity:0}100%{opacity:1}}
+      .after{opacity:0;animation:aft 9s infinite}
+      @keyframes aft{0%,52%{opacity:0}60%,92%{opacity:1}100%{opacity:0}}
+      .warn{animation:blink 1.4s ease-in-out infinite}
+      @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+    </style>
+  </defs>
+  <rect width="1200" height="340" rx="18" fill="#0f1d31"/>
+
+  <!-- 左：4D工程（ガント） -->
+  <text x="36" y="44" font-size="18" font-weight="800" fill="#ffffff">📅 4D工程：計画と実績のずれ</text>
+  <g font-size="12" fill="#98a4b6" text-anchor="middle"><text x="200" y="76">10月</text><text x="320" y="76">11月</text><text x="440" y="76">12月</text><text x="560" y="76">1月</text></g>
+  <g stroke="#2b3542"><line x1="140" y1="84" x2="140" y2="300"/><line x1="260" y1="84" x2="260" y2="300"/><line x1="380" y1="84" x2="380" y2="300"/><line x1="500" y1="84" x2="500" y2="300"/><line x1="620" y1="84" x2="620" y2="300"/></g>
+  <g font-size="14" font-weight="700" fill="#e6ebf2"><text x="36" y="118">⛏️ 土工</text><text x="36" y="168">🧱 擁壁工</text><text x="36" y="218">💧 排水工</text><text x="36" y="268">🛣️ 舗装工</text></g>
+  <!-- 計画（うすい） -->
+  <g fill="#4c6584" fill-opacity=".55">
+    <rect x="150" y="100" width="130" height="12" rx="3"/><rect x="230" y="150" width="110" height="12" rx="3"/><rect x="330" y="200" width="70" height="12" rx="3"/><rect x="390" y="250" width="50" height="12" rx="3"/>
+  </g>
+  <!-- 実績・予測 -->
+  <rect x="150" y="114" width="138" height="12" rx="3" fill="#47c07c"/>
+  <rect x="230" y="164" width="100" height="12" rx="3" fill="#47c07c"/>
+  <rect class="late" x="330" y="164" width="42" height="12" rx="3" fill="#ee7070"/>
+  <rect x="372" y="214" width="70" height="12" rx="3" fill="#6aa0ef" fill-opacity=".6"/>
+  <rect x="440" y="264" width="56" height="12" rx="3" fill="#6aa0ef" fill-opacity=".6"/>
+  <text class="warn" x="380" y="174" font-size="13" font-weight="800" fill="#ee7070">⚠ 3日遅れ</text>
+  <!-- 完成予測の線 -->
+  <g class="fin">
+    <line class="finc" x1="496" y1="92" x2="496" y2="300" stroke-width="2" stroke-dasharray="5 4"/>
+    <text class="finc" x="496" y="318" font-size="12" font-weight="800" text-anchor="middle" stroke="none">完成予測</text>
+  </g>
+  <g font-size="11" fill="#98a4b6"><rect x="150" y="300" width="14" height="8" fill="#4c6584" fill-opacity=".55"/><text x="170" y="308">計画</text><rect x="210" y="300" width="14" height="8" fill="#47c07c"/><text x="230" y="308">実績</text><rect x="270" y="300" width="14" height="8" fill="#ee7070"/><text x="290" y="308">遅れ</text></g>
+
+  <!-- 右：対策シミュレーション -->
+  <rect x="670" y="24" width="500" height="292" rx="14" fill="#16294a" stroke="#4c6584"/>
+  <text x="692" y="58" font-size="18" font-weight="800" fill="#ffffff">🧮 対策シミュレーション</text>
+  <g font-size="14" fill="#e6ebf2">
+    <rect class="box" x="692" y="78" width="22" height="22" rx="5" stroke-width="2"/><text class="chk" x="696" y="96" font-size="16" fill="#47c07c">✔</text><text x="726" y="95">🚚 ダンプを2台ふやす</text>
+    <rect class="box x2" x="692" y="112" width="22" height="22" rx="5" stroke-width="2"/><text class="chk k2" x="696" y="130" font-size="16" fill="#47c07c">✔</text><text x="726" y="129">👷 擁壁の班を1班ふやす</text>
+    <rect x="692" y="146" width="22" height="22" rx="5" fill="#16294a" stroke="#4c6584" stroke-width="2"/><text x="726" y="163" fill="#98a4b6">📆 土曜日も作業する</text>
+    <rect x="692" y="180" width="22" height="22" rx="5" fill="#16294a" stroke="#4c6584" stroke-width="2"/><text x="726" y="197" fill="#98a4b6">🏭 工場でつくった部材を使う</text>
+  </g>
+  <rect x="692" y="218" width="456" height="80" rx="10" fill="#0f1d31"/>
+  <g class="before">
+    <text x="710" y="248" font-size="13" fill="#98a4b6">完成予測</text>
+    <text x="710" y="282" font-size="26" font-weight="800" fill="#ee7070">12/29 😟</text>
+    <text x="890" y="248" font-size="13" fill="#98a4b6">何もしないと…</text>
+    <text x="890" y="280" font-size="15" font-weight="700" fill="#ee7070">契約の工期に間に合わない</text>
+  </g>
+  <g class="after">
+    <text x="710" y="248" font-size="13" fill="#98a4b6">完成予測</text>
+    <text x="710" y="282" font-size="26" font-weight="800" fill="#47c07c">12/1 😊</text>
+    <text x="890" y="248" font-size="13" fill="#98a4b6">対策の費用 351万円</text>
+    <text x="890" y="280" font-size="15" font-weight="700" fill="#47c07c">→ 起案して承認へ ✅</text>
+  </g>
+</svg>
