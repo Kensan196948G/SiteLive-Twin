@@ -1,0 +1,34 @@
+# SiteLive-Twin の最小 CI（横断是正 段階①）
+#
+# 根拠（2026-11-23 実測）:
+#   languages = HTML 405817 B（他は .svg / .md）
+#   コードは prototypes/system-webui/build_webui.js の 1 ファイルのみ
+#   src/ と tests/(unit, integration, contract) はすべて .gitkeep のみで、
+#   テストもパッケージマニフェスト（package.json 等）も存在しない
+#
+# したがって、実在するコマンドだけで作れる検査は「唯一のコードの構文検査」だけ。
+# テストを足したら step を追加する（job 名 ci は変えない＝必須チェック名を保つ）。
+#
+# この CI の目的は、ruleset が要求する check 名 `ci` を用意することにある。
+# テストが無いことを「テストが通った」と見せないため、検査対象を明示している。
+
+name: ci
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: ci
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: JavaScript 構文検査
+        run: node --check prototypes/system-webui/build_webui.js
